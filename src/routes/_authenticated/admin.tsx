@@ -209,7 +209,7 @@ function OngletEmployes() {
     queryClient.invalidateQueries({ queryKey: ["employes"] });
   }
 
-  async function maj(id: string, valeurs: Record<string, unknown>) {
+  async function maj(id: string, valeurs: { nom?: string; telephone?: string; photo_url?: string; actif?: boolean; voit_ca_global?: boolean }) {
     const { error } = await supabase.from("employes").update(valeurs).eq("id", id);
     if (error) {
       toast.error(error.message);
@@ -377,7 +377,7 @@ function HorairesEmploye({ employeId, salonId }: { employeId: string; salonId: s
     },
   });
 
-  async function maj(jour: number, valeurs: Record<string, unknown>) {
+  async function maj(jour: number, valeurs: { travaille?: boolean; debut?: string; fin?: string }) {
     const existant = horaires.find((h) => h.jour === jour);
     const { error } = existant
       ? await supabase.from("horaires_employe").update(valeurs).eq("id", existant.id)
