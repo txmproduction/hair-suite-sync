@@ -48,7 +48,11 @@ export function EntetePublique({
           {ancrePro ? (
             <a
               href="#pro"
-              className="hidden rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground sm:block"
+              className={`hidden rounded-md px-2.5 py-1.5 text-sm sm:block ${
+                transparent
+                  ? "bg-white/15 text-white backdrop-blur hover:bg-white/25"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
               Je suis un professionnel de beauté
             </a>
@@ -56,12 +60,20 @@ export function EntetePublique({
             <Link
               to="/"
               hash="pro"
-              className="hidden rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground sm:block"
+              className={`hidden rounded-md px-2.5 py-1.5 text-sm sm:block ${
+                transparent
+                  ? "bg-white/15 text-white backdrop-blur hover:bg-white/25"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
               Je suis un professionnel de beauté
             </Link>
           )}
-          <Button asChild variant="outline" size="sm">
+          <Button
+            asChild
+            variant={transparent ? "default" : "outline"}
+            size="sm"
+          >
             <Link to="/auth">
               <UserRound className="mr-1.5 h-4 w-4" />
               Mon compte
@@ -75,12 +87,17 @@ export function EntetePublique({
             key={c.value}
             to="/recherche"
             search={{ categorie: c.value }}
-            className="whitespace-nowrap rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground"
+            className={
+              transparent
+                ? "whitespace-nowrap rounded-full bg-white/15 px-3 py-1 text-xs text-white backdrop-blur"
+                : "whitespace-nowrap rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground"
+            }
           >
             {c.label}
           </Link>
         ))}
       </div>
+
     </header>
   );
 }
