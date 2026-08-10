@@ -1,0 +1,81 @@
+import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { CATEGORIES, type CategorieSalon } from "@/lib/categories";
+
+const CATS = new Set(CATEGORIES.map((c) => c.value as string));
+
+async function verifier(userId: string) {
+  const { estSuperAdmin } = await import("./superadmin.server");
+  if (!(await estSuperAdmin(userId))) throw new Error("Accès réservé aux super-administrateurs.");
+}
+
+export const estSuperAdminFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { estSuperAdmin } = await import("./superadmin.server");
+    return { superAdmin: await estSuperAdmin(context.userId) };
+  });
+
+export const salonsNonReclamesFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await verifier(context.userId);
+    const { listerSalonsNonReclames } = await import("./superadmin.server");
+    return listerSalonsNonReclames();
+  });
+
+export const importerSalonsFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (data: {
+      lignes: {
+        nom: string;
+        adresse?: string;
+        ville?: string;
+        telephone?: string;
+        categorie: string;
+        lien_externe?: string;
+      }[];
+      source?: string;
+    }) => {
+      const lignes = (data.lignes ?? []).map((l, i) => {
+        const nom = String(l.nom ?? "").trim();
+        if (nom.length < 2) throw new Error(`Ligne ${i + 1} : nom manquant.`);
+        const categorie = String(l.categorie ?? "").trim();
+        if (!CATS.has(categorie)) throw new Error(`Ligne ${i + 1} : catégorie « ${categorie} » inconnue.`);
+        return {
+          nom: nom.slice(0, 160),
+          adresse: String(l.adresse ?? "").trim().slice(0, 240),
+          ville: String(l.ville ?? "").trim().slice(0, 120),
+          telephone: String(l.telephone ?? "").trim().slice(0, 40),
+          categorie: categorie as CategorieSalon,
+          lien_externe: String(l.lien_externe ?? "").trim().slice(0, 500) || null,
+        };
+      });
+      if (!lignes.length) throw new Error("Aucune ligne à importer.");
+      if (lignes.length > 500) throw new Error("500 salons maximum par import.");
+      return { lignes, source: String(data.source ?? "import_csv").slice(0, 60) };
+    },
+  )
+  .handler(async ({ data, context }) => {
+    await verifier(context.userId);
+    const { importerSalonsNonReclames } = await import("./superadmin.server");
+    return importerSalonsNonReclames(data.lignes, data.source);
+  });
+
+export const convertirEnClientFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { salonId: string; email: string; nomGerant?: string }) => {
+    const email = String(data.email ?? "").trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Adresse email invalide.");
+    return {
+      salonId: String(data.salonId),
+      email: email.slice(0, 160),
+      nomGerant: String(data.nomGerant ?? "").trim().slice(0, 120),
+    };
+  })
+  .handler(async ({ data, context }) => {
+    await verifier(context.userId);
+    const { convertirEnClient } = await import("./superadmin.server");
+    return convertirEnClient(data);
+  });
