@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { creneauxFn, creerReservationFn, salonPublicFn } from "@/lib/reservation.functions";
+import type { SalonPublicData, JourCreneauxData } from "@/lib/reservation-types";
 import { euro, dateISO, heureFR, JOURS } from "@/lib/hairtrack";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,7 +86,7 @@ function Indisponible() {
 const ETAPES = ["Prestation", "Praticien", "Créneau", "Coordonnées"];
 
 function PageReservation() {
-  const contexte = Route.useLoaderData();
+  const contexte = Route.useLoaderData() as SalonPublicData | null;
   const { slug } = Route.useParams();
   const charger = useServerFn(creneauxFn);
   const reserver = useServerFn(creerReservationFn);
@@ -118,7 +119,7 @@ function PageReservation() {
     return dateISO(d);
   }, [semaine]);
 
-  const { data: jours = [], isFetching } = useQuery({
+  const { data: jours = [] as JourCreneauxData[], isFetching } = useQuery({
     queryKey: ["creneaux", slug, prestationId, employeId, depart],
     enabled: etape === 2 && !!prestationId,
     queryFn: () =>
