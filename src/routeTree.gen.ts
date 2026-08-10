@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as DistribuerRouteImport } from './routes/distribuer'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as RechercheRouteImport } from './routes/recherche'
@@ -42,6 +43,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CgvRoute = CgvRouteImport.update({
+  id: '/cgv',
+  path: '/cgv',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DistribuerRoute = DistribuerRouteImport.update({
@@ -137,6 +143,7 @@ const ApiPublicPaymentsWebhookRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cgv': typeof CgvRoute
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/recherche': typeof RechercheRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cgv': typeof CgvRoute
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/recherche': typeof RechercheRoute
@@ -181,6 +189,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/cgv': typeof CgvRoute
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/recherche': typeof RechercheRoute
@@ -204,6 +213,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/cgv'
     | '/distribuer'
     | '/mentions-legales'
     | '/recherche'
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/cgv'
     | '/distribuer'
     | '/mentions-legales'
     | '/recherche'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/cgv'
     | '/distribuer'
     | '/mentions-legales'
     | '/recherche'
@@ -270,6 +282,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CgvRoute: typeof CgvRoute
   DistribuerRoute: typeof DistribuerRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   RechercheRoute: typeof RechercheRoute
@@ -303,6 +316,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cgv': {
+      id: '/cgv'
+      path: '/cgv'
+      fullPath: '/cgv'
+      preLoaderRoute: typeof CgvRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/distribuer': {
@@ -454,6 +474,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CgvRoute: CgvRoute,
   DistribuerRoute: DistribuerRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
   RechercheRoute: RechercheRoute,
@@ -468,3 +489,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
