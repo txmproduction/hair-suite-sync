@@ -1,0 +1,1 @@
+UPDATE public.salons SET slug = 'txm-barber' WHERE id = 'ea1248b0-c12f-4e24-a034-9679976785ac';
