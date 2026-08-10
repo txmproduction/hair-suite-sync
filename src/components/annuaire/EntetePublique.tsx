@@ -19,12 +19,12 @@ export function EntetePublique({
           : "sticky top-0 z-40 border-b border-border/70 bg-card/95 backdrop-blur"
       }
     >
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
+      <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3 sm:gap-4">
         <Link to="/" className="shrink-0">
           <img
             src={logo}
             alt="HairTrack"
-            className={`h-8 w-auto ${transparent ? "brightness-0 invert" : ""}`}
+            className={`h-7 w-auto sm:h-8 ${transparent ? "brightness-0 invert" : ""}`}
           />
         </Link>
         <nav className="hidden flex-1 items-center gap-1 lg:flex">
@@ -44,29 +44,31 @@ export function EntetePublique({
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
           {ancrePro ? (
             <a
               href="#pro"
-              className={`hidden rounded-md px-2.5 py-1.5 text-sm sm:block ${
+              className={`whitespace-nowrap rounded-md px-2 py-1.5 text-xs sm:px-2.5 sm:text-sm ${
                 transparent
                   ? "bg-white/15 text-white backdrop-blur hover:bg-white/25"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Je suis un professionnel de beauté
+              <span className="sm:hidden">Je suis un pro</span>
+              <span className="hidden sm:inline">Je suis un professionnel de beauté</span>
             </a>
           ) : (
             <Link
               to="/"
               hash="pro"
-              className={`hidden rounded-md px-2.5 py-1.5 text-sm sm:block ${
+              className={`whitespace-nowrap rounded-md px-2 py-1.5 text-xs sm:px-2.5 sm:text-sm ${
                 transparent
                   ? "bg-white/15 text-white backdrop-blur hover:bg-white/25"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Je suis un professionnel de beauté
+              <span className="sm:hidden">Je suis un pro</span>
+              <span className="hidden sm:inline">Je suis un professionnel de beauté</span>
             </Link>
           )}
           <Button
@@ -75,8 +77,8 @@ export function EntetePublique({
             size="sm"
           >
             <Link to="/auth">
-              <UserRound className="mr-1.5 h-4 w-4" />
-              Mon compte
+              <UserRound className="h-4 w-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">Mon compte</span>
             </Link>
           </Button>
         </div>
