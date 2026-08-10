@@ -1,0 +1,1 @@
+ALTER TYPE public.statut_rdv ADD VALUE IF NOT EXISTS 'en_attente_paiement';

@@ -479,7 +479,12 @@ export type Database = {
     Enums: {
       moyen_paiement: "cb" | "especes" | "cheque" | "autre"
       role_employe: "gerant" | "employe"
-      statut_rdv: "a_venir" | "venu" | "no_show" | "annule"
+      statut_rdv:
+        | "a_venir"
+        | "venu"
+        | "no_show"
+        | "annule"
+        | "en_attente_paiement"
       type_acompte: "montant" | "pourcentage"
     }
     CompositeTypes: {
@@ -610,7 +615,13 @@ export const Constants = {
     Enums: {
       moyen_paiement: ["cb", "especes", "cheque", "autre"],
       role_employe: ["gerant", "employe"],
-      statut_rdv: ["a_venir", "venu", "no_show", "annule"],
+      statut_rdv: [
+        "a_venir",
+        "venu",
+        "no_show",
+        "annule",
+        "en_attente_paiement",
+      ],
       type_acompte: ["montant", "pourcentage"],
     },
   },
