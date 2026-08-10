@@ -114,13 +114,13 @@ function Accueil() {
       <EntetePublique ancrePro />
 
       {/* HERO */}
-      <section className="relative isolate overflow-hidden">
+      <section className="relative isolate w-full overflow-hidden">
         <img
           src={hero.url}
           alt="Cliente dans un salon de coiffure"
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-black/30 to-black/55" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/25 to-black/30" />
         <div className="relative mx-auto max-w-4xl px-4 py-16 text-center sm:py-24">
           <h1 className="text-3xl font-semibold text-white drop-shadow-sm sm:text-5xl">
             Réservez en beauté
@@ -141,27 +141,9 @@ function Accueil() {
           Choisissez l'univers qui vous intéresse, on vous montre les salons disponibles autour de
           vous.
         </p>
-        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {CATEGORIES.map((c) => (
-            <Link
-              key={c.value}
-              to="/recherche"
-              search={{ categorie: c.value }}
-              className="card-soft group flex flex-col p-5 transition-shadow hover:shadow-lg"
-            >
-              <span className="text-2xl">{c.emoji}</span>
-              <h3 className="mt-3 text-lg font-semibold">{c.label}</h3>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
-                {c.accroche}
-              </p>
-              <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-gold">
-                Voir les salons
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </span>
-            </Link>
-          ))}
-        </div>
+        <CarouselCategories />
       </section>
+
 
       {/* SALONS A LA UNE */}
       <section className="border-y border-border bg-card/60 py-14">
