@@ -39,7 +39,13 @@ export function AppShell({
     enabled: !!data,
   });
 
-  if (!isLoading && data && !data.employe && pathname !== "/bienvenue") {
+  if (
+    !isLoading &&
+    data &&
+    !data.employe &&
+    pathname !== "/bienvenue" &&
+    pathname !== "/super-admin"
+  ) {
     navigate({ to: "/bienvenue", replace: true });
   }
 
