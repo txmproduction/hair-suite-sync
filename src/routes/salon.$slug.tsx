@@ -1,13 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { MapPin, Phone, Clock } from "lucide-react";
+import { useState } from "react";
+import { MapPin, Phone, Clock, ExternalLink, CalendarOff } from "lucide-react";
 import { EntetePublique } from "@/components/annuaire/EntetePublique";
 import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { Etoiles, NoteSalon } from "@/components/annuaire/Etoiles";
 import { Button } from "@/components/ui/button";
-import { ficheSalonFn } from "@/lib/annuaire.functions";
+import { ficheSalonFn, clicReservationManqueeFn } from "@/lib/annuaire.functions";
 import { labelCategorie } from "@/lib/categories";
 import { euro, JOURS } from "@/lib/hairtrack";
 import type { FicheSalon } from "@/lib/annuaire-types";
+
 
 export const Route = createFileRoute("/salon/$slug")({
   loader: async ({ params }): Promise<FicheSalon> => {
