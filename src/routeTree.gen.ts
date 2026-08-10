@@ -19,6 +19,7 @@ import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedBienvenueRouteImport } from './routes/_authenticated/bienvenue'
 import { Route as AuthenticatedCaisseRouteImport } from './routes/_authenticated/caisse'
 import { Route as AuthenticatedStatistiquesRouteImport } from './routes/_authenticated/statistiques'
+import { Route as AvisTokenRouteImport } from './routes/avis.$token'
 import { Route as ReservationTokenRouteImport } from './routes/reservation.$token'
 import { Route as ReserverSlugRouteImport } from './routes/reserver.$slug'
 import { Route as SalonSlugRouteImport } from './routes/salon.$slug'
@@ -76,6 +77,11 @@ const AuthenticatedStatistiquesRoute =
     path: '/statistiques',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AvisTokenRoute = AvisTokenRouteImport.update({
+  id: '/avis/$token',
+  path: '/avis/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReservationTokenRoute = ReservationTokenRouteImport.update({
   id: '/reservation/$token',
   path: '/reservation/$token',
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/bienvenue': typeof AuthenticatedBienvenueRoute
   '/caisse': typeof AuthenticatedCaisseRoute
   '/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/avis/$token': typeof AvisTokenRoute
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/salon/$slug': typeof SalonSlugRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/bienvenue': typeof AuthenticatedBienvenueRoute
   '/caisse': typeof AuthenticatedCaisseRoute
   '/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/avis/$token': typeof AvisTokenRoute
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/salon/$slug': typeof SalonSlugRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/_authenticated/bienvenue': typeof AuthenticatedBienvenueRoute
   '/_authenticated/caisse': typeof AuthenticatedCaisseRoute
   '/_authenticated/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/avis/$token': typeof AvisTokenRoute
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/salon/$slug': typeof SalonSlugRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
     | '/bienvenue'
     | '/caisse'
     | '/statistiques'
+    | '/avis/$token'
     | '/reservation/$token'
     | '/reserver/$slug'
     | '/salon/$slug'
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/bienvenue'
     | '/caisse'
     | '/statistiques'
+    | '/avis/$token'
     | '/reservation/$token'
     | '/reserver/$slug'
     | '/salon/$slug'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/_authenticated/bienvenue'
     | '/_authenticated/caisse'
     | '/_authenticated/statistiques'
+    | '/avis/$token'
     | '/reservation/$token'
     | '/reserver/$slug'
     | '/salon/$slug'
@@ -224,6 +236,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DistribuerRoute: typeof DistribuerRoute
   RechercheRoute: typeof RechercheRoute
+  AvisTokenRoute: typeof AvisTokenRoute
   ReservationTokenRoute: typeof ReservationTokenRoute
   ReserverSlugRoute: typeof ReserverSlugRoute
   SalonSlugRoute: typeof SalonSlugRoute
@@ -302,6 +315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStatistiquesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/avis/$token': {
+      id: '/avis/$token'
+      path: '/avis/$token'
+      fullPath: '/avis/$token'
+      preLoaderRoute: typeof AvisTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reservation/$token': {
       id: '/reservation/$token'
       path: '/reservation/$token'
@@ -376,6 +396,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DistribuerRoute: DistribuerRoute,
   RechercheRoute: RechercheRoute,
+  AvisTokenRoute: AvisTokenRoute,
   ReservationTokenRoute: ReservationTokenRoute,
   ReserverSlugRoute: ReserverSlugRoute,
   SalonSlugRoute: SalonSlugRoute,
