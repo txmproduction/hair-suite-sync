@@ -7,7 +7,10 @@ import type { ContexteAvis, FicheSalon, SalonCarte } from "@/lib/annuaire-types"
 export type { ContexteAvis, FicheSalon, SalonCarte };
 
 const COLONNES =
-  "id, slug, nom, ville, code_postal, categorie, description, photo_couverture_url, note_moyenne, nb_avis";
+  "id, slug, nom, ville, code_postal, categorie, description, photo_couverture_url, note_moyenne, nb_avis, statut, lien_externe";
+
+// Un salon apparaît dans l'annuaire s'il réserve en ligne, ou s'il s'agit d'une fiche non réclamée.
+const FILTRE_VISIBLE = "reservation_en_ligne.eq.true,statut.eq.non_reclame";
 
 async function prixMinParSalon(ids: string[]) {
   const map = new Map<string, number>();
@@ -36,6 +39,8 @@ type LigneSalon = {
   photo_couverture_url: string | null;
   note_moyenne: number | null;
   nb_avis: number;
+  statut: "reclame" | "non_reclame";
+  lien_externe: string | null;
 };
 
 function versCarte(s: LigneSalon, prixMin: Map<string, number>): SalonCarte {
@@ -50,6 +55,7 @@ function versCarte(s: LigneSalon, prixMin: Map<string, number>): SalonCarte {
     photo_couverture_url: s.photo_couverture_url,
     note_moyenne: s.note_moyenne === null ? null : Number(s.note_moyenne),
     nb_avis: Number(s.nb_avis ?? 0),
+    statut: s.statut,
     prix_min: prixMin.get(s.id) ?? null,
   };
 }
@@ -62,6 +68,7 @@ export async function chargerAnnuaire(): Promise<{
     .from("salons")
     .select(COLONNES)
     .eq("reservation_en_ligne", true)
+    .eq("statut", "reclame")
     .not("slug", "is", null)
     .order("nb_avis", { ascending: false })
     .limit(24);
@@ -86,7 +93,7 @@ export async function rechercherSalons(f: FiltresRecherche): Promise<SalonCarte[
   let requete = supabaseAdmin
     .from("salons")
     .select(COLONNES)
-    .eq("reservation_en_ligne", true)
+    .or(FILTRE_VISIBLE)
     .not("slug", "is", null);
 
   if (f.categorie) requete = requete.eq("categorie", f.categorie as CategorieSalon);
@@ -120,7 +127,7 @@ export async function chargerVilles(): Promise<string[]> {
   const { data } = await supabaseAdmin
     .from("salons")
     .select("ville")
-    .eq("reservation_en_ligne", true)
+    .or(FILTRE_VISIBLE)
     .not("ville", "is", null);
   return [...new Set((data ?? []).map((s) => s.ville as string))].sort((a, b) =>
     a.localeCompare(b, "fr"),
@@ -166,6 +173,7 @@ export async function chargerFicheSalon(slug: string): Promise<FicheSalon | null
       ...versCarte(salon as unknown as LigneSalon, prixMin),
       adresse: salon.adresse,
       telephone: salon.telephone,
+      lien_externe: salon.lien_externe,
     },
     photos: photos ?? [],
     categories: cats ?? [],
@@ -264,7 +272,7 @@ export async function chargerSitemap(): Promise<{
   const { data } = await supabaseAdmin
     .from("salons")
     .select("slug, ville, categorie")
-    .eq("reservation_en_ligne", true)
+    .or(FILTRE_VISIBLE)
     .not("slug", "is", null);
 
   const lignes = data ?? [];
@@ -277,4 +285,76 @@ export async function chargerSitemap(): Promise<{
     salons: lignes.map((s) => ({ slug: s.slug as string })),
     pages: [...paires.values()],
   };
+}
+
+export async function enregistrerClicManque(salonId: string): Promise<{ ok: true }> {
+  const { data: salon } = await supabaseAdmin
+    .from("salons")
+    .select("id, statut")
+    .eq("id", salonId)
+    .maybeSingle();
+  if (!salon || salon.statut !== "non_reclame") throw new Error("Salon introuvable.");
+  await supabaseAdmin.from("clics_reservation_manquee").insert({ salon_id: salon.id });
+  return { ok: true };
+}
+
+export async function infosReprise(slug: string) {
+  const { data } = await supabaseAdmin
+    .from("salons")
+    .select("id, nom, adresse, telephone, ville, statut, slug")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (!data || data.statut !== "non_reclame") return null;
+  return {
+    slug: data.slug as string,
+    nom: data.nom,
+    adresse: data.adresse ?? "",
+    telephone: data.telephone ?? "",
+    ville: data.ville ?? "",
+  };
+}
+
+export async function reprendreFiche(input: {
+  userId: string;
+  email: string | null;
+  slug: string;
+  nomSalon: string;
+  adresse: string;
+  telephone: string;
+  nomGerant: string;
+}) {
+  const { data: salon } = await supabaseAdmin
+    .from("salons")
+    .select("id, statut")
+    .eq("slug", input.slug)
+    .maybeSingle();
+  if (!salon || salon.statut !== "non_reclame")
+    throw new Error("Cette fiche n'est plus disponible à la reprise.");
+
+  const { error } = await supabaseAdmin
+    .from("salons")
+    .update({
+      statut: "reclame",
+      gerant_user_id: input.userId,
+      reservation_en_ligne: true,
+      nom: input.nomSalon,
+      adresse: input.adresse || null,
+      telephone: input.telephone || null,
+    })
+    .eq("id", salon.id);
+  if (error) throw new Error(error.message);
+
+  await supabaseAdmin.from("employes").insert({
+    salon_id: salon.id,
+    user_id: input.userId,
+    nom: input.nomGerant || "Gérant",
+    email: input.email,
+    role: "gerant",
+    voit_ca_global: true,
+  });
+  await supabaseAdmin.from("parametres_salon").insert({ salon_id: salon.id });
+  await supabaseAdmin.from("horaires_salon").insert(
+    Array.from({ length: 7 }, (_, jour) => ({ salon_id: salon.id, jour, ferme: jour === 6 })),
+  );
+  return { ok: true as const, salonId: salon.id };
 }
