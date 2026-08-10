@@ -110,7 +110,7 @@ export async function chargerCreneaux(input: {
     const { data, error } = await supabaseAdmin.rpc("creneaux_disponibles", {
       p_salon: contexte.salon.id,
       p_prestation: input.prestationId,
-      p_employe: input.employeId,
+      p_employe: input.employeId as unknown as string,
       p_date: iso,
     });
     if (error) throw new Error(error.message);
@@ -161,7 +161,7 @@ export async function creerReservationPublique(input: {
   const { data: dispos, error: erreurDispos } = await supabaseAdmin.rpc("creneaux_disponibles", {
     p_salon: contexte.salon.id,
     p_prestation: prestation.id,
-    p_employe: input.employeId,
+    p_employe: input.employeId as unknown as string,
     p_date: jour,
   });
   if (erreurDispos) throw new Error(erreurDispos.message);
