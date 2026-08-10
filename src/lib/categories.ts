@@ -15,6 +15,7 @@ export type InfoCategorie = {
   value: CategorieSalon;
   label: string;
   pluriel: string;
+  plurielNom: string;
   slug: string;
   accroche: string;
   emoji: string;
@@ -28,6 +29,7 @@ export const CATEGORIES: InfoCategorie[] = [
     value: "coiffeur",
     label: "Coiffeur",
     pluriel: "coiffure",
+    plurielNom: "coiffeurs",
     slug: "coiffeur",
     accroche:
       "Envie de changer complètement de tête ou juste de rafraîchir ta coupe ? Trouve un pro qui écoute, conseille et te rend la vie plus simple le matin.",
@@ -42,6 +44,7 @@ export const CATEGORIES: InfoCategorie[] = [
     value: "barbier",
     label: "Barbier",
     pluriel: "barbier",
+    plurielNom: "barbiers",
     slug: "barbier",
     accroche:
       "Barbe taillée au millimètre, dégradé impeccable, serviette chaude : le rendez-vous où l'on prend vraiment le temps de soigner les détails.",
@@ -56,6 +59,7 @@ export const CATEGORIES: InfoCategorie[] = [
     value: "manucure",
     label: "Manucure",
     pluriel: "manucure",
+    plurielNom: "salons de manucure",
     slug: "manucure",
     accroche:
       "Des mains nettes au quotidien ou une pose qui tient des semaines pour un grand jour : choisis la finition qui te ressemble.",
@@ -70,6 +74,7 @@ export const CATEGORIES: InfoCategorie[] = [
     value: "institut_beaute",
     label: "Institut de beauté",
     pluriel: "beauté",
+    plurielNom: "instituts de beauté",
     slug: "institut-beaute",
     accroche:
       "Soin du visage, épilation, teinture des cils… Une heure pour toi, entre de bonnes mains, et on ressort avec une meilleure mine.",
@@ -84,6 +89,7 @@ export const CATEGORIES: InfoCategorie[] = [
     value: "bien_etre",
     label: "Bien-être",
     pluriel: "bien-être",
+    plurielNom: "spas et centres de bien-être",
     slug: "bien-etre",
     accroche:
       "Souffler enfin. Massage, relaxation, chaleur douce : on repart les épaules légères et la tête bien plus claire.",
@@ -98,6 +104,7 @@ export const CATEGORIES: InfoCategorie[] = [
     value: "massage",
     label: "Massage",
     pluriel: "massage",
+    plurielNom: "masseurs",
     slug: "massage",
     accroche:
       "Un vrai moment pour le corps : dénouer les tensions, relâcher le dos, repartir plus léger. Choisissez la technique qui vous convient.",
@@ -112,6 +119,7 @@ export const CATEGORIES: InfoCategorie[] = [
     value: "sophrologue",
     label: "Sophrologue",
     pluriel: "sophrologie",
+    plurielNom: "sophrologues",
     slug: "sophrologue",
     accroche:
       "Apprendre à gérer le stress, mieux dormir, se sentir plus posé au quotidien : la sophrologie, ça se pratique avec un professionnel formé pour ça.",
@@ -126,6 +134,7 @@ export const CATEGORIES: InfoCategorie[] = [
     value: "reflexologue",
     label: "Réflexologue",
     pluriel: "réflexologie",
+    plurielNom: "réflexologues",
     slug: "reflexologue",
     accroche:
       "Une pression au bon endroit peut faire beaucoup de bien. La réflexologie plantaire ou palmaire, c'est un soin doux et précis à la fois.",
@@ -140,6 +149,7 @@ export const CATEGORIES: InfoCategorie[] = [
     value: "hypnotherapeute",
     label: "Hypnothérapeute",
     pluriel: "hypnothérapie",
+    plurielNom: "hypnothérapeutes",
     slug: "hypnotherapeute",
     accroche:
       "Phobies, addictions, confiance en soi : l'hypnothérapie accompagne des sujets précis avec un professionnel formé à cette approche.",
@@ -154,6 +164,7 @@ export const CATEGORIES: InfoCategorie[] = [
     value: "naturopathe",
     label: "Naturopathe",
     pluriel: "naturopathie",
+    plurielNom: "naturopathes",
     slug: "naturopathe",
     accroche:
       "Alimentation, hygiène de vie, équilibre général : un bilan complet avec un naturopathe pour faire le point et ajuster ce qui doit l'être.",
@@ -168,6 +179,7 @@ export const CATEGORIES: InfoCategorie[] = [
     value: "coach_de_vie",
     label: "Coach de vie",
     pluriel: "coaching",
+    plurielNom: "coachs de vie",
     slug: "coach-de-vie",
     accroche:
       "Un cap à trouver, une décision à prendre, une période à traverser : un coach de vie vous aide à y voir plus clair, séance après séance.",

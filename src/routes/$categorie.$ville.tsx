@@ -4,7 +4,14 @@ import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { ResultatsSalons } from "@/routes/recherche";
 import { parSlugCategorie, villeSlug } from "@/lib/categories";
 
-type Contexte = { categorie: string; slug: string; label: string; pluriel: string; ville: string };
+type Contexte = {
+  categorie: string;
+  slug: string;
+  label: string;
+  pluriel: string;
+  plurielNom: string;
+  ville: string;
+};
 
 function resoudre(paramCategorie: string, paramVille: string): Contexte | null {
   const info = parSlugCategorie(paramCategorie);
@@ -13,7 +20,14 @@ function resoudre(paramCategorie: string, paramVille: string): Contexte | null {
     .split("-")
     .map((m) => (m.length > 2 ? m.charAt(0).toUpperCase() + m.slice(1) : m))
     .join("-");
-  return { categorie: info.value, slug: info.slug, label: info.label, pluriel: info.pluriel, ville };
+  return {
+    categorie: info.value,
+    slug: info.slug,
+    label: info.label,
+    pluriel: info.pluriel,
+    plurielNom: info.plurielNom,
+    ville,
+  };
 }
 
 export const Route = createFileRoute("/$categorie/$ville")({
@@ -26,7 +40,7 @@ export const Route = createFileRoute("/$categorie/$ville")({
     const ctx = loaderData as Contexte | undefined;
     if (!ctx) return {};
     const url = `https://hairtrack.fr/${ctx.slug}/${villeSlug(ctx.ville)}`;
-    const titre = `Trouvez votre meilleur ${ctx.label.toLowerCase()} à proximité de ${ctx.ville} sur HairTrack`;
+    const titre = `Trouvez les meilleurs ${ctx.plurielNom} à proximité de ${ctx.ville} | HairTrack`;
     const desc = `${ctx.label} à ${ctx.ville} : comparez les prestations, les prix et les avis, puis réservez votre rendez-vous en ligne en quelques secondes sur HairTrack.`;
     return {
       meta: [
@@ -54,7 +68,7 @@ function PageLocale() {
           categorie={ctx.categorie}
           ville={ctx.ville}
           titre={`${ctx.label} à ${ctx.ville}`}
-          sousTitre={`Les meilleurs salons de ${ctx.pluriel} à ${ctx.ville}, avec réservation en ligne immédiate.`}
+          sousTitre={`Les meilleurs ${ctx.plurielNom} à ${ctx.ville}, avec réservation en ligne immédiate.`}
         />
       </main>
       <PiedPublic />

@@ -1,35 +1,50 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Instagram } from "lucide-react";
-import { CATEGORIES, villeSlug } from "@/lib/categories";
-import { villesFn } from "@/lib/annuaire.functions";
+import { CATEGORIES, parCategorie, villeSlug } from "@/lib/categories";
+import { pagesLocalesFn } from "@/lib/annuaire.functions";
 import logo from "@/assets/logo-light.png";
 
 export function PiedPublic() {
-  const { data: villes } = useQuery({
-    queryKey: ["villes-footer"],
-    queryFn: () => villesFn(),
+  const { data: pages } = useQuery({
+    queryKey: ["pages-locales-footer"],
+    queryFn: () => pagesLocalesFn(),
     staleTime: 5 * 60 * 1000,
   });
-  const villesAffichees = (villes ?? []).slice(0, 6);
+
+  // On ne liste que les couples métier/ville qui ont réellement au moins un salon,
+  // pour éviter de créer des pages vides mal vues par les moteurs de recherche.
+  const parMetier = new Map<string, string[]>();
+  for (const p of pages ?? []) {
+    const villes = parMetier.get(p.categorie) ?? [];
+    if (!villes.includes(p.ville)) villes.push(p.ville);
+    parMetier.set(p.categorie, villes);
+  }
+  const blocs = CATEGORIES.map((c) => ({
+    categorie: c,
+    villes: (parMetier.get(c.value) ?? []).sort((a, b) => a.localeCompare(b, "fr")).slice(0, 9),
+  })).filter((b) => b.villes.length > 0);
 
   return (
     <footer className="border-t border-border bg-card">
-      {villesAffichees.length > 0 && (
+      {blocs.length > 0 && (
         <div className="mx-auto max-w-6xl px-4 pt-10">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {CATEGORIES.map((c) => (
-              <div key={c.value}>
-                <h3 className="text-sm font-semibold">{c.label}</h3>
+            {blocs.map(({ categorie, villes }) => (
+              <div key={categorie.value}>
+                <h3 className="text-sm font-semibold">{categorie.label}</h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Nos {c.pluriel === c.label.toLowerCase() ? c.pluriel : `${c.label.toLowerCase()}s`} populaires
+                  Nos {categorie.plurielNom} populaires
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-muted-foreground sm:grid-cols-3">
-                  {villesAffichees.map((v) => (
+                  {villes.map((v) => (
                     <Link
                       key={v}
                       to="/$categorie/$ville"
-                      params={{ categorie: c.slug, ville: villeSlug(v) }}
+                      params={{
+                        categorie: parCategorie(categorie.value)?.slug ?? categorie.slug,
+                        ville: villeSlug(v),
+                      }}
                       className="truncate hover:text-foreground"
                     >
                       {v}

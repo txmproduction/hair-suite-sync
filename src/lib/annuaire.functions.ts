@@ -81,6 +81,12 @@ export const sitemapFn = createServerFn({ method: "GET" }).handler(async () => {
   return chargerSitemap();
 });
 
+export const pagesLocalesFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { chargerSitemap } = await import("./annuaire.server");
+  const { pages } = await chargerSitemap();
+  return pages;
+});
+
 export const clicReservationManqueeFn = createServerFn({ method: "POST" })
   .inputValidator((data: { salonId: string }) => ({ salonId: String(data.salonId).slice(0, 60) }))
   .handler(async ({ data }) => {
