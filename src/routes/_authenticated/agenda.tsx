@@ -238,7 +238,16 @@ function Agenda() {
                   {rdvDeColonne(col).map((r) => {
                     const d = new Date(r.debut);
                     const top = ((d.getHours() * 60 + d.getMinutes() - minH * 60) / 15) * ROW;
-                    const couleur = r.prestations?.couleur ?? "#C9A227";
+                    // En vue jour, une colonne = un collaborateur : sa couleur
+                    // distingue les intervenants d'un coup d'œil. En vue semaine,
+                    // c'est un seul collaborateur, la couleur de prestation
+                    // renseigne davantage.
+                    const couleur =
+                      (vue === "jour"
+                        ? employes.find((e) => e.id === r.employe_id)?.couleur
+                        : r.prestations?.couleur) ??
+                      r.prestations?.couleur ??
+                      "#C9A227";
                     return (
                       <button
                         key={r.id}
