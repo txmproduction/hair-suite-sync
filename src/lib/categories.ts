@@ -110,7 +110,7 @@ export const CATEGORIES: InfoCategorie[] = [
       "Un vrai moment pour le corps : dénouer les tensions, relâcher le dos, repartir plus léger. Choisissez la technique qui vous convient.",
     emoji: "💆",
     photo:
-      "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786331256/pexels-cristian-rojas-7947825_qbpdxg.jpg",
+      "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786359685/pexels-andrea-prochilo-3062027-31234759_eoydvv.jpg",
     detail:
       "Massage relaxant, massage sportif, californien, deep tissue : chaque praticien a ses spécialités et ses durées de séance. Vous voyez tout avant de réserver, vous choisissez le créneau qui vous convient et vous êtes attendu à l'heure dite.",
     visibleNav: false,
@@ -125,7 +125,7 @@ export const CATEGORIES: InfoCategorie[] = [
       "Apprendre à gérer le stress, mieux dormir, se sentir plus posé au quotidien : la sophrologie, ça se pratique avec un professionnel formé pour ça.",
     emoji: "🧘",
     photo:
-      "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786331256/pexels-cristian-rojas-7947825_qbpdxg.jpg",
+      "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786359690/pexels-shvets-production-7176033_y9ctqk.jpg",
     detail:
       "Séance individuelle ou suivi sur plusieurs semaines, gestion du stress, préparation à un événement, sommeil : les sophrologues référencés sur HairTrack affichent leurs spécialités et leurs disponibilités. Vous réservez directement le créneau qui vous arrange.",
     visibleNav: false,
@@ -140,7 +140,7 @@ export const CATEGORIES: InfoCategorie[] = [
       "Une pression au bon endroit peut faire beaucoup de bien. La réflexologie plantaire ou palmaire, c'est un soin doux et précis à la fois.",
     emoji: "🦶",
     photo:
-      "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786331256/pexels-cristian-rojas-7947825_qbpdxg.jpg",
+      "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786359689/pexels-anete-lusina-5240642_sryb6s.jpg",
     detail:
       "Réflexologie plantaire, palmaire ou faciale : chaque séance cible des zones précises pour soulager tensions et fatigue. Les praticiens référencés indiquent la durée et le prix de chaque type de séance, vous réservez en ligne sans détour.",
     visibleNav: false,
@@ -155,7 +155,7 @@ export const CATEGORIES: InfoCategorie[] = [
       "Phobies, addictions, confiance en soi : l'hypnothérapie accompagne des sujets précis avec un professionnel formé à cette approche.",
     emoji: "🌀",
     photo:
-      "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786331257/pexels-mir-fialkova-2156588206-37000478_j88xq1.jpg",
+      "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786359689/pexels-pramodtiwari-14483467_o0hppb.jpg",
     detail:
       "Une ou plusieurs séances selon l'objectif visé, en cabinet : les hypnothérapeutes référencés sur HairTrack précisent leur approche et leurs disponibilités. Vous réservez le créneau qui vous convient, en toute discrétion.",
     visibleNav: false,
@@ -170,7 +170,7 @@ export const CATEGORIES: InfoCategorie[] = [
       "Alimentation, hygiène de vie, équilibre général : un bilan complet avec un naturopathe pour faire le point et ajuster ce qui doit l'être.",
     emoji: "🌱",
     photo:
-      "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786331257/pexels-mir-fialkova-2156588206-37000478_j88xq1.jpg",
+      "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786359692/pexels-tara-winstead-6694188_ma7akj.jpg",
     detail:
       "Bilan de vitalité, conseils personnalisés, suivi dans la durée : chaque naturopathe construit son propre accompagnement. La durée et le tarif de la première consultation sont indiqués avant réservation.",
     visibleNav: false,
@@ -185,7 +185,7 @@ export const CATEGORIES: InfoCategorie[] = [
       "Un cap à trouver, une décision à prendre, une période à traverser : un coach de vie vous aide à y voir plus clair, séance après séance.",
     emoji: "🧭",
     photo:
-      "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786331257/pexels-mir-fialkova-2156588206-37000478_j88xq1.jpg",
+      "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786359695/pexels-han-798356342-30234378_lbi0oi.jpg",
     detail:
       "Séance ponctuelle ou accompagnement sur plusieurs mois, en cabinet ou à distance : chaque coach précise sa méthode. Vous réservez votre premier échange directement en ligne.",
     visibleNav: false,
