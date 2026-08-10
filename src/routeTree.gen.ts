@@ -17,6 +17,7 @@ import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedBienvenueRouteImport } from './routes/_authenticated/bienvenue'
 import { Route as AuthenticatedCaisseRouteImport } from './routes/_authenticated/caisse'
 import { Route as AuthenticatedStatistiquesRouteImport } from './routes/_authenticated/statistiques'
+import { Route as ReservationTokenRouteImport } from './routes/reservation.$token'
 import { Route as ReserverSlugRouteImport } from './routes/reserver.$slug'
 import { Route as AuthenticatedClientsIndexRouteImport } from './routes/_authenticated/clients.index'
 import { Route as AuthenticatedClientsClientIdRouteImport } from './routes/_authenticated/clients.$clientId'
@@ -61,6 +62,11 @@ const AuthenticatedStatistiquesRoute =
     path: '/statistiques',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ReservationTokenRoute = ReservationTokenRouteImport.update({
+  id: '/reservation/$token',
+  path: '/reservation/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReserverSlugRoute = ReserverSlugRouteImport.update({
   id: '/reserver/$slug',
   path: '/reserver/$slug',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/bienvenue': typeof AuthenticatedBienvenueRoute
   '/caisse': typeof AuthenticatedCaisseRoute
   '/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/clients/': typeof AuthenticatedClientsIndexRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/bienvenue': typeof AuthenticatedBienvenueRoute
   '/caisse': typeof AuthenticatedCaisseRoute
   '/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/clients': typeof AuthenticatedClientsIndexRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/_authenticated/bienvenue': typeof AuthenticatedBienvenueRoute
   '/_authenticated/caisse': typeof AuthenticatedCaisseRoute
   '/_authenticated/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/_authenticated/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/_authenticated/clients/': typeof AuthenticatedClientsIndexRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/bienvenue'
     | '/caisse'
     | '/statistiques'
+    | '/reservation/$token'
     | '/reserver/$slug'
     | '/clients/$clientId'
     | '/clients/'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/bienvenue'
     | '/caisse'
     | '/statistiques'
+    | '/reservation/$token'
     | '/reserver/$slug'
     | '/clients/$clientId'
     | '/clients'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/_authenticated/bienvenue'
     | '/_authenticated/caisse'
     | '/_authenticated/statistiques'
+    | '/reservation/$token'
     | '/reserver/$slug'
     | '/_authenticated/clients/$clientId'
     | '/_authenticated/clients/'
@@ -161,6 +173,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ReservationTokenRoute: typeof ReservationTokenRoute
   ReserverSlugRoute: typeof ReserverSlugRoute
 }
 
@@ -222,6 +235,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStatistiquesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/reservation/$token': {
+      id: '/reservation/$token'
+      path: '/reservation/$token'
+      fullPath: '/reservation/$token'
+      preLoaderRoute: typeof ReservationTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reserver/$slug': {
       id: '/reserver/$slug'
       path: '/reserver/$slug'
@@ -273,6 +293,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ReservationTokenRoute: ReservationTokenRoute,
   ReserverSlugRoute: ReserverSlugRoute,
 }
 export const routeTree = rootRouteImport
