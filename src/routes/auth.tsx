@@ -8,9 +8,10 @@ import { toast } from "sonner";
 import logo from "@/assets/logo-light.png";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    reprise: typeof search["reprise"] === "string" ? (search["reprise"] as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>) => {
+    const reprise = typeof search["reprise"] === "string" ? (search["reprise"] as string) : undefined;
+    return reprise ? { reprise } : {};
+  },
   head: () => ({
     meta: [
       { title: "Connexion — HairTrack" },

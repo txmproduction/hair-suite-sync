@@ -14,9 +14,10 @@ import { reprendreFicheFn } from "@/lib/reprise.functions";
 import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/bienvenue")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    reprise: typeof search["reprise"] === "string" ? (search["reprise"] as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>) => {
+    const reprise = typeof search["reprise"] === "string" ? (search["reprise"] as string) : undefined;
+    return reprise ? { reprise } : {};
+  },
   component: Bienvenue,
 });
 

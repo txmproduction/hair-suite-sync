@@ -32,6 +32,7 @@ export type LigneImport = {
   lien_externe: string | null;
   note_google?: number | null;
   nb_avis_google?: number | null;
+  photo_couverture_url?: string | null;
 };
 
 export async function importerSalonsNonReclames(lignes: LigneImport[], source: string) {
@@ -60,6 +61,7 @@ export async function importerSalonsNonReclames(lignes: LigneImport[], source: s
       lien_externe: l.lien_externe,
       note_google: l.note_google ?? null,
       nb_avis_google: l.nb_avis_google ?? null,
+      photo_couverture_url: l.photo_couverture_url ?? null,
       source,
       slug,
       statut: "non_reclame",
