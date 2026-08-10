@@ -259,11 +259,20 @@ function Agenda() {
                         <span className="block truncate text-muted-foreground">
                           {r.prestations?.nom}
                         </span>
-                        {r.statut !== "a_venir" && (
-                          <span className="block truncate text-[10px] uppercase text-muted-foreground">
-                            {STATUTS.find((s) => s.value === r.statut)?.label}
-                          </span>
-                        )}
+                        <span className="flex flex-wrap items-center gap-1">
+                          {r.origine === "en_ligne" && (
+                            <span className="rounded-full bg-gold-soft px-1.5 text-[10px] font-medium text-gold-foreground">
+                              En ligne
+                            </span>
+                          )}
+                          {r.statut !== "a_venir" && (
+                            <span className="truncate text-[10px] uppercase text-muted-foreground">
+                              {STATUTS.find((s) => s.value === r.statut)?.label ??
+                                (r.statut === "en_attente_paiement" ? "Attente paiement" : r.statut)}
+                            </span>
+                          )}
+                        </span>
+
                       </button>
                     );
                   })}
