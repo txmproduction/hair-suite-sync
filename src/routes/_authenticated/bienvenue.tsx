@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/bienvenue")({
   validateSearch: (search: Record<string, unknown>) => ({
-    reprise: typeof search.reprise === "string" ? search.reprise : undefined,
+    reprise: typeof search["reprise"] === "string" ? (search["reprise"] as string) : undefined,
   }),
   component: Bienvenue,
 });
