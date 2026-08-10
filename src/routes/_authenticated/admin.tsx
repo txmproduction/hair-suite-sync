@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { ArrowDown, ArrowUp, Copy, Pencil, Plus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  component: Admin;
+  component: Admin,
 });
 
 function Admin() {
