@@ -783,44 +783,163 @@ function OngletReservation() {
   }
 
   return (
-    <div className="card-soft space-y-4 p-5">
-      <h2 className="font-semibold">Paramètres de réservation</h2>
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="space-y-2">
-          <Label>Type d'acompte</Label>
-          <Select value={type} onValueChange={(v) => setType(v as "montant" | "pourcentage")}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pourcentage">Pourcentage</SelectItem>
-              <SelectItem value="montant">Montant fixe</SelectItem>
-            </SelectContent>
-          </Select>
+    <div className="space-y-4">
+      <SectionEnLigne />
+      <div className="card-soft space-y-4 p-5">
+        <h2 className="font-semibold">Paramètres de réservation</h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2">
+            <Label>Type d'acompte</Label>
+            <Select value={type} onValueChange={(v) => setType(v as "montant" | "pourcentage")}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pourcentage">Pourcentage</SelectItem>
+                <SelectItem value="montant">Montant fixe</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="r-val">{type === "pourcentage" ? "Acompte (%)" : "Acompte (€)"}</Label>
+            <Input
+              id="r-val"
+              type="number"
+              min={0}
+              step={type === "pourcentage" ? 1 : 0.5}
+              value={valeur}
+              onChange={(e) => setValeur(Number(e.target.value))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="r-delai">Annulation gratuite (heures)</Label>
+            <Input
+              id="r-delai"
+              type="number"
+              min={0}
+              value={delai}
+              onChange={(e) => setDelai(Number(e.target.value))}
+            />
+          </div>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="r-val">{type === "pourcentage" ? "Acompte (%)" : "Acompte (€)"}</Label>
-          <Input
-            id="r-val"
-            type="number"
-            min={0}
-            step={type === "pourcentage" ? 1 : 0.5}
-            value={valeur}
-            onChange={(e) => setValeur(Number(e.target.value))}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="r-delai">Annulation gratuite (heures)</Label>
-          <Input
-            id="r-delai"
-            type="number"
-            min={0}
-            value={delai}
-            onChange={(e) => setDelai(Number(e.target.value))}
-          />
-        </div>
+        <Button onClick={enregistrer}>Enregistrer</Button>
       </div>
-      <Button onClick={enregistrer}>Enregistrer</Button>
     </div>
   );
 }
+
+/* ---------------- Réservation en ligne ---------------- */
+
+function SectionEnLigne() {
+  const { data: ctx } = useContexte();
+  const queryClient = useQueryClient();
+  const salon = ctx?.salon;
+  const [slug, setSlug] = useState("");
+  const [actif, setActif] = useState(true);
+
+  useEffect(() => {
+    if (salon) {
+      setSlug(salon.slug ?? "");
+      setActif(salon.reservation_en_ligne);
+    }
+  }, [salon]);
+
+  const lien =
+    typeof window !== "undefined" && slug ? `${window.location.origin}/reserver/${slug}` : "";
+
+  async function enregistrerSlug() {
+    if (!salon) return;
+    const propre = slug
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+    if (propre.length < 3) {
+      toast.error("L'adresse doit contenir au moins 3 caractères.");
+      return;
+    }
+    const { error } = await supabase.from("salons").update({ slug: propre }).eq("id", salon.id);
+    if (error) {
+      toast.error(
+        error.code === "23505" ? "Cette adresse est déjà utilisée." : error.message,
+      );
+      return;
+    }
+    setSlug(propre);
+    toast.success("Adresse de réservation enregistrée");
+    queryClient.invalidateQueries();
+  }
+
+  async function basculer(v: boolean) {
+    if (!salon) return;
+    setActif(v);
+    const { error } = await supabase
+      .from("salons")
+      .update({ reservation_en_ligne: v })
+      .eq("id", salon.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    queryClient.invalidateQueries();
+  }
+
+  return (
+    <div className="card-soft space-y-4 p-5">
+      <h2 className="font-semibold">Réservation en ligne</h2>
+
+      <div className="flex items-center gap-3">
+        <Switch checked={actif} onCheckedChange={basculer} aria-label="Réservation en ligne" />
+        <span className="text-sm">
+          {actif ? "Page de réservation active" : "Réservation en ligne désactivée"}
+        </span>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
+        <div className="space-y-2">
+          <Label htmlFor="r-slug">Adresse de ma page</Label>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">/reserver/</span>
+            <Input id="r-slug" value={slug} onChange={(e) => setSlug(e.target.value)} />
+          </div>
+        </div>
+        <div className="flex items-end">
+          <Button onClick={enregistrerSlug}>Enregistrer l'adresse</Button>
+        </div>
+      </div>
+
+      {slug && (
+        <div className="flex flex-wrap items-center gap-2">
+          <code className="rounded-md bg-secondary px-3 py-2 text-xs">{lien}</code>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              navigator.clipboard.writeText(lien);
+              toast.success("Lien copié");
+            }}
+          >
+            <Copy className="mr-1 h-4 w-4" /> Copier
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a href={`/reserver/${slug}`} target="_blank" rel="noreferrer">
+              Voir ma page
+            </a>
+          </Button>
+        </div>
+      )}
+
+      <p className="text-xs text-muted-foreground">
+        Configuration actuelle : acompte{" "}
+        {ctx?.parametres && Number(ctx.parametres.acompte_valeur) > 0
+          ? ctx.parametres.acompte_type === "pourcentage"
+            ? `${Number(ctx.parametres.acompte_valeur)} % du prix`
+            : euro(Number(ctx.parametres.acompte_valeur))
+          : "désactivé (confirmation immédiate)"}{" "}
+        · annulation gratuite jusqu'à {ctx?.parametres?.delai_annulation_h ?? 24} h avant le rendez-vous.
+      </p>
+    </div>
+  );
+}
+
