@@ -101,17 +101,13 @@ function PageReservation() {
   const [email, setEmail] = useState("");
   const [envoi, setEnvoi] = useState(false);
 
-  if (!contexte) return <Indisponible />;
-
-  const prestation = contexte.prestations.find((p) => p.id === prestationId) ?? null;
+  const prestation = contexte?.prestations.find((p) => p.id === prestationId) ?? null;
   const acompte = useMemo(() => {
-    if (!prestation || !contexte.acompte.valeur) return 0;
-    const m =
-      contexte.acompte.type === "pourcentage"
-        ? (prestation.prix * contexte.acompte.valeur) / 100
-        : contexte.acompte.valeur;
+    const cfg = contexte?.acompte;
+    if (!prestation || !cfg?.valeur) return 0;
+    const m = cfg.type === "pourcentage" ? (prestation.prix * cfg.valeur) / 100 : cfg.valeur;
     return Math.min(Math.round(m * 100) / 100, prestation.prix);
-  }, [prestation, contexte.acompte]);
+  }, [prestation, contexte?.acompte]);
 
   const depart = useMemo(() => {
     const d = new Date();
@@ -127,6 +123,8 @@ function PageReservation() {
         data: { slug, prestationId: prestationId!, employeId, depart, jours: 7 },
       }),
   });
+
+  if (!contexte) return <Indisponible />;
 
   async function valider() {
     if (!prestation || !creneau) return;
