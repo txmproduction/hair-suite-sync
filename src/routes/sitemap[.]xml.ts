@@ -4,7 +4,7 @@ import { slugVille } from "@/lib/categories";
 
 const BASE = "https://hairtrack.fr";
 
-export const Route = createFileRoute("/sitemap[.]xml")({
+export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {

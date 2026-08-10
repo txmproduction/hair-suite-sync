@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DistribuerRouteImport } from './routes/distribuer'
 import { Route as RechercheRouteImport } from './routes/recherche'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedBienvenueRouteImport } from './routes/_authenticated/bienvenue'
@@ -49,6 +50,11 @@ const DistribuerRoute = DistribuerRouteImport.update({
 const RechercheRoute = RechercheRouteImport.update({
   id: '/recherche',
   path: '/recherche',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/distribuer': typeof DistribuerRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/bienvenue': typeof AuthenticatedBienvenueRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/distribuer': typeof DistribuerRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/bienvenue': typeof AuthenticatedBienvenueRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/distribuer': typeof DistribuerRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/bienvenue': typeof AuthenticatedBienvenueRoute
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/distribuer'
     | '/recherche'
+    | '/sitemap.xml'
     | '/admin'
     | '/agenda'
     | '/bienvenue'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/distribuer'
     | '/recherche'
+    | '/sitemap.xml'
     | '/admin'
     | '/agenda'
     | '/bienvenue'
@@ -216,6 +227,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/distribuer'
     | '/recherche'
+    | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/_authenticated/agenda'
     | '/_authenticated/bienvenue'
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DistribuerRoute: typeof DistribuerRoute
   RechercheRoute: typeof RechercheRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AvisTokenRoute: typeof AvisTokenRoute
   ReservationTokenRoute: typeof ReservationTokenRoute
   ReserverSlugRoute: typeof ReserverSlugRoute
@@ -278,6 +291,13 @@ declare module '@tanstack/react-router' {
       path: '/recherche'
       fullPath: '/recherche'
       preLoaderRoute: typeof RechercheRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -396,6 +416,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DistribuerRoute: DistribuerRoute,
   RechercheRoute: RechercheRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   AvisTokenRoute: AvisTokenRoute,
   ReservationTokenRoute: ReservationTokenRoute,
   ReserverSlugRoute: ReserverSlugRoute,
