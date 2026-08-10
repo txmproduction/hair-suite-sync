@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DistribuerRouteImport } from './routes/distribuer'
+import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as CategorieVilleRouteImport } from './routes/$categorie.$ville'
@@ -46,6 +47,11 @@ const AuthRoute = AuthRouteImport.update({
 const DistribuerRoute = DistribuerRouteImport.update({
   id: '/distribuer',
   path: '/distribuer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
+  id: '/mentions-legales',
+  path: '/mentions-legales',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RechercheRoute = RechercheRouteImport.update({
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/distribuer': typeof DistribuerRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/recherche': typeof RechercheRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$categorie/$ville': typeof CategorieVilleRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/distribuer': typeof DistribuerRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/recherche': typeof RechercheRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$categorie/$ville': typeof CategorieVilleRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/distribuer': typeof DistribuerRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/recherche': typeof RechercheRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$categorie/$ville': typeof CategorieVilleRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/distribuer'
+    | '/mentions-legales'
     | '/recherche'
     | '/sitemap.xml'
     | '/$categorie/$ville'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/distribuer'
+    | '/mentions-legales'
     | '/recherche'
     | '/sitemap.xml'
     | '/$categorie/$ville'
@@ -237,6 +248,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/distribuer'
+    | '/mentions-legales'
     | '/recherche'
     | '/sitemap.xml'
     | '/$categorie/$ville'
@@ -259,6 +271,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   DistribuerRoute: typeof DistribuerRoute
+  MentionsLegalesRoute: typeof MentionsLegalesRoute
   RechercheRoute: typeof RechercheRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CategorieVilleRoute: typeof CategorieVilleRoute
@@ -297,6 +310,13 @@ declare module '@tanstack/react-router' {
       path: '/distribuer'
       fullPath: '/distribuer'
       preLoaderRoute: typeof DistribuerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentions-legales': {
+      id: '/mentions-legales'
+      path: '/mentions-legales'
+      fullPath: '/mentions-legales'
+      preLoaderRoute: typeof MentionsLegalesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recherche': {
@@ -435,6 +455,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   DistribuerRoute: DistribuerRoute,
+  MentionsLegalesRoute: MentionsLegalesRoute,
   RechercheRoute: RechercheRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   CategorieVilleRoute: CategorieVilleRoute,
