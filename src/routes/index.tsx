@@ -124,11 +124,18 @@ function Accueil() {
       {/* HERO plein écran, header transparent par-dessus */}
       <section className="relative isolate flex h-screen w-full items-center overflow-hidden">
         <EntetePublique ancrePro transparent />
-        <img
-          src={hero.url}
-          alt="Cliente dans un salon de coiffure"
-          className="absolute inset-0 h-full w-full object-cover object-center"
-        />
+        <picture className="absolute inset-0">
+          {/* Visuel dédié au format portrait, le visuel large est mal cadré sur mobile */}
+          <source
+            media="(max-width: 767px)"
+            srcSet="https://res.cloudinary.com/dgfdye7cl/image/upload/v1786366672/image_mobile_hairtrack_p9k9cf.png"
+          />
+          <img
+            src={hero.url}
+            alt="Cliente dans un salon de coiffure"
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/25 to-black/40" />
         <div className="relative mx-auto w-full max-w-4xl px-4 text-center">
           <h1 className="text-3xl font-semibold text-white drop-shadow-sm sm:text-5xl">
