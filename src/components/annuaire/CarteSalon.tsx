@@ -3,7 +3,7 @@ import { MapPin } from "lucide-react";
 import { labelCategorie } from "@/lib/categories";
 import { euro } from "@/lib/hairtrack";
 import { NoteSalon } from "./Etoiles";
-import type { SalonCarte } from "@/lib/annuaire.server";
+import type { SalonCarte } from "@/lib/annuaire-types";
 
 export function CarteSalon({ salon }: { salon: SalonCarte }) {
   return (

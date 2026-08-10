@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { ficheSalonFn } from "@/lib/annuaire.functions";
 import { labelCategorie } from "@/lib/categories";
 import { euro, JOURS } from "@/lib/hairtrack";
+import type { FicheSalon } from "@/lib/annuaire-types";
 
 export const Route = createFileRoute("/salon/$slug")({
-  loader: async ({ params }) => {
-    const fiche = await ficheSalonFn({ data: { slug: params.slug } });
+  loader: async ({ params }): Promise<FicheSalon> => {
+    const fiche = (await ficheSalonFn({ data: { slug: params.slug } })) as FicheSalon | null;
     if (!fiche) throw notFound();
     return fiche;
   },
