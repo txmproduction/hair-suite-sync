@@ -37,9 +37,6 @@ export const Route = createFileRoute("/_authenticated/agenda")({
 
 const ROW = 22; // hauteur d'un créneau de 15 min
 
-type RdvComplet = Awaited<ReturnType<typeof chargerType>>;
-declare function chargerType(): Promise<never>;
-
 function Agenda() {
   const { data: ctx } = useContexte();
   const salonId = ctx?.employe?.salon_id;
@@ -115,7 +112,7 @@ function Agenda() {
       .from("rdv")
       .update({ employe_id: employeId, debut: d.toISOString() })
       .eq("id", rdvId);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Rendez-vous déplacé");
     queryClient.invalidateQueries({ queryKey: ["rdv"] });
   }
@@ -363,7 +360,7 @@ function DialogCreation({
   const prestation = prestations.find((p) => p.id === prestationId);
 
   async function enregistrer() {
-    if (!prestation) return toast.error("Choisissez une prestation");
+    if (!prestation) { toast.error("Choisissez une prestation"); return; }
     setEnCours(true);
     try {
       let idClient = clientId;
@@ -579,7 +576,7 @@ function DialogDetail({
         duree_min: presta?.duree_min ?? rdv.duree_min,
       })
       .eq("id", rdv.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Rendez-vous modifié");
     rafraichir();
     onClose();
@@ -587,7 +584,7 @@ function DialogDetail({
 
   async function changerStatut(statut: StatutRdv) {
     const { error } = await supabase.from("rdv").update({ statut }).eq("id", rdv.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     rafraichir();
     onClose();
   }
@@ -602,7 +599,7 @@ function DialogDetail({
       moyen,
       lignes: [{ nom: rdv.prestations?.nom ?? "Prestation", prix }],
     });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     await supabase.from("rdv").update({ statut: "venu" }).eq("id", rdv.id);
     toast.success(`Encaissé ${euro(solde)}`);
     rafraichir();
