@@ -28,7 +28,7 @@ export function EntetePublique({
           />
         </Link>
         <nav className="hidden flex-1 items-center gap-1 lg:flex">
-          {CATEGORIES.map((c) => (
+          {CATEGORIES.filter((c) => c.visibleNav).map((c) => (
             <Link
               key={c.value}
               to="/recherche"
@@ -82,7 +82,7 @@ export function EntetePublique({
         </div>
       </div>
       <div className="flex gap-1 overflow-x-auto px-4 pb-2 lg:hidden">
-        {CATEGORIES.map((c) => (
+        {CATEGORIES.filter((c) => c.visibleNav).map((c) => (
           <Link
             key={c.value}
             to="/recherche"

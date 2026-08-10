@@ -4,7 +4,7 @@ import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { ResultatsSalons } from "@/routes/recherche";
 import { parSlugCategorie, villeSlug } from "@/lib/categories";
 
-type Contexte = { categorie: string; label: string; pluriel: string; ville: string };
+type Contexte = { categorie: string; slug: string; label: string; pluriel: string; ville: string };
 
 function resoudre(paramCategorie: string, paramVille: string): Contexte | null {
   const info = parSlugCategorie(paramCategorie);
@@ -13,7 +13,7 @@ function resoudre(paramCategorie: string, paramVille: string): Contexte | null {
     .split("-")
     .map((m) => (m.length > 2 ? m.charAt(0).toUpperCase() + m.slice(1) : m))
     .join("-");
-  return { categorie: info.value, label: info.label, pluriel: info.pluriel, ville };
+  return { categorie: info.value, slug: info.slug, label: info.label, pluriel: info.pluriel, ville };
 }
 
 export const Route = createFileRoute("/$categorie/$ville")({
@@ -25,9 +25,9 @@ export const Route = createFileRoute("/$categorie/$ville")({
   head: ({ loaderData }) => {
     const ctx = loaderData as Contexte | undefined;
     if (!ctx) return {};
-    const url = `https://hairtrack.fr/${villeSlug(ctx.label)}/${villeSlug(ctx.ville)}`;
-    const titre = `${ctx.label} à ${ctx.ville} — réservez en ligne | HairTrack`;
-    const desc = `Trouvez un ${ctx.label.toLowerCase()} à ${ctx.ville}, comparez les prestations, les prix et les avis, puis réservez votre rendez-vous en ligne en quelques secondes.`;
+    const url = `https://hairtrack.fr/${ctx.slug}/${villeSlug(ctx.ville)}`;
+    const titre = `Trouvez votre meilleur ${ctx.label.toLowerCase()} à proximité de ${ctx.ville} sur HairTrack`;
+    const desc = `${ctx.label} à ${ctx.ville} : comparez les prestations, les prix et les avis, puis réservez votre rendez-vous en ligne en quelques secondes sur HairTrack.`;
     return {
       meta: [
         { title: titre },

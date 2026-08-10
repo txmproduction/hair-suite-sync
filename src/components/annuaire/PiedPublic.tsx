@@ -1,11 +1,46 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Instagram } from "lucide-react";
-import { CATEGORIES } from "@/lib/categories";
+import { CATEGORIES, villeSlug } from "@/lib/categories";
+import { villesFn } from "@/lib/annuaire.functions";
 import logo from "@/assets/logo-light.png";
 
 export function PiedPublic() {
+  const { data: villes } = useQuery({
+    queryKey: ["villes-footer"],
+    queryFn: () => villesFn(),
+    staleTime: 5 * 60 * 1000,
+  });
+  const villesAffichees = (villes ?? []).slice(0, 6);
+
   return (
     <footer className="border-t border-border bg-card">
+      {villesAffichees.length > 0 && (
+        <div className="mx-auto max-w-6xl px-4 pt-10">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {CATEGORIES.map((c) => (
+              <div key={c.value}>
+                <h3 className="text-sm font-semibold">{c.label}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Nos {c.pluriel === c.label.toLowerCase() ? c.pluriel : `${c.label.toLowerCase()}s`} populaires
+                </p>
+                <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-muted-foreground sm:grid-cols-3">
+                  {villesAffichees.map((v) => (
+                    <Link
+                      key={v}
+                      to="/$categorie/$ville"
+                      params={{ categorie: c.slug, ville: villeSlug(v) }}
+                      className="truncate hover:text-foreground"
+                    >
+                      {v}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <img src={logo} alt="HairTrack" className="h-8 w-auto" />
