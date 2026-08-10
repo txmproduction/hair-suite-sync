@@ -11,10 +11,10 @@ export function BarreRecherche({
   compact,
 }: {
   villes: string[];
-  qInitial?: string;
-  villeInitiale?: string;
-  categorie?: string;
-  compact?: boolean;
+  qInitial?: string | undefined;
+  villeInitiale?: string | undefined;
+  categorie?: string | undefined;
+  compact?: boolean | undefined;
 }) {
   const navigate = useNavigate();
   const [q, setQ] = useState(qInitial);

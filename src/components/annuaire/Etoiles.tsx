@@ -1,6 +1,6 @@
 import { Star } from "lucide-react";
 
-export function Etoiles({ note, taille = 14 }: { note: number; taille?: number }) {
+export function Etoiles({ note, taille = 14 }: { note: number; taille?: number | undefined }) {
   return (
     <span className="inline-flex items-center gap-0.5" aria-hidden>
       {[1, 2, 3, 4, 5].map((i) => (
@@ -21,7 +21,7 @@ export function NoteSalon({
 }: {
   note: number | null;
   nbAvis: number;
-  className?: string;
+  className?: string | undefined;
 }) {
   if (!note || !nbAvis)
     return <span className={`text-sm text-muted-foreground ${className ?? ""}`}>Nouveau</span>;

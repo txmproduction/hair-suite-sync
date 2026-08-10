@@ -10,18 +10,18 @@ import { CATEGORIES, parCategorie } from "@/lib/categories";
 import { Button } from "@/components/ui/button";
 
 type RechercheSearch = {
-  categorie?: string;
-  q?: string;
-  ville?: string;
-  note?: number;
+  categorie?: string | undefined;
+  q?: string | undefined;
+  ville?: string | undefined;
+  note?: number | undefined;
 };
 
 export const Route = createFileRoute("/recherche")({
   validateSearch: (search: Record<string, unknown>): RechercheSearch => ({
-    categorie: search.categorie ? String(search.categorie) : undefined,
-    q: search.q ? String(search.q) : undefined,
-    ville: search.ville ? String(search.ville) : undefined,
-    note: search.note ? Number(search.note) : undefined,
+    categorie: search["categorie"] ? String(search["categorie"]) : undefined,
+    q: search["q"] ? String(search["q"]) : undefined,
+    ville: search["ville"] ? String(search["ville"]) : undefined,
+    note: search["note"] ? Number(search["note"]) : undefined,
   }),
   head: () => ({
     meta: [
@@ -53,12 +53,12 @@ export function ResultatsSalons({
   titre,
   sousTitre,
 }: {
-  categorie?: string;
-  q?: string;
-  ville?: string;
-  note?: number;
+  categorie?: string | undefined;
+  q?: string | undefined;
+  ville?: string | undefined;
+  note?: number | undefined;
   titre: string;
-  sousTitre?: string;
+  sousTitre?: string | undefined;
 }) {
   const [noteMin, setNoteMin] = useState<number | undefined>(note);
   const [cat, setCat] = useState<string | undefined>(categorie);

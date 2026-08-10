@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo-light.png";
 import { CATEGORIES } from "@/lib/categories";
 
-export function EntetePublique({ ancrePro }: { ancrePro?: boolean }) {
+export function EntetePublique({ ancrePro }: { ancrePro?: boolean | undefined }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-card/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
