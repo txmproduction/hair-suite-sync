@@ -9,7 +9,6 @@ import {
   BellRing,
   ShieldCheck,
   TrendingUp,
-  ArrowRight,
   Handshake,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
