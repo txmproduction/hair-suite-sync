@@ -127,6 +127,32 @@ export type Database = {
           },
         ]
       }
+      clics_reservation_manquee: {
+        Row: {
+          created_at: string
+          id: string
+          salon_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          salon_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          salon_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clics_reservation_manquee_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           created_at: string
@@ -580,14 +606,17 @@ export type Database = {
           code_postal: string | null
           created_at: string
           description: string | null
-          gerant_user_id: string
+          gerant_user_id: string | null
           id: string
+          lien_externe: string | null
           nb_avis: number
           nom: string
           note_moyenne: number | null
           photo_couverture_url: string | null
           reservation_en_ligne: boolean
           slug: string | null
+          source: string | null
+          statut: Database["public"]["Enums"]["statut_salon"]
           telephone: string | null
           ville: string | null
         }
@@ -597,14 +626,17 @@ export type Database = {
           code_postal?: string | null
           created_at?: string
           description?: string | null
-          gerant_user_id: string
+          gerant_user_id?: string | null
           id?: string
+          lien_externe?: string | null
           nb_avis?: number
           nom: string
           note_moyenne?: number | null
           photo_couverture_url?: string | null
           reservation_en_ligne?: boolean
           slug?: string | null
+          source?: string | null
+          statut?: Database["public"]["Enums"]["statut_salon"]
           telephone?: string | null
           ville?: string | null
         }
@@ -614,16 +646,34 @@ export type Database = {
           code_postal?: string | null
           created_at?: string
           description?: string | null
-          gerant_user_id?: string
+          gerant_user_id?: string | null
           id?: string
+          lien_externe?: string | null
           nb_avis?: number
           nom?: string
           note_moyenne?: number | null
           photo_couverture_url?: string | null
           reservation_en_ligne?: boolean
           slug?: string | null
+          source?: string | null
+          statut?: Database["public"]["Enums"]["statut_salon"]
           telephone?: string | null
           ville?: string | null
+        }
+        Relationships: []
+      }
+      super_admins: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -666,6 +716,7 @@ export type Database = {
         | "no_show"
         | "annule"
         | "en_attente_paiement"
+      statut_salon: "reclame" | "non_reclame"
       type_acompte: "montant" | "pourcentage"
     }
     CompositeTypes: {
@@ -810,6 +861,7 @@ export const Constants = {
         "annule",
         "en_attente_paiement",
       ],
+      statut_salon: ["reclame", "non_reclame"],
       type_acompte: ["montant", "pourcentage"],
     },
   },
