@@ -609,8 +609,6 @@ export type Database = {
           gerant_user_id: string | null
           id: string
           lien_externe: string | null
-          latitude: number | null
-          longitude: number | null
           nb_avis: number
           nb_avis_google: number | null
           nom: string
@@ -633,8 +631,6 @@ export type Database = {
           gerant_user_id?: string | null
           id?: string
           lien_externe?: string | null
-          latitude?: number | null
-          longitude?: number | null
           nb_avis?: number
           nb_avis_google?: number | null
           nom: string
@@ -657,8 +653,6 @@ export type Database = {
           gerant_user_id?: string | null
           id?: string
           lien_externe?: string | null
-          latitude?: number | null
-          longitude?: number | null
           nb_avis?: number
           nb_avis_google?: number | null
           nom?: string
