@@ -20,6 +20,7 @@ import { Route as AuthenticatedCaisseRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedStatistiquesRouteImport } from './routes/_authenticated/statistiques'
 import { Route as ReservationTokenRouteImport } from './routes/reservation.$token'
 import { Route as ReserverSlugRouteImport } from './routes/reserver.$slug'
+import { Route as SalonSlugRouteImport } from './routes/salon.$slug'
 import { Route as AuthenticatedClientsIndexRouteImport } from './routes/_authenticated/clients.index'
 import { Route as AuthenticatedClientsClientIdRouteImport } from './routes/_authenticated/clients.$clientId'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -79,6 +80,11 @@ const ReserverSlugRoute = ReserverSlugRouteImport.update({
   path: '/reserver/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SalonSlugRoute = SalonSlugRouteImport.update({
+  id: '/salon/$slug',
+  path: '/salon/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedClientsIndexRoute =
   AuthenticatedClientsIndexRouteImport.update({
     id: '/clients/',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/statistiques': typeof AuthenticatedStatistiquesRoute
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
+  '/salon/$slug': typeof SalonSlugRoute
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/clients/': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/statistiques': typeof AuthenticatedStatistiquesRoute
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
+  '/salon/$slug': typeof SalonSlugRoute
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/clients': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/_authenticated/statistiques': typeof AuthenticatedStatistiquesRoute
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
+  '/salon/$slug': typeof SalonSlugRoute
   '/_authenticated/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/_authenticated/clients/': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/statistiques'
     | '/reservation/$token'
     | '/reserver/$slug'
+    | '/salon/$slug'
     | '/clients/$clientId'
     | '/clients/'
     | '/api/public/payments/webhook'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/statistiques'
     | '/reservation/$token'
     | '/reserver/$slug'
+    | '/salon/$slug'
     | '/clients/$clientId'
     | '/clients'
     | '/api/public/payments/webhook'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/_authenticated/statistiques'
     | '/reservation/$token'
     | '/reserver/$slug'
+    | '/salon/$slug'
     | '/_authenticated/clients/$clientId'
     | '/_authenticated/clients/'
     | '/api/public/payments/webhook'
@@ -201,6 +213,7 @@ export interface RootRouteChildren {
   RechercheRoute: typeof RechercheRoute
   ReservationTokenRoute: typeof ReservationTokenRoute
   ReserverSlugRoute: typeof ReserverSlugRoute
+  SalonSlugRoute: typeof SalonSlugRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -283,6 +296,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReserverSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/salon/$slug': {
+      id: '/salon/$slug'
+      path: '/salon/$slug'
+      fullPath: '/salon/$slug'
+      preLoaderRoute: typeof SalonSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/clients/': {
       id: '/_authenticated/clients/'
       path: '/clients'
@@ -337,6 +357,7 @@ const rootRouteChildren: RootRouteChildren = {
   RechercheRoute: RechercheRoute,
   ReservationTokenRoute: ReservationTokenRoute,
   ReserverSlugRoute: ReserverSlugRoute,
+  SalonSlugRoute: SalonSlugRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
