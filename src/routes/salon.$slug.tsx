@@ -1,13 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { MapPin, Phone, Clock } from "lucide-react";
+import { useState } from "react";
+import { MapPin, Phone, Clock, ExternalLink, CalendarOff } from "lucide-react";
 import { EntetePublique } from "@/components/annuaire/EntetePublique";
 import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { Etoiles, NoteSalon } from "@/components/annuaire/Etoiles";
 import { Button } from "@/components/ui/button";
-import { ficheSalonFn } from "@/lib/annuaire.functions";
+import { ficheSalonFn, clicReservationManqueeFn } from "@/lib/annuaire.functions";
 import { labelCategorie } from "@/lib/categories";
 import { euro, JOURS } from "@/lib/hairtrack";
 import type { FicheSalon } from "@/lib/annuaire-types";
+
 
 export const Route = createFileRoute("/salon/$slug")({
   loader: async ({ params }): Promise<FicheSalon> => {
@@ -46,9 +48,63 @@ export const Route = createFileRoute("/salon/$slug")({
   component: FicheSalonPage,
 });
 
+function BlocIndisponible({
+  salonId,
+  telephone,
+  lienExterne,
+}: {
+  salonId: string;
+  telephone: string | null;
+  lienExterne: string | null;
+}) {
+  const [enregistre, setEnregistre] = useState(false);
+
+  const signaler = () => {
+    setEnregistre(true);
+    clicReservationManqueeFn({ data: { salonId } }).catch(() => undefined);
+  };
+
+  return (
+    <div className="w-full sm:w-auto">
+      <Button
+        type="button"
+        size="lg"
+        variant="secondary"
+        onClick={signaler}
+        className="w-full whitespace-normal text-left sm:w-auto"
+      >
+        <CalendarOff className="mr-2 h-4 w-4 shrink-0" />
+        Réservation en ligne indisponible pour ce salon
+      </Button>
+      {enregistre && (
+        <div className="mt-3 space-y-2">
+          {telephone && (
+            <a
+              href={`tel:${telephone}`}
+              className="flex items-center gap-2 text-sm font-medium text-foreground underline underline-offset-4"
+            >
+              <Phone className="h-4 w-4" />
+              Appeler le salon — {telephone}
+            </a>
+          )}
+          {lienExterne && (
+            <Button asChild variant="outline" size="sm">
+              <a href={lienExterne} target="_blank" rel="nofollow noopener noreferrer">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                Réserver via leur outil actuel
+              </a>
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function FicheSalonPage() {
   const fiche = Route.useLoaderData() as FicheSalon;
   const { salon, photos, categories, prestations, horaires, avis } = fiche;
+  const nonReclame = salon.statut === "non_reclame";
 
   const groupes = [
     ...categories.map((c) => ({
@@ -102,13 +158,34 @@ function FicheSalonPage() {
                 <NoteSalon note={salon.note_moyenne} nbAvis={salon.nb_avis} />
               </div>
             </div>
-            <Button asChild size="lg">
-              <Link to="/reserver/$slug" params={{ slug: salon.slug }}>
-                Réserver
-              </Link>
-            </Button>
+            {nonReclame ? (
+              <BlocIndisponible
+                salonId={salon.id}
+                telephone={salon.telephone}
+                lienExterne={salon.lien_externe}
+              />
+            ) : (
+              <Button asChild size="lg">
+                <Link to="/reserver/$slug" params={{ slug: salon.slug }}>
+                  Réserver
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
+
+        {nonReclame && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Fiche non gérée par cet établissement.{" "}
+            <Link
+              to="/auth"
+              search={{ reprise: salon.slug }}
+              className="font-medium text-gold underline underline-offset-4"
+            >
+              Vous êtes ce salon ? Reprenez votre fiche gratuitement
+            </Link>
+          </p>
+        )}
 
         {salon.description && (
           <section className="card-soft mt-5 p-5 sm:p-6">
@@ -165,11 +242,13 @@ function FicheSalonPage() {
                 ))}
               </div>
             )}
-            <Button asChild className="mt-6">
-              <Link to="/reserver/$slug" params={{ slug: salon.slug }}>
-                Choisir un créneau
-              </Link>
-            </Button>
+            {!nonReclame && (
+              <Button asChild className="mt-6">
+                <Link to="/reserver/$slug" params={{ slug: salon.slug }}>
+                  Choisir un créneau
+                </Link>
+              </Button>
+            )}
           </section>
 
           <section className="card-soft h-fit p-5 sm:p-6">

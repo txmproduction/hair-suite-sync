@@ -8,6 +8,9 @@ import { toast } from "sonner";
 import logo from "@/assets/logo-light.png";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    reprise: typeof search["reprise"] === "string" ? (search["reprise"] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Connexion — HairTrack" },
@@ -27,14 +30,22 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"connexion" | "inscription">("connexion");
+  const { reprise } = Route.useSearch();
+  const [mode, setMode] = useState<"connexion" | "inscription">(
+    reprise ? "inscription" : "connexion",
+  );
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
   const [chargement, setChargement] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/agenda", replace: true });
+      if (data.session)
+        navigate(
+          reprise
+            ? { to: "/bienvenue", search: { reprise }, replace: true }
+            : { to: "/agenda", replace: true },
+        );
     });
   }, [navigate]);
 
@@ -48,7 +59,11 @@ function AuthPage() {
           password: motDePasse,
         });
         if (error) throw error;
-        navigate({ to: "/agenda", replace: true });
+        navigate(
+          reprise
+            ? { to: "/bienvenue", search: { reprise }, replace: true }
+            : { to: "/agenda", replace: true },
+        );
       } else {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -56,7 +71,8 @@ function AuthPage() {
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        if (data.session) navigate({ to: "/bienvenue", replace: true });
+        if (data.session)
+          navigate({ to: "/bienvenue", search: reprise ? { reprise } : {}, replace: true });
         else toast.success("Vérifiez votre boîte mail pour confirmer votre compte.");
       }
     } catch (error) {
@@ -77,9 +93,11 @@ function AuthPage() {
             {mode === "connexion" ? "Connexion" : "Créer un compte"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {mode === "connexion"
-              ? "Accédez à votre salon."
-              : "Créez votre compte gérant ou rejoignez votre salon."}
+            {reprise
+              ? "Créez votre compte pour reprendre la fiche de votre salon, gratuitement."
+              : mode === "connexion"
+                ? "Accédez à votre salon."
+                : "Créez votre compte gérant ou rejoignez votre salon."}
           </p>
           <form onSubmit={soumettre} className="mt-5 space-y-4">
             <div className="space-y-2">

@@ -80,3 +80,17 @@ export const sitemapFn = createServerFn({ method: "GET" }).handler(async () => {
   const { chargerSitemap } = await import("./annuaire.server");
   return chargerSitemap();
 });
+
+export const clicReservationManqueeFn = createServerFn({ method: "POST" })
+  .inputValidator((data: { salonId: string }) => ({ salonId: String(data.salonId).slice(0, 60) }))
+  .handler(async ({ data }) => {
+    const { enregistrerClicManque } = await import("./annuaire.server");
+    return enregistrerClicManque(data.salonId);
+  });
+
+export const infosRepriseFn = createServerFn({ method: "GET" })
+  .inputValidator((data: { slug: string }) => ({ slug: String(data.slug).slice(0, 120) }))
+  .handler(async ({ data }) => {
+    const { infosReprise } = await import("./annuaire.server");
+    return infosReprise(data.slug);
+  });

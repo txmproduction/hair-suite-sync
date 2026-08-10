@@ -11,11 +11,16 @@ export type SalonCarte = {
   photo_couverture_url: string | null;
   note_moyenne: number | null;
   nb_avis: number;
+  statut: "reclame" | "non_reclame";
   prix_min: number | null;
 };
 
 export type FicheSalon = {
-  salon: SalonCarte & { adresse: string | null; telephone: string | null };
+  salon: SalonCarte & {
+    adresse: string | null;
+    telephone: string | null;
+    lien_externe: string | null;
+  };
   photos: { id: string; url: string }[];
   categories: { id: string; nom: string }[];
   prestations: {
