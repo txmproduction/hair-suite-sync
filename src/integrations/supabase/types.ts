@@ -14,6 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      avis: {
+        Row: {
+          client_nom: string | null
+          commentaire: string | null
+          created_at: string
+          id: string
+          note: number
+          rdv_id: string | null
+          salon_id: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          client_nom?: string | null
+          commentaire?: string | null
+          created_at?: string
+          id?: string
+          note: number
+          rdv_id?: string | null
+          salon_id: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          client_nom?: string | null
+          commentaire?: string | null
+          created_at?: string
+          id?: string
+          note?: number
+          rdv_id?: string | null
+          salon_id?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avis_rdv_id_fkey"
+            columns: ["rdv_id"]
+            isOneToOne: true
+            referencedRelation: "rdv"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avis_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidatures_distribution: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          nom: string
+          telephone: string
+          ville: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          nom: string
+          telephone: string
+          ville: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          nom?: string
+          telephone?: string
+          ville?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -290,18 +371,21 @@ export type Database = {
           acompte_type: Database["public"]["Enums"]["type_acompte"]
           acompte_valeur: number
           delai_annulation_h: number
+          moderation_avis: boolean
           salon_id: string
         }
         Insert: {
           acompte_type?: Database["public"]["Enums"]["type_acompte"]
           acompte_valeur?: number
           delai_annulation_h?: number
+          moderation_avis?: boolean
           salon_id: string
         }
         Update: {
           acompte_type?: Database["public"]["Enums"]["type_acompte"]
           acompte_valeur?: number
           delai_annulation_h?: number
+          moderation_avis?: boolean
           salon_id?: string
         }
         Relationships: [
@@ -309,6 +393,38 @@ export type Database = {
             foreignKeyName: "parametres_salon_salon_id_fkey"
             columns: ["salon_id"]
             isOneToOne: true
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photos_salon: {
+        Row: {
+          created_at: string
+          id: string
+          ordre: number
+          salon_id: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ordre?: number
+          salon_id: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ordre?: number
+          salon_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photos_salon_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
             referencedRelation: "salons"
             referencedColumns: ["id"]
           },
@@ -372,6 +488,7 @@ export type Database = {
         Row: {
           acompte: number
           annulation_token: string
+          avis_token: string
           client_id: string | null
           created_at: string
           debut: string
@@ -390,6 +507,7 @@ export type Database = {
         Insert: {
           acompte?: number
           annulation_token?: string
+          avis_token?: string
           client_id?: string | null
           created_at?: string
           debut: string
@@ -408,6 +526,7 @@ export type Database = {
         Update: {
           acompte?: number
           annulation_token?: string
+          avis_token?: string
           client_id?: string | null
           created_at?: string
           debut?: string
@@ -457,33 +576,54 @@ export type Database = {
       salons: {
         Row: {
           adresse: string | null
+          categorie: Database["public"]["Enums"]["categorie_salon"]
+          code_postal: string | null
           created_at: string
+          description: string | null
           gerant_user_id: string
           id: string
+          nb_avis: number
           nom: string
+          note_moyenne: number | null
+          photo_couverture_url: string | null
           reservation_en_ligne: boolean
           slug: string | null
           telephone: string | null
+          ville: string | null
         }
         Insert: {
           adresse?: string | null
+          categorie?: Database["public"]["Enums"]["categorie_salon"]
+          code_postal?: string | null
           created_at?: string
+          description?: string | null
           gerant_user_id: string
           id?: string
+          nb_avis?: number
           nom: string
+          note_moyenne?: number | null
+          photo_couverture_url?: string | null
           reservation_en_ligne?: boolean
           slug?: string | null
           telephone?: string | null
+          ville?: string | null
         }
         Update: {
           adresse?: string | null
+          categorie?: Database["public"]["Enums"]["categorie_salon"]
+          code_postal?: string | null
           created_at?: string
+          description?: string | null
           gerant_user_id?: string
           id?: string
+          nb_avis?: number
           nom?: string
+          note_moyenne?: number | null
+          photo_couverture_url?: string | null
           reservation_en_ligne?: boolean
           slug?: string | null
           telephone?: string | null
+          ville?: string | null
         }
         Relationships: []
       }
@@ -512,6 +652,12 @@ export type Database = {
       unaccent_immutable: { Args: { p_texte: string }; Returns: string }
     }
     Enums: {
+      categorie_salon:
+        | "coiffeur"
+        | "barbier"
+        | "manucure"
+        | "institut_beaute"
+        | "bien_etre"
       moyen_paiement: "cb" | "especes" | "cheque" | "autre"
       role_employe: "gerant" | "employe"
       statut_rdv:
@@ -648,6 +794,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      categorie_salon: [
+        "coiffeur",
+        "barbier",
+        "manucure",
+        "institut_beaute",
+        "bien_etre",
+      ],
       moyen_paiement: ["cb", "especes", "cheque", "autre"],
       role_employe: ["gerant", "employe"],
       statut_rdv: [
