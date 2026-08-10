@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { contexteQuery } from "@/lib/hairtrack";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-light.png";
 import { LogOut } from "lucide-react";
 
 export function useContexte() {

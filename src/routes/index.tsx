@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo-light.png";
 import { CalendarDays, CreditCard, Users, BarChart3 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
