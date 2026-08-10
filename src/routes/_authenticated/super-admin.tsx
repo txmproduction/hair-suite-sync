@@ -29,6 +29,8 @@ type LigneCsv = {
   note_google: string;
   nb_avis_google: string;
   photo_couverture_url: string;
+  latitude: string;
+  longitude: string;
 };
 
 function parserCsv(texte: string): LigneCsv[] {
@@ -52,6 +54,8 @@ function parserCsv(texte: string): LigneCsv[] {
       note_google: c[6] ?? "",
       nb_avis_google: c[7] ?? "",
       photo_couverture_url: c[8] ?? "",
+      latitude: c[9] ?? "",
+      longitude: c[10] ?? "",
     };
   });
 }
@@ -122,7 +126,7 @@ function SuperAdminPage() {
       <section className="card-soft p-5">
         <h2 className="text-lg font-semibold">Importer des fiches non réclamées</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Une ligne par salon : nom, adresse, ville, téléphone, catégorie, lien externe, note Google, nb avis Google, photo(s) (les 4 derniers sont optionnels). Pour plusieurs photos, séparez les URLs par un « | » dans la dernière colonne.
+          Une ligne par salon : nom, adresse, ville, téléphone, catégorie, lien externe, note Google, nb avis Google, photo(s), latitude, longitude (tout à partir du lien externe est optionnel). Pour plusieurs photos, séparez les URLs par un « | ». Les coordonnées permettent la recherche « autour de moi ».
           Catégories acceptées : {CATEGORIES.map((c) => c.value).join(", ")}.
         </p>
         <div className="mt-4 grid gap-3">
@@ -130,7 +134,7 @@ function SuperAdminPage() {
             rows={8}
             value={csv}
             onChange={(e) => setCsv(e.target.value)}
-            placeholder="Salon Léa;12 rue de Paris;Lyon;0478000000;coiffeur;https://www.planity.com/...;4.6;128;https://exemple.com/photo1.jpg|https://exemple.com/photo2.jpg"
+            placeholder="Salon Léa;12 rue de Paris;Lyon;0478000000;coiffeur;;4.6;128;https://exemple.com/photo.jpg;45.764;4.8357"
           />
           <div className="grid gap-2 sm:max-w-xs">
             <Label htmlFor="source">Source</Label>

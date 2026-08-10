@@ -35,6 +35,11 @@ export function CarteSalon({ salon }: { salon: SalonCarte }) {
           <p className="flex items-center gap-1 text-sm text-muted-foreground">
             <MapPin className="h-3.5 w-3.5" />
             {salon.ville}
+            {salon.distance_km !== null && (
+              <span className="ml-1 font-medium text-foreground">
+                · à {salon.distance_km.toLocaleString("fr-FR")} km
+              </span>
+            )}
           </p>
         )}
         <div className="flex items-center justify-between pt-1">

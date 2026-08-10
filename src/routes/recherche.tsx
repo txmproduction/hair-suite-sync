@@ -14,6 +14,8 @@ type RechercheSearch = {
   q?: string | undefined;
   ville?: string | undefined;
   note?: number | undefined;
+  lat?: number | undefined;
+  lng?: number | undefined;
 };
 
 export const Route = createFileRoute("/recherche")({
@@ -22,6 +24,8 @@ export const Route = createFileRoute("/recherche")({
     q: search["q"] ? String(search["q"]) : undefined,
     ville: search["ville"] ? String(search["ville"]) : undefined,
     note: search["note"] ? Number(search["note"]) : undefined,
+    lat: search["lat"] !== undefined ? Number(search["lat"]) : undefined,
+    lng: search["lng"] !== undefined ? Number(search["lng"]) : undefined,
   }),
   head: () => ({
     meta: [
@@ -50,6 +54,8 @@ export function ResultatsSalons({
   q,
   ville,
   note,
+  lat,
+  lng,
   titre,
   sousTitre,
 }: {
@@ -57,6 +63,8 @@ export function ResultatsSalons({
   q?: string | undefined;
   ville?: string | undefined;
   note?: number | undefined;
+  lat?: number | undefined;
+  lng?: number | undefined;
   titre: string;
   sousTitre?: string | undefined;
 }) {
@@ -70,7 +78,7 @@ export function ResultatsSalons({
   });
 
   const { data: salons = [], isLoading } = useQuery({
-    queryKey: ["recherche", cat, q, villeF, noteMin],
+    queryKey: ["recherche", cat, q, villeF, noteMin, lat, lng],
     queryFn: () =>
       rechercheFn({
         data: {
@@ -78,6 +86,8 @@ export function ResultatsSalons({
           q: q ?? null,
           ville: villeF ?? null,
           noteMin: noteMin ?? null,
+          lat: lat ?? null,
+          lng: lng ?? null,
         },
       }),
   });
@@ -159,11 +169,17 @@ function PageRecherche() {
   const search = Route.useSearch();
   const info = useMemo(() => parCategorie(search.categorie), [search.categorie]);
 
-  const titre = info
-    ? `Les meilleurs salons de ${info.pluriel} autour de chez vous`
-    : search.ville
-      ? `Salons beauté à ${search.ville}`
-      : "Trouvez votre prochain rendez-vous beauté";
+  const autour = typeof search.lat === "number" && typeof search.lng === "number";
+
+  const titre = autour
+    ? info
+      ? `${info.plurielNom.charAt(0).toUpperCase()}${info.plurielNom.slice(1)} autour de vous`
+      : "Les salons autour de vous"
+    : info
+      ? `Les meilleurs ${info.plurielNom} autour de chez vous`
+      : search.ville
+        ? `Salons beauté à ${search.ville}`
+        : "Trouvez votre prochain rendez-vous beauté";
 
   return (
     <ResultatsSalons
@@ -171,8 +187,10 @@ function PageRecherche() {
       q={search.q}
       ville={search.ville}
       note={search.note}
+      lat={search.lat}
+      lng={search.lng}
       titre={titre}
-      sousTitre={info?.accroche}
+      sousTitre={autour ? "Classés du plus proche au plus loin." : info?.accroche}
     />
   );
 }

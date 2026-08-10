@@ -7,7 +7,7 @@ import type { ContexteAvis, FicheSalon, SalonCarte } from "@/lib/annuaire-types"
 export type { ContexteAvis, FicheSalon, SalonCarte };
 
 const COLONNES =
-  "id, slug, nom, ville, code_postal, categorie, description, photo_couverture_url, note_moyenne, nb_avis, note_google, nb_avis_google, statut, lien_externe";
+  "id, slug, nom, ville, code_postal, categorie, description, photo_couverture_url, note_moyenne, nb_avis, note_google, nb_avis_google, statut, lien_externe, latitude, longitude";
 
 // Un salon apparaît dans l'annuaire s'il réserve en ligne, ou s'il s'agit d'une fiche non réclamée.
 const FILTRE_VISIBLE = "reservation_en_ligne.eq.true,statut.eq.non_reclame";
@@ -43,6 +43,8 @@ type LigneSalon = {
   nb_avis_google: number | null;
   statut: "reclame" | "non_reclame";
   lien_externe: string | null;
+  latitude: number | null;
+  longitude: number | null;
 };
 
 function versCarte(s: LigneSalon, prixMin: Map<string, number>): SalonCarte {
@@ -61,6 +63,9 @@ function versCarte(s: LigneSalon, prixMin: Map<string, number>): SalonCarte {
     nb_avis_google: s.nb_avis_google === null ? null : Number(s.nb_avis_google),
     statut: s.statut,
     prix_min: prixMin.get(s.id) ?? null,
+    latitude: s.latitude === null ? null : Number(s.latitude),
+    longitude: s.longitude === null ? null : Number(s.longitude),
+    distance_km: null,
   };
 }
 
@@ -95,6 +100,8 @@ export async function chargerAnnuaire(): Promise<{
 }
 
 export type FiltresRecherche = {
+  lat?: number | null;
+  lng?: number | null;
   categorie: string | null;
   q: string | null;
   ville: string | null;
@@ -132,7 +139,30 @@ export async function rechercherSalons(f: FiltresRecherche): Promise<SalonCarte[
   }
 
   const prixMin = await prixMinParSalon(lignes.map((s) => s.id));
-  return lignes.map((s) => versCarte(s as LigneSalon, prixMin));
+  const cartes = lignes.map((s) => versCarte(s as LigneSalon, prixMin));
+
+  // Recherche "autour de moi" : on calcule la distance à vol d'oiseau et on
+  // trie du plus proche au plus loin, en écartant ce qui est au-delà de 50 km.
+  if (typeof f.lat === "number" && typeof f.lng === "number") {
+    const R = 6371; // rayon terrestre en km
+    const rad = (d: number) => (d * Math.PI) / 180;
+    const proches = cartes
+      .map((c) => {
+        if (c.latitude === null || c.longitude === null) return { ...c, distance_km: null };
+        const dLat = rad(c.latitude - f.lat!);
+        const dLng = rad(c.longitude - f.lng!);
+        const a =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos(rad(f.lat!)) * Math.cos(rad(c.latitude)) * Math.sin(dLng / 2) ** 2;
+        const distance = 2 * R * Math.asin(Math.sqrt(a));
+        return { ...c, distance_km: Math.round(distance * 10) / 10 };
+      })
+      .filter((c) => c.distance_km !== null && c.distance_km <= 50);
+    proches.sort((a, b) => (a.distance_km ?? 0) - (b.distance_km ?? 0));
+    return proches;
+  }
+
+  return cartes;
 }
 
 export async function chargerVilles(): Promise<string[]> {
@@ -144,6 +174,42 @@ export async function chargerVilles(): Promise<string[]> {
   return [...new Set((data ?? []).map((s) => s.ville as string))].sort((a, b) =>
     a.localeCompare(b, "fr"),
   );
+}
+
+/** Suggestions pour la barre de recherche : uniquement ce qui existe vraiment sur HairTrack. */
+export async function chargerSuggestions(): Promise<{
+  prestations: string[];
+  salons: string[];
+  villes: string[];
+}> {
+  const { data: salonsData } = await supabaseAdmin
+    .from("salons")
+    .select("id, nom, ville")
+    .or(FILTRE_VISIBLE)
+    .not("slug", "is", null);
+  const lignes = salonsData ?? [];
+
+  const { data: prestaData } = await supabaseAdmin
+    .from("prestations")
+    .select("nom, salon_id")
+    .eq("actif", true);
+  const idsVisibles = new Set(lignes.map((s) => s.id));
+
+  const prestations = [
+    ...new Set(
+      (prestaData ?? [])
+        .filter((p) => idsVisibles.has(p.salon_id))
+        .map((p) => p.nom.trim())
+        .filter(Boolean),
+    ),
+  ].sort((a, b) => a.localeCompare(b, "fr"));
+
+  const salons = [...new Set(lignes.map((s) => s.nom))].sort((a, b) => a.localeCompare(b, "fr"));
+  const villes = [
+    ...new Set(lignes.map((s) => s.ville).filter((v): v is string => !!v)),
+  ].sort((a, b) => a.localeCompare(b, "fr"));
+
+  return { prestations, salons, villes };
 }
 
 export async function chargerFicheSalon(slug: string): Promise<FicheSalon | null> {

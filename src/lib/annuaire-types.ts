@@ -15,6 +15,9 @@ export type SalonCarte = {
   nb_avis_google: number | null;
   statut: "reclame" | "non_reclame";
   prix_min: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  distance_km: number | null;
 };
 
 export type FicheSalon = {

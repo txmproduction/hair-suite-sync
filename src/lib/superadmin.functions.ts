@@ -4,6 +4,12 @@ import { CATEGORIES, type CategorieSalon } from "@/lib/categories";
 
 const CATS = new Set(CATEGORIES.map((c) => c.value as string));
 
+/** Coordonnée GPS valide, sinon null (on n'invente jamais une position). */
+function coord(v: string | number | undefined, max: number): number | null {
+  const n = Number(String(v ?? "").replace(",", "."));
+  return Number.isFinite(n) && n !== 0 && Math.abs(n) <= max ? n : null;
+}
+
 async function verifier(userId: string) {
   const { estSuperAdmin } = await import("./superadmin.server");
   if (!(await estSuperAdmin(userId))) throw new Error("Accès réservé aux super-administrateurs.");
@@ -38,6 +44,8 @@ export const importerSalonsFn = createServerFn({ method: "POST" })
         note_google?: string | number;
         nb_avis_google?: string | number;
         photo_couverture_url?: string;
+        latitude?: string | number;
+        longitude?: string | number;
       }[];
       source?: string;
     }) => {
@@ -65,6 +73,8 @@ export const importerSalonsFn = createServerFn({ method: "POST" })
           note_google: Number.isFinite(note) && note > 0 && note <= 5 ? note : null,
           nb_avis_google: Number.isFinite(nbAvis) && nbAvis > 0 ? nbAvis : null,
           photos: photosBrutes.slice(0, 20).map((u) => u.slice(0, 500)),
+          latitude: coord(l.latitude, 90),
+          longitude: coord(l.longitude, 180),
         };
       });
       if (!lignes.length) throw new Error("Aucune ligne à importer.");

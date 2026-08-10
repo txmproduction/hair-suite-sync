@@ -10,12 +10,19 @@ export const villesFn = createServerFn({ method: "GET" }).handler(async () => {
   return chargerVilles();
 });
 
+export const suggestionsFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { chargerSuggestions } = await import("./annuaire.server");
+  return chargerSuggestions();
+});
+
 export const rechercheFn = createServerFn({ method: "GET" })
-  .inputValidator((data: { categorie?: string | null; q?: string | null; ville?: string | null; noteMin?: number | null }) => ({
+  .inputValidator((data: { categorie?: string | null; q?: string | null; ville?: string | null; noteMin?: number | null; lat?: number | null; lng?: number | null }) => ({
     categorie: data.categorie ? String(data.categorie).slice(0, 40) : null,
     q: data.q ? String(data.q).slice(0, 80) : null,
     ville: data.ville ? String(data.ville).slice(0, 80) : null,
     noteMin: data.noteMin ? Math.min(Math.max(Number(data.noteMin), 1), 5) : null,
+    lat: typeof data.lat === "number" && Number.isFinite(data.lat) ? Math.min(Math.max(data.lat, -90), 90) : null,
+    lng: typeof data.lng === "number" && Number.isFinite(data.lng) ? Math.min(Math.max(data.lng, -180), 180) : null,
   }))
   .handler(async ({ data }) => {
     const { rechercherSalons } = await import("./annuaire.server");
