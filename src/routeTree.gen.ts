@@ -12,13 +12,21 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CgvRouteImport } from './routes/cgv'
+import { Route as DistribuerRouteImport } from './routes/distribuer'
+import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
+import { Route as RechercheRouteImport } from './routes/recherche'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as CategorieVilleRouteImport } from './routes/$categorie.$ville'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedBienvenueRouteImport } from './routes/_authenticated/bienvenue'
 import { Route as AuthenticatedCaisseRouteImport } from './routes/_authenticated/caisse'
 import { Route as AuthenticatedStatistiquesRouteImport } from './routes/_authenticated/statistiques'
+import { Route as AvisTokenRouteImport } from './routes/avis.$token'
 import { Route as ReservationTokenRouteImport } from './routes/reservation.$token'
 import { Route as ReserverSlugRouteImport } from './routes/reserver.$slug'
+import { Route as SalonSlugRouteImport } from './routes/salon.$slug'
 import { Route as AuthenticatedClientsIndexRouteImport } from './routes/_authenticated/clients.index'
 import { Route as AuthenticatedClientsClientIdRouteImport } from './routes/_authenticated/clients.$clientId'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -35,6 +43,36 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CgvRoute = CgvRouteImport.update({
+  id: '/cgv',
+  path: '/cgv',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DistribuerRoute = DistribuerRouteImport.update({
+  id: '/distribuer',
+  path: '/distribuer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
+  id: '/mentions-legales',
+  path: '/mentions-legales',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RechercheRoute = RechercheRouteImport.update({
+  id: '/recherche',
+  path: '/recherche',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategorieVilleRoute = CategorieVilleRouteImport.update({
+  id: '/$categorie/$ville',
+  path: '/$categorie/$ville',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -63,6 +101,11 @@ const AuthenticatedStatistiquesRoute =
     path: '/statistiques',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AvisTokenRoute = AvisTokenRouteImport.update({
+  id: '/avis/$token',
+  path: '/avis/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReservationTokenRoute = ReservationTokenRouteImport.update({
   id: '/reservation/$token',
   path: '/reservation/$token',
@@ -71,6 +114,11 @@ const ReservationTokenRoute = ReservationTokenRouteImport.update({
 const ReserverSlugRoute = ReserverSlugRouteImport.update({
   id: '/reserver/$slug',
   path: '/reserver/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SalonSlugRoute = SalonSlugRouteImport.update({
+  id: '/salon/$slug',
+  path: '/salon/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedClientsIndexRoute =
@@ -95,13 +143,21 @@ const ApiPublicPaymentsWebhookRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cgv': typeof CgvRoute
+  '/distribuer': typeof DistribuerRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
+  '/recherche': typeof RechercheRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/$categorie/$ville': typeof CategorieVilleRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/bienvenue': typeof AuthenticatedBienvenueRoute
   '/caisse': typeof AuthenticatedCaisseRoute
   '/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/avis/$token': typeof AvisTokenRoute
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
+  '/salon/$slug': typeof SalonSlugRoute
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/clients/': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -109,13 +165,21 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cgv': typeof CgvRoute
+  '/distribuer': typeof DistribuerRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
+  '/recherche': typeof RechercheRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/$categorie/$ville': typeof CategorieVilleRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/bienvenue': typeof AuthenticatedBienvenueRoute
   '/caisse': typeof AuthenticatedCaisseRoute
   '/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/avis/$token': typeof AvisTokenRoute
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
+  '/salon/$slug': typeof SalonSlugRoute
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/clients': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -125,13 +189,21 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/cgv': typeof CgvRoute
+  '/distribuer': typeof DistribuerRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
+  '/recherche': typeof RechercheRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/$categorie/$ville': typeof CategorieVilleRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/bienvenue': typeof AuthenticatedBienvenueRoute
   '/_authenticated/caisse': typeof AuthenticatedCaisseRoute
   '/_authenticated/statistiques': typeof AuthenticatedStatistiquesRoute
+  '/avis/$token': typeof AvisTokenRoute
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
+  '/salon/$slug': typeof SalonSlugRoute
   '/_authenticated/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/_authenticated/clients/': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -141,13 +213,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/cgv'
+    | '/distribuer'
+    | '/mentions-legales'
+    | '/recherche'
+    | '/sitemap.xml'
+    | '/$categorie/$ville'
     | '/admin'
     | '/agenda'
     | '/bienvenue'
     | '/caisse'
     | '/statistiques'
+    | '/avis/$token'
     | '/reservation/$token'
     | '/reserver/$slug'
+    | '/salon/$slug'
     | '/clients/$clientId'
     | '/clients/'
     | '/api/public/payments/webhook'
@@ -155,13 +235,21 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/cgv'
+    | '/distribuer'
+    | '/mentions-legales'
+    | '/recherche'
+    | '/sitemap.xml'
+    | '/$categorie/$ville'
     | '/admin'
     | '/agenda'
     | '/bienvenue'
     | '/caisse'
     | '/statistiques'
+    | '/avis/$token'
     | '/reservation/$token'
     | '/reserver/$slug'
+    | '/salon/$slug'
     | '/clients/$clientId'
     | '/clients'
     | '/api/public/payments/webhook'
@@ -170,13 +258,21 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/cgv'
+    | '/distribuer'
+    | '/mentions-legales'
+    | '/recherche'
+    | '/sitemap.xml'
+    | '/$categorie/$ville'
     | '/_authenticated/admin'
     | '/_authenticated/agenda'
     | '/_authenticated/bienvenue'
     | '/_authenticated/caisse'
     | '/_authenticated/statistiques'
+    | '/avis/$token'
     | '/reservation/$token'
     | '/reserver/$slug'
+    | '/salon/$slug'
     | '/_authenticated/clients/$clientId'
     | '/_authenticated/clients/'
     | '/api/public/payments/webhook'
@@ -186,8 +282,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CgvRoute: typeof CgvRoute
+  DistribuerRoute: typeof DistribuerRoute
+  MentionsLegalesRoute: typeof MentionsLegalesRoute
+  RechercheRoute: typeof RechercheRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  CategorieVilleRoute: typeof CategorieVilleRoute
+  AvisTokenRoute: typeof AvisTokenRoute
   ReservationTokenRoute: typeof ReservationTokenRoute
   ReserverSlugRoute: typeof ReserverSlugRoute
+  SalonSlugRoute: typeof SalonSlugRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -212,6 +316,48 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cgv': {
+      id: '/cgv'
+      path: '/cgv'
+      fullPath: '/cgv'
+      preLoaderRoute: typeof CgvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/distribuer': {
+      id: '/distribuer'
+      path: '/distribuer'
+      fullPath: '/distribuer'
+      preLoaderRoute: typeof DistribuerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentions-legales': {
+      id: '/mentions-legales'
+      path: '/mentions-legales'
+      fullPath: '/mentions-legales'
+      preLoaderRoute: typeof MentionsLegalesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recherche': {
+      id: '/recherche'
+      path: '/recherche'
+      fullPath: '/recherche'
+      preLoaderRoute: typeof RechercheRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$categorie/$ville': {
+      id: '/$categorie/$ville'
+      path: '/$categorie/$ville'
+      fullPath: '/$categorie/$ville'
+      preLoaderRoute: typeof CategorieVilleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -249,6 +395,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStatistiquesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/avis/$token': {
+      id: '/avis/$token'
+      path: '/avis/$token'
+      fullPath: '/avis/$token'
+      preLoaderRoute: typeof AvisTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reservation/$token': {
       id: '/reservation/$token'
       path: '/reservation/$token'
@@ -261,6 +414,13 @@ declare module '@tanstack/react-router' {
       path: '/reserver/$slug'
       fullPath: '/reserver/$slug'
       preLoaderRoute: typeof ReserverSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/salon/$slug': {
+      id: '/salon/$slug'
+      path: '/salon/$slug'
+      fullPath: '/salon/$slug'
+      preLoaderRoute: typeof SalonSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/clients/': {
@@ -314,8 +474,16 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CgvRoute: CgvRoute,
+  DistribuerRoute: DistribuerRoute,
+  MentionsLegalesRoute: MentionsLegalesRoute,
+  RechercheRoute: RechercheRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  CategorieVilleRoute: CategorieVilleRoute,
+  AvisTokenRoute: AvisTokenRoute,
   ReservationTokenRoute: ReservationTokenRoute,
   ReserverSlugRoute: ReserverSlugRoute,
+  SalonSlugRoute: SalonSlugRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
