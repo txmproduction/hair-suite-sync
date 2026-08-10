@@ -610,7 +610,9 @@ export type Database = {
           id: string
           lien_externe: string | null
           nb_avis: number
+          nb_avis_google: number | null
           nom: string
+          note_google: number | null
           note_moyenne: number | null
           photo_couverture_url: string | null
           reservation_en_ligne: boolean
@@ -630,7 +632,9 @@ export type Database = {
           id?: string
           lien_externe?: string | null
           nb_avis?: number
+          nb_avis_google?: number | null
           nom: string
+          note_google?: number | null
           note_moyenne?: number | null
           photo_couverture_url?: string | null
           reservation_en_ligne?: boolean
@@ -650,7 +654,9 @@ export type Database = {
           id?: string
           lien_externe?: string | null
           nb_avis?: number
+          nb_avis_google?: number | null
           nom?: string
+          note_google?: number | null
           note_moyenne?: number | null
           photo_couverture_url?: string | null
           reservation_en_ligne?: boolean
