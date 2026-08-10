@@ -130,13 +130,17 @@ export async function rechercherSalons(f: FiltresRecherche): Promise<SalonCarte[
       .eq("actif", true)
       .ilike("nom", `%${terme}%`);
     const idsPresta = new Set((presta ?? []).map((p) => p.salon_id));
+    const { categoriesPourPrestation } = await import("./catalogue-prestations");
+    const catsPresta = new Set(categoriesPourPrestation(terme));
     lignes = lignes.filter(
       (s) =>
         s.nom.toLowerCase().includes(terme) ||
         (s.description ?? "").toLowerCase().includes(terme) ||
-        idsPresta.has(s.id),
+        idsPresta.has(s.id) ||
+        catsPresta.has(s.categorie as string),
     );
   }
+
 
   const prixMin = await prixMinParSalon(lignes.map((s) => s.id));
   const cartes = lignes.map((s) => versCarte(s as LigneSalon, prixMin));
