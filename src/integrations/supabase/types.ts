@@ -474,6 +474,7 @@ export type Database = {
       current_salon_id: { Args: never; Returns: string }
       is_gerant: { Args: never; Returns: boolean }
       mon_employe_id: { Args: never; Returns: string }
+      reclamer_invitation: { Args: never; Returns: string }
     }
     Enums: {
       moyen_paiement: "cb" | "especes" | "cheque" | "autre"
