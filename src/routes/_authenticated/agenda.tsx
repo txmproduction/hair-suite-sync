@@ -99,11 +99,12 @@ function Agenda() {
   function rdvDeColonne(col: { id: string; date: Date }) {
     return rdvs.filter(
       (r) =>
-        r.employe_id === col.id &&
+        (col.id === "tous" || r.employe_id === col.id) &&
         dateISO(new Date(r.debut)) === dateISO(col.date) &&
         r.statut !== "annule",
     );
   }
+
 
   async function deplacer(rdvId: string, employeId: string, date: Date, minutes: number) {
     const d = new Date(date);
