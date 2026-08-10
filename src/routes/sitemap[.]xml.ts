@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { chargerSitemap } from "@/lib/annuaire.server";
-import { slugVille } from "@/lib/categories";
+import { parCategorie, villeSlug } from "@/lib/categories";
 
 const BASE = "https://hairtrack.fr";
 
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           `${BASE}/distribuer`,
           `${BASE}/mentions-legales`,
           `${BASE}/cgv`,
-          ...pages.map((p) => `${BASE}/${p.categorie.replace(/_/g, "-")}/${slugVille(p.ville)}`),
+          ...pages.map((p) => `${BASE}/${parCategorie(p.categorie)?.slug ?? p.categorie}/${villeSlug(p.ville)}`),
           ...salons.map((s) => `${BASE}/salon/${s.slug}`),
         ];
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
