@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
-import { MapPin, Phone, Clock, ExternalLink, CalendarOff, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MapPin, Phone, Clock, ExternalLink, CalendarOff, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { EntetePublique } from "@/components/annuaire/EntetePublique";
 import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { Etoiles, NoteSalon } from "@/components/annuaire/Etoiles";
@@ -115,7 +115,25 @@ function GalerieHero({
     ...photos.map((p) => p.url).filter((u) => u !== photoCouverture),
   ];
   const [index, setIndex] = useState(0);
+  const [zoom, setZoom] = useState(false);
   const total = urls.length;
+
+  // Fermeture au clavier + blocage du défilement de la page pendant l'aperçu.
+  useEffect(() => {
+    if (!zoom) return;
+    const surTouche = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setZoom(false);
+      if (e.key === "ArrowRight" && total > 1) setIndex((i) => (i + 1) % total);
+      if (e.key === "ArrowLeft" && total > 1) setIndex((i) => (i - 1 + total) % total);
+    };
+    document.addEventListener("keydown", surTouche);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", surTouche);
+      document.body.style.overflow = overflow;
+    };
+  }, [zoom, total]);
 
   if (total === 0) {
     return (
@@ -128,12 +146,19 @@ function GalerieHero({
 
   return (
     <div className="relative h-56 w-full overflow-hidden bg-secondary sm:h-72">
-      <img
-        src={urls[index]}
-        alt={`Photo ${index + 1} du salon ${nomSalon}`}
-        className="h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/50" />
+      <button
+        type="button"
+        onClick={() => setZoom(true)}
+        aria-label="Afficher la photo en grand"
+        className="block h-full w-full cursor-zoom-in"
+      >
+        <img
+          src={urls[index]}
+          alt={`Photo ${index + 1} du salon ${nomSalon}`}
+          className="h-full w-full object-cover"
+        />
+      </button>
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 to-black/50" />
       {total > 1 && (
         <>
           <button
@@ -169,6 +194,60 @@ function GalerieHero({
             {index + 1} / {total}
           </span>
         </>
+      )}
+
+      {zoom && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setZoom(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Photo du salon ${nomSalon}`}
+        >
+          <button
+            type="button"
+            onClick={() => setZoom(false)}
+            aria-label="Fermer"
+            className="absolute right-4 top-4 rounded-full bg-white/15 p-2 text-white hover:bg-white/25"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <img
+            src={urls[index]}
+            alt={`Photo ${index + 1} du salon ${nomSalon}`}
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-full max-w-full cursor-default object-contain"
+          />
+          {total > 1 && (
+            <>
+              <button
+                type="button"
+                aria-label="Photo précédente"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIndex((i) => (i - 1 + total) % total);
+                }}
+                className="absolute left-4 rounded-full bg-white/15 p-3 text-white hover:bg-white/25"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+              <button
+                type="button"
+                aria-label="Photo suivante"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIndex((i) => (i + 1) % total);
+                }}
+                className="absolute right-4 rounded-full bg-white/15 p-3 text-white hover:bg-white/25"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button>
+              <span className="absolute bottom-5 rounded-full bg-white/15 px-3 py-1 text-sm text-white">
+                {index + 1} / {total}
+              </span>
+            </>
+          )}
+        </div>
       )}
     </div>
   );
