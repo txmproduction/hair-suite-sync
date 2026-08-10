@@ -4,12 +4,28 @@ import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo-light.png";
 import { CATEGORIES } from "@/lib/categories";
 
-export function EntetePublique({ ancrePro }: { ancrePro?: boolean | undefined }) {
+export function EntetePublique({
+  ancrePro,
+  transparent,
+}: {
+  ancrePro?: boolean | undefined;
+  transparent?: boolean | undefined;
+}) {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-card/95 backdrop-blur">
+    <header
+      className={
+        transparent
+          ? "absolute inset-x-0 top-0 z-40 text-white"
+          : "sticky top-0 z-40 border-b border-border/70 bg-card/95 backdrop-blur"
+      }
+    >
       <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
         <Link to="/" className="shrink-0">
-          <img src={logo} alt="HairTrack" className="h-8 w-auto" />
+          <img
+            src={logo}
+            alt="HairTrack"
+            className={`h-8 w-auto ${transparent ? "brightness-0 invert" : ""}`}
+          />
         </Link>
         <nav className="hidden flex-1 items-center gap-1 lg:flex">
           {CATEGORIES.map((c) => (
@@ -17,17 +33,26 @@ export function EntetePublique({ ancrePro }: { ancrePro?: boolean | undefined })
               key={c.value}
               to="/recherche"
               search={{ categorie: c.value }}
-              className="rounded-md px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              className={
+                transparent
+                  ? "rounded-md px-2.5 py-1.5 text-sm text-white/90 transition-colors hover:text-white"
+                  : "rounded-md px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              }
             >
               {c.label}
             </Link>
           ))}
         </nav>
+
         <div className="ml-auto flex items-center gap-2">
           {ancrePro ? (
             <a
               href="#pro"
-              className="hidden rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground sm:block"
+              className={`hidden rounded-md px-2.5 py-1.5 text-sm sm:block ${
+                transparent
+                  ? "bg-white/15 text-white backdrop-blur hover:bg-white/25"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
               Je suis un professionnel de beauté
             </a>
@@ -35,12 +60,20 @@ export function EntetePublique({ ancrePro }: { ancrePro?: boolean | undefined })
             <Link
               to="/"
               hash="pro"
-              className="hidden rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground sm:block"
+              className={`hidden rounded-md px-2.5 py-1.5 text-sm sm:block ${
+                transparent
+                  ? "bg-white/15 text-white backdrop-blur hover:bg-white/25"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
               Je suis un professionnel de beauté
             </Link>
           )}
-          <Button asChild variant="outline" size="sm">
+          <Button
+            asChild
+            variant={transparent ? "default" : "outline"}
+            size="sm"
+          >
             <Link to="/auth">
               <UserRound className="mr-1.5 h-4 w-4" />
               Mon compte
@@ -54,12 +87,17 @@ export function EntetePublique({ ancrePro }: { ancrePro?: boolean | undefined })
             key={c.value}
             to="/recherche"
             search={{ categorie: c.value }}
-            className="whitespace-nowrap rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground"
+            className={
+              transparent
+                ? "whitespace-nowrap rounded-full bg-white/15 px-3 py-1 text-xs text-white backdrop-blur"
+                : "whitespace-nowrap rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground"
+            }
           >
             {c.label}
           </Link>
         ))}
       </div>
+
     </header>
   );
 }

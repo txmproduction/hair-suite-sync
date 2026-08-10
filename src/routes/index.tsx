@@ -110,17 +110,16 @@ function Accueil() {
 
   return (
     <div className="min-h-screen bg-background">
-      <EntetePublique ancrePro />
-
-      {/* HERO */}
-      <section className="relative isolate w-full overflow-hidden">
+      {/* HERO plein écran, header transparent par-dessus */}
+      <section className="relative isolate flex h-screen w-full items-center overflow-hidden">
+        <EntetePublique ancrePro transparent />
         <img
           src={hero.url}
           alt="Cliente dans un salon de coiffure"
           className="absolute inset-0 h-full w-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/25 to-black/30" />
-        <div className="relative mx-auto max-w-4xl px-4 py-16 text-center sm:py-24">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/25 to-black/40" />
+        <div className="relative mx-auto w-full max-w-4xl px-4 text-center">
           <h1 className="text-3xl font-semibold text-white drop-shadow-sm sm:text-5xl">
             Réservez en beauté
           </h1>
@@ -134,14 +133,10 @@ function Accueil() {
       </section>
 
       {/* CATEGORIES */}
-      <section className="mx-auto max-w-6xl px-4 py-14">
-        <h2 className="text-2xl font-semibold sm:text-3xl">Découvrez nos professionnels</h2>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
-          Choisissez l'univers qui vous intéresse, on vous montre les salons disponibles autour de
-          vous.
-        </p>
+      <section className="py-20 sm:py-24">
         <CarouselCategories />
       </section>
+
 
 
       {/* SALONS A LA UNE */}
