@@ -71,16 +71,24 @@ export async function chargerAnnuaire(): Promise<{
   const { data } = await supabaseAdmin
     .from("salons")
     .select(COLONNES)
-    .eq("reservation_en_ligne", true)
-    .eq("statut", "reclame")
+    .or(FILTRE_VISIBLE)
     .not("slug", "is", null)
-    .order("nb_avis", { ascending: false })
-    .limit(24);
+    .limit(120);
 
   const lignes = data ?? [];
   const prixMin = await prixMinParSalon(lignes.map((s) => s.id));
-  const salons = lignes.map((s) => versCarte(s as LigneSalon, prixMin));
-  const villes = [...new Set(salons.map((s) => s.ville).filter((v): v is string => !!v))].sort(
+  const tous = lignes.map((s) => versCarte(s as LigneSalon, prixMin));
+
+  // Mise en avant des mieux notés : on privilégie les avis HairTrack quand ils
+  // existent, sinon la note Google. Un minimum d'avis évite qu'un salon avec
+  // un seul 5 étoiles passe devant un salon à 4,7 sur 300 avis.
+  const note = (s: SalonCarte) => s.note_moyenne ?? s.note_google ?? 0;
+  const nbAvis = (s: SalonCarte) => (s.note_moyenne ? s.nb_avis : (s.nb_avis_google ?? 0));
+  const salons = tous
+    .filter((s) => note(s) > 0 && nbAvis(s) >= 10)
+    .sort((a, b) => note(b) - note(a) || nbAvis(b) - nbAvis(a));
+
+  const villes = [...new Set(tous.map((s) => s.ville).filter((v): v is string => !!v))].sort(
     (a, b) => a.localeCompare(b, "fr"),
   );
   return { salons, villes };

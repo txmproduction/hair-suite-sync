@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useRef } from "react";
 import {
   CalendarDays,
   CreditCard,
@@ -10,6 +11,8 @@ import {
   ShieldCheck,
   TrendingUp,
   Handshake,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -107,6 +110,14 @@ function Accueil() {
   const { data } = useQuery({ queryKey: ["annuaire"], queryFn: () => annuaireFn() });
   const salons = (data?.salons ?? []) as SalonCarte[];
   const villes = data?.villes ?? [];
+  const pisteRef = useRef<HTMLDivElement>(null);
+
+  // Fait défiler d'une "page" de cartes, quelle que soit la largeur d'écran.
+  const faireDefiler = (sens: number) => {
+    const piste = pisteRef.current;
+    if (!piste) return;
+    piste.scrollBy({ left: sens * piste.clientWidth * 0.9, behavior: "smooth" });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -139,28 +150,56 @@ function Accueil() {
 
 
 
-      {/* SALONS A LA UNE */}
+      {/* SALONS LES MIEUX NOTES */}
       <section className="border-y border-border bg-card/60 py-14">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-semibold sm:text-3xl">Salons à la une</h2>
+              <h2 className="text-2xl font-semibold sm:text-3xl">
+                Découvrez les salons les mieux notés
+              </h2>
               <p className="mt-2 text-muted-foreground">
-                Ils réservent déjà en ligne avec HairTrack.
+                Une sélection d'adresses reconnues près de chez vous.
               </p>
             </div>
-            <Button asChild variant="outline">
-              <Link to="/recherche">Voir tous les salons</Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => faireDefiler(-1)}
+                aria-label="Salons précédents"
+                className="rounded-full border border-border p-2.5 transition-colors hover:bg-secondary"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => faireDefiler(1)}
+                aria-label="Salons suivants"
+                className="rounded-full border border-border p-2.5 transition-colors hover:bg-secondary"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+              <Button asChild variant="outline">
+                <Link to="/recherche">Voir tous les salons</Link>
+              </Button>
+            </div>
           </div>
           {salons.length === 0 ? (
             <p className="mt-8 text-muted-foreground">
               Les premiers salons arrivent très bientôt.
             </p>
           ) : (
-            <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {salons.slice(0, 6).map((s) => (
-                <CarteSalon key={s.id} salon={s} />
+            <div
+              ref={pisteRef}
+              className="mt-7 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {salons.slice(0, 12).map((s) => (
+                <div
+                  key={s.id}
+                  className="w-[85%] shrink-0 snap-start sm:w-[calc((100%-1.25rem)/2)] lg:w-[calc((100%-2.5rem)/3)]"
+                >
+                  <CarteSalon salon={s} />
+                </div>
               ))}
             </div>
           )}
