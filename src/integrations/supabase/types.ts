@@ -714,12 +714,6 @@ export type Database = {
         | "manucure"
         | "institut_beaute"
         | "bien_etre"
-        | "massage"
-        | "sophrologue"
-        | "reflexologue"
-        | "hypnotherapeute"
-        | "naturopathe"
-        | "coach_de_vie"
       moyen_paiement: "cb" | "especes" | "cheque" | "autre"
       role_employe: "gerant" | "employe"
       statut_rdv:
@@ -863,12 +857,6 @@ export const Constants = {
         "manucure",
         "institut_beaute",
         "bien_etre",
-        "massage",
-        "sophrologue",
-        "reflexologue",
-        "hypnotherapeute",
-        "naturopathe",
-        "coach_de_vie",
       ],
       moyen_paiement: ["cb", "especes", "cheque", "autre"],
       role_employe: ["gerant", "employe"],
