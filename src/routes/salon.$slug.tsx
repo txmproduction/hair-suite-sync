@@ -47,7 +47,7 @@ export const Route = createFileRoute("/salon/$slug")({
 });
 
 function FicheSalonPage() {
-  const fiche = Route.useLoaderData();
+  const fiche = Route.useLoaderData() as FicheSalon;
   const { salon, photos, categories, prestations, horaires, avis } = fiche;
 
   const groupes = [
