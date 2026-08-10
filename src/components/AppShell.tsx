@@ -36,7 +36,7 @@ export function AppShell({
   const { data: acces } = useQuery({
     queryKey: ["super-admin"],
     queryFn: () => estSuperAdminFn(),
-    enabled: !!data?.user,
+    enabled: !!data,
   });
 
   if (!isLoading && data && !data.employe && pathname !== "/bienvenue") {
