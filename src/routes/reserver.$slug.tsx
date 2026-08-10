@@ -11,6 +11,9 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import logo from "@/assets/logo-light.png";
 import { ArrowLeft, Check, Clock, MapPin, Phone } from "lucide-react";
+import { PaiementAcompte } from "@/components/PaiementAcompte";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { paiementConfigure } from "@/lib/stripe";
 
 export const Route = createFileRoute("/reserver/$slug")({
   loader: ({ params }) => salonPublicFn({ data: { slug: params.slug } }),
@@ -130,7 +133,7 @@ function PageReservation() {
     if (!prestation || !creneau) return;
     setEnvoi(true);
     try {
-      const res = await reserver({
+      const res: { token: string } = await reserver({
         data: {
           slug,
           prestationId: prestation.id,
@@ -141,8 +144,9 @@ function PageReservation() {
           email,
         },
       });
-      if (res.paiement_url) {
-        window.location.href = res.paiement_url;
+      if (acompte > 0 && paiementConfigure()) {
+        setTokenPaiement(res.token);
+        setEnvoi(false);
         return;
       }
       window.location.href = `/reservation/${res.token}`;
