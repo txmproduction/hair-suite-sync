@@ -80,15 +80,40 @@ function SuperAdminPage() {
     null,
   );
 
+  // Le serveur plafonne à 500 lignes par appel : on découpe automatiquement
+  // pour pouvoir coller des milliers de salons en une seule fois.
+  const TAILLE_LOT = 400;
+  const [progression, setProgression] = useState<{ faits: number; total: number } | null>(null);
+
   const importer = useMutation({
-    mutationFn: () => importerSalonsFn({ data: { lignes: parserCsv(csv), source } }),
+    mutationFn: async () => {
+      const lignes = parserCsv(csv);
+      let crees = 0;
+      const ignores: string[] = [];
+      setProgression({ faits: 0, total: lignes.length });
+      for (let i = 0; i < lignes.length; i += TAILLE_LOT) {
+        const lot = lignes.slice(i, i + TAILLE_LOT);
+        const r = await importerSalonsFn({ data: { lignes: lot, source } });
+        crees += r.crees;
+        ignores.push(...r.ignores);
+        setProgression({ faits: Math.min(i + TAILLE_LOT, lignes.length), total: lignes.length });
+      }
+      return { crees, ignores };
+    },
     onSuccess: (r) => {
+      setProgression(null);
       toast.success(`${r.crees} salon(s) importé(s).`);
-      if (r.ignores.length) toast.message(`${r.ignores.length} ignoré(s)`, { description: r.ignores.slice(0, 5).join(" · ") });
+      if (r.ignores.length)
+        toast.message(`${r.ignores.length} ignoré(s)`, {
+          description: r.ignores.slice(0, 5).join(" · "),
+        });
       setCsv("");
       queryClient.invalidateQueries({ queryKey: ["salons-non-reclames"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      setProgression(null);
+      toast.error(e.message);
+    },
   });
 
   const convertir = useMutation({
@@ -147,6 +172,11 @@ function SuperAdminPage() {
           >
             Importer {parserCsv(csv).length || ""} salon(s)
           </Button>
+          {progression && (
+            <p className="text-sm text-muted-foreground">
+              Import en cours : {progression.faits} / {progression.total} lignes traitées…
+            </p>
+          )}
         </div>
       </section>
 
