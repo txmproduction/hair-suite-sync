@@ -36,19 +36,32 @@ async function prixMinParSalon(ids: string[]) {
   return map;
 }
 
-function versCarte(s: Record<string, unknown>, prixMin: Map<string, number>): SalonCarte {
+type LigneSalon = {
+  id: string;
+  slug: string | null;
+  nom: string;
+  ville: string | null;
+  code_postal: string | null;
+  categorie: CategorieSalon;
+  description: string | null;
+  photo_couverture_url: string | null;
+  note_moyenne: number | null;
+  nb_avis: number;
+};
+
+function versCarte(s: LigneSalon, prixMin: Map<string, number>): SalonCarte {
   return {
-    id: s.id as string,
-    slug: s.slug as string,
-    nom: s.nom as string,
-    ville: (s.ville as string) ?? null,
-    code_postal: (s.code_postal as string) ?? null,
-    categorie: s.categorie as CategorieSalon,
-    description: (s.description as string) ?? null,
-    photo_couverture_url: (s.photo_couverture_url as string) ?? null,
+    id: s.id,
+    slug: s.slug ?? "",
+    nom: s.nom,
+    ville: s.ville,
+    code_postal: s.code_postal,
+    categorie: s.categorie,
+    description: s.description,
+    photo_couverture_url: s.photo_couverture_url,
     note_moyenne: s.note_moyenne === null ? null : Number(s.note_moyenne),
     nb_avis: Number(s.nb_avis ?? 0),
-    prix_min: prixMin.get(s.id as string) ?? null,
+    prix_min: prixMin.get(s.id) ?? null,
   };
 }
 
@@ -66,7 +79,7 @@ export async function chargerAnnuaire(): Promise<{
 
   const lignes = data ?? [];
   const prixMin = await prixMinParSalon(lignes.map((s) => s.id));
-  const salons = lignes.map((s) => versCarte(s as Record<string, unknown>, prixMin));
+  const salons = lignes.map((s) => versCarte(s as LigneSalon, prixMin));
   const villes = [...new Set(salons.map((s) => s.ville).filter((v): v is string => !!v))].sort(
     (a, b) => a.localeCompare(b, "fr"),
   );
@@ -87,7 +100,7 @@ export async function rechercherSalons(f: FiltresRecherche): Promise<SalonCarte[
     .eq("reservation_en_ligne", true)
     .not("slug", "is", null);
 
-  if (f.categorie) requete = requete.eq("categorie", f.categorie);
+  if (f.categorie) requete = requete.eq("categorie", f.categorie as CategorieSalon);
   if (f.ville) requete = requete.ilike("ville", `%${f.ville}%`);
   if (f.noteMin) requete = requete.gte("note_moyenne", f.noteMin);
 
@@ -111,7 +124,7 @@ export async function rechercherSalons(f: FiltresRecherche): Promise<SalonCarte[
   }
 
   const prixMin = await prixMinParSalon(lignes.map((s) => s.id));
-  return lignes.map((s) => versCarte(s as Record<string, unknown>, prixMin));
+  return lignes.map((s) => versCarte(s as LigneSalon, prixMin));
 }
 
 export async function chargerVilles(): Promise<string[]> {
@@ -176,7 +189,7 @@ export async function chargerFicheSalon(slug: string): Promise<FicheSalon | null
   const prixMin = await prixMinParSalon([salon.id]);
   return {
     salon: {
-      ...versCarte(salon as unknown as Record<string, unknown>, prixMin),
+      ...versCarte(salon as unknown as LigneSalon, prixMin),
       adresse: salon.adresse,
       telephone: salon.telephone,
     },
