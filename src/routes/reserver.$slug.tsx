@@ -11,6 +11,9 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import logo from "@/assets/logo-light.png";
 import { ArrowLeft, Check, Clock, MapPin, Phone } from "lucide-react";
+import { PaiementAcompte } from "@/components/PaiementAcompte";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { paiementConfigure } from "@/lib/stripe";
 
 export const Route = createFileRoute("/reserver/$slug")({
   loader: ({ params }) => salonPublicFn({ data: { slug: params.slug } }),
@@ -100,6 +103,7 @@ function PageReservation() {
   const [telephone, setTelephone] = useState("");
   const [email, setEmail] = useState("");
   const [envoi, setEnvoi] = useState(false);
+  const [tokenPaiement, setTokenPaiement] = useState<string | null>(null);
 
   const prestation = contexte?.prestations.find((p) => p.id === prestationId) ?? null;
   const acompte = useMemo(() => {
@@ -130,7 +134,7 @@ function PageReservation() {
     if (!prestation || !creneau) return;
     setEnvoi(true);
     try {
-      const res = await reserver({
+      const res: { token: string } = await reserver({
         data: {
           slug,
           prestationId: prestation.id,
@@ -141,8 +145,9 @@ function PageReservation() {
           email,
         },
       });
-      if (res.paiement_url) {
-        window.location.href = res.paiement_url;
+      if (acompte > 0 && paiementConfigure()) {
+        setTokenPaiement(res.token);
+        setEnvoi(false);
         return;
       }
       window.location.href = `/reservation/${res.token}`;
@@ -361,6 +366,19 @@ function PageReservation() {
               </p>
             )}
           </div>
+          {tokenPaiement ? (
+            <div className="card-soft space-y-3 p-5">
+              <PaymentTestModeBanner />
+              <h2 className="font-semibold">Paiement de l'acompte — {euro(acompte)}</h2>
+              <p className="text-sm text-muted-foreground">
+                Votre créneau est bloqué 15 minutes le temps du paiement.
+              </p>
+              <PaiementAcompte
+                token={tokenPaiement}
+                returnUrl={`${window.location.origin}/reservation/${tokenPaiement}`}
+              />
+            </div>
+          ) : (
           <div className="card-soft space-y-4 p-5">
             <div className="space-y-2">
               <Label htmlFor="r-nom">Nom et prénom</Label>
@@ -395,6 +413,8 @@ function PageReservation() {
               rendez-vous.
             </p>
           </div>
+          )}
+
         </div>
       )}
 
