@@ -99,11 +99,12 @@ function Agenda() {
   function rdvDeColonne(col: { id: string; date: Date }) {
     return rdvs.filter(
       (r) =>
-        r.employe_id === col.id &&
+        (col.id === "tous" || r.employe_id === col.id) &&
         dateISO(new Date(r.debut)) === dateISO(col.date) &&
         r.statut !== "annule",
     );
   }
+
 
   async function deplacer(rdvId: string, employeId: string, date: Date, minutes: number) {
     const d = new Date(date);
@@ -172,6 +173,7 @@ function Agenda() {
                 <SelectValue placeholder="Employé" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="tous">Tous</SelectItem>
                 {employes.map((e) => (
                   <SelectItem key={e.id} value={e.id}>
                     {e.nom}
@@ -180,6 +182,7 @@ function Agenda() {
               </SelectContent>
             </Select>
           )}
+
           <Tabs
             value={vue}
             onValueChange={(v) => {
@@ -224,26 +227,52 @@ function Agenda() {
                     <div
                       key={m}
                       style={{ height: ROW }}
-                      onClick={() => setCreation({ employeId: col.id, date: col.date, minutes: m })}
+                      onClick={() =>
+                        setCreation({
+                          employeId: col.id === "tous" ? (employes[0]?.id ?? "") : col.id,
+                          date: col.date,
+                          minutes: m,
+                        })
+                      }
                       onDragOver={(e) => e.preventDefault()}
                       onDrop={(e) => {
                         const id = e.dataTransfer.getData("text/plain");
-                        if (id) deplacer(id, col.id, col.date, m);
+                        if (!id) return;
+                        // En vue « Tous », la colonne ne désigne pas un
+                        // collaborateur : on conserve celui du rendez-vous.
+                        const cible =
+                          col.id === "tous"
+                            ? (rdvs.find((r) => r.id === id)?.employe_id ?? employes[0]?.id ?? "")
+                            : col.id;
+                        deplacer(id, cible, col.date, m);
                       }}
                       className={`cursor-pointer transition-colors hover:bg-secondary ${
                         m % 60 === 0 ? "border-t border-border" : "border-t border-border/40"
                       }`}
                     />
                   ))}
-                  {rdvDeColonne(col).map((r) => {
+                  {rdvDeColonne(col).map((r, _ri, liste) => {
                     const d = new Date(r.debut);
                     const top = ((d.getHours() * 60 + d.getMinutes() - minH * 60) / 15) * ROW;
+                    const debut = d.getTime();
+                    const fin = debut + r.duree_min * 60000;
+                    // En vue « Tous », plusieurs collaborateurs partagent la
+                    // même colonne : on répartit les blocs qui se chevauchent
+                    // côte à côte pour que tout reste lisible.
+                    const chevauchants =
+                      col.id === "tous"
+                        ? liste.filter((o) => {
+                            const od = new Date(o.debut).getTime();
+                            return od < fin && od + o.duree_min * 60000 > debut;
+                          })
+                        : [r];
+                    const index = Math.max(chevauchants.indexOf(r), 0);
+                    const largeur = 100 / Math.max(chevauchants.length, 1);
                     // En vue jour, une colonne = un collaborateur : sa couleur
-                    // distingue les intervenants d'un coup d'œil. En vue semaine,
-                    // c'est un seul collaborateur, la couleur de prestation
-                    // renseigne davantage.
+                    // distingue les intervenants d'un coup d'œil. En vue semaine
+                    // par collaborateur, la couleur de prestation renseigne plus.
                     const couleur =
-                      (vue === "jour"
+                      (vue === "jour" || col.id === "tous"
                         ? employes.find((e) => e.id === r.employe_id)?.couleur
                         : r.prestations?.couleur) ??
                       r.prestations?.couleur ??
@@ -257,17 +286,24 @@ function Agenda() {
                         style={{
                           top,
                           height: (r.duree_min / 15) * ROW - 2,
+                          left: `${index * largeur}%`,
+                          width: `${largeur}%`,
                           borderLeft: `4px solid ${couleur}`,
                           backgroundColor: `${couleur}22`,
                         }}
-                        className="absolute inset-x-0 overflow-hidden rounded-md px-2 py-1 text-left text-xs leading-tight"
+                        className="absolute overflow-hidden rounded-md px-2 py-1 text-left text-xs leading-tight"
                       >
+
                         <span className="block truncate font-semibold">
                           {r.clients?.nom ?? "Client"}
                         </span>
                         <span className="block truncate text-muted-foreground">
-                          {r.prestations?.nom}
+                          {col.id === "tous"
+                            ? (employes.find((e) => e.id === r.employe_id)?.nom ??
+                              r.prestations?.nom)
+                            : r.prestations?.nom}
                         </span>
+
                         <span className="flex flex-wrap items-center gap-1">
                           {r.origine === "en_ligne" && (
                             <span className="rounded-full bg-gold-soft px-1.5 text-[10px] font-medium text-gold-foreground">
