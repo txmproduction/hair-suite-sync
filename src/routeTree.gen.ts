@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DistribuerRouteImport } from './routes/distribuer'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
@@ -37,6 +38,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DistribuerRoute = DistribuerRouteImport.update({
+  id: '/distribuer',
+  path: '/distribuer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RechercheRoute = RechercheRouteImport.update({
@@ -107,6 +113,7 @@ const ApiPublicPaymentsWebhookRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/distribuer': typeof DistribuerRoute
   '/recherche': typeof RechercheRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/agenda': typeof AuthenticatedAgendaRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/distribuer': typeof DistribuerRoute
   '/recherche': typeof RechercheRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/agenda': typeof AuthenticatedAgendaRoute
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/distribuer': typeof DistribuerRoute
   '/recherche': typeof RechercheRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
@@ -159,6 +168,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/distribuer'
     | '/recherche'
     | '/admin'
     | '/agenda'
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/distribuer'
     | '/recherche'
     | '/admin'
     | '/agenda'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/distribuer'
     | '/recherche'
     | '/_authenticated/admin'
     | '/_authenticated/agenda'
@@ -210,6 +222,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DistribuerRoute: typeof DistribuerRoute
   RechercheRoute: typeof RechercheRoute
   ReservationTokenRoute: typeof ReservationTokenRoute
   ReserverSlugRoute: typeof ReserverSlugRoute
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/distribuer': {
+      id: '/distribuer'
+      path: '/distribuer'
+      fullPath: '/distribuer'
+      preLoaderRoute: typeof DistribuerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recherche': {
@@ -354,6 +374,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  DistribuerRoute: DistribuerRoute,
   RechercheRoute: RechercheRoute,
   ReservationTokenRoute: ReservationTokenRoute,
   ReserverSlugRoute: ReserverSlugRoute,
