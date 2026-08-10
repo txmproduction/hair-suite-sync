@@ -413,7 +413,8 @@ function PageReservation() {
               rendez-vous.
             </p>
           </div>
-          )
+          )}
+
         </div>
       )}
 
