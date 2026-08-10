@@ -23,8 +23,8 @@ import { EntetePublique } from "@/components/annuaire/EntetePublique";
 import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { BarreRecherche } from "@/components/annuaire/BarreRecherche";
 import { CarteSalon } from "@/components/annuaire/CarteSalon";
+import { CarouselCategories } from "@/components/annuaire/CarouselCategories";
 import { annuaireFn } from "@/lib/annuaire.functions";
-import { CATEGORIES } from "@/lib/categories";
 import type { SalonCarte } from "@/lib/annuaire-types";
 import hero from "@/assets/hero-accueil.jpg.asset.json";
 
