@@ -48,9 +48,13 @@ export const importerSalonsFn = createServerFn({ method: "POST" })
         if (!CATS.has(categorie)) throw new Error(`Ligne ${i + 1} : catégorie « ${categorie} » inconnue.`);
         const note = Number(String(l.note_google ?? "").replace(",", "."));
         const nbAvis = Number(String(l.nb_avis_google ?? "").replace(/[^\d]/g, ""));
-        const photo = String(l.photo_couverture_url ?? "").trim();
-        if (photo && !/^https?:\/\//.test(photo))
-          throw new Error(`Ligne ${i + 1} : URL de photo invalide.`);
+        const photosBrutes = String(l.photo_couverture_url ?? "")
+          .split("|")
+          .map((u) => u.trim())
+          .filter(Boolean);
+        for (const u of photosBrutes) {
+          if (!/^https?:\/\//.test(u)) throw new Error(`Ligne ${i + 1} : URL de photo invalide (${u.slice(0, 40)}).`);
+        }
         return {
           nom: nom.slice(0, 160),
           adresse: String(l.adresse ?? "").trim().slice(0, 240),
@@ -60,7 +64,7 @@ export const importerSalonsFn = createServerFn({ method: "POST" })
           lien_externe: String(l.lien_externe ?? "").trim().slice(0, 500) || null,
           note_google: Number.isFinite(note) && note > 0 && note <= 5 ? note : null,
           nb_avis_google: Number.isFinite(nbAvis) && nbAvis > 0 ? nbAvis : null,
-          photo_couverture_url: photo.slice(0, 500) || null,
+          photos: photosBrutes.slice(0, 20).map((u) => u.slice(0, 500)),
         };
       });
       if (!lignes.length) throw new Error("Aucune ligne à importer.");

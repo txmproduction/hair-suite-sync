@@ -32,7 +32,7 @@ export type LigneImport = {
   lien_externe: string | null;
   note_google?: number | null;
   nb_avis_google?: number | null;
-  photo_couverture_url?: string | null;
+  photos?: string[];
 };
 
 export async function importerSalonsNonReclames(lignes: LigneImport[], source: string) {
@@ -52,24 +52,36 @@ export async function importerSalonsNonReclames(lignes: LigneImport[], source: s
     }
 
     const slug = await slugUnique(l.nom, l.ville);
-    const { error } = await supabaseAdmin.from("salons").insert({
-      nom: l.nom,
-      adresse: l.adresse || null,
-      ville: l.ville || null,
-      telephone: l.telephone || null,
-      categorie: l.categorie,
-      lien_externe: l.lien_externe,
-      note_google: l.note_google ?? null,
-      nb_avis_google: l.nb_avis_google ?? null,
-      photo_couverture_url: l.photo_couverture_url ?? null,
-      source,
-      slug,
-      statut: "non_reclame",
-      reservation_en_ligne: false,
-      gerant_user_id: null,
-    });
-    if (error) ignores.push(`${l.nom} — ${error.message}`);
-    else crees += 1;
+    const { data: cree, error } = await supabaseAdmin
+      .from("salons")
+      .insert({
+        nom: l.nom,
+        adresse: l.adresse || null,
+        ville: l.ville || null,
+        telephone: l.telephone || null,
+        categorie: l.categorie,
+        lien_externe: l.lien_externe,
+        note_google: l.note_google ?? null,
+        nb_avis_google: l.nb_avis_google ?? null,
+        photo_couverture_url: l.photos?.[0] ?? null,
+        source,
+        slug,
+        statut: "non_reclame",
+        reservation_en_ligne: false,
+        gerant_user_id: null,
+      })
+      .select("id")
+      .single();
+    if (error) {
+      ignores.push(`${l.nom} — ${error.message}`);
+      continue;
+    }
+    if (l.photos && l.photos.length > 1) {
+      await supabaseAdmin.from("photos_salon").insert(
+        l.photos.map((url, ordre) => ({ salon_id: cree.id, url, ordre })),
+      );
+    }
+    crees += 1;
   }
 
   return { crees, ignores };

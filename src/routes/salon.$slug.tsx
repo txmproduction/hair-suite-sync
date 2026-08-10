@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { MapPin, Phone, Clock, ExternalLink, CalendarOff } from "lucide-react";
+import { MapPin, Phone, Clock, ExternalLink, CalendarOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { EntetePublique } from "@/components/annuaire/EntetePublique";
 import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { Etoiles, NoteSalon } from "@/components/annuaire/Etoiles";
@@ -101,6 +101,79 @@ function BlocIndisponible({
   );
 }
 
+function GalerieHero({
+  photoCouverture,
+  photos,
+  nomSalon,
+}: {
+  photoCouverture: string | null;
+  photos: { id: string; url: string }[];
+  nomSalon: string;
+}) {
+  const urls = [
+    ...(photoCouverture ? [photoCouverture] : []),
+    ...photos.map((p) => p.url).filter((u) => u !== photoCouverture),
+  ];
+  const [index, setIndex] = useState(0);
+  const total = urls.length;
+
+  if (total === 0) {
+    return (
+      <div className="relative h-56 w-full overflow-hidden bg-secondary sm:h-72">
+        <div className="flex h-full items-center justify-center text-5xl">✂️</div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/50" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative h-56 w-full overflow-hidden bg-secondary sm:h-72">
+      <img
+        src={urls[index]}
+        alt={`Photo ${index + 1} du salon ${nomSalon}`}
+        className="h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/50" />
+      {total > 1 && (
+        <>
+          <button
+            type="button"
+            aria-label="Photo précédente"
+            onClick={() => setIndex((i) => (i - 1 + total) % total)}
+            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white hover:bg-black/60"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            aria-label="Photo suivante"
+            onClick={() => setIndex((i) => (i + 1) % total)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white hover:bg-black/60"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+            {urls.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Aller à la photo ${i + 1}`}
+                onClick={() => setIndex(i)}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === index ? "w-5 bg-white" : "w-1.5 bg-white/50"
+                }`}
+              />
+            ))}
+          </div>
+          <span className="absolute right-3 top-3 rounded-full bg-black/40 px-2 py-0.5 text-xs text-white">
+            {index + 1} / {total}
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
 function FicheSalonPage() {
   const fiche = Route.useLoaderData() as FicheSalon;
   const { salon, photos, categories, prestations, horaires, avis } = fiche;
@@ -118,18 +191,7 @@ function FicheSalonPage() {
     <div className="min-h-screen bg-background">
       <EntetePublique />
 
-      <div className="relative h-56 w-full overflow-hidden bg-secondary sm:h-72">
-        {salon.photo_couverture_url ? (
-          <img
-            src={salon.photo_couverture_url}
-            alt={`Devanture du salon ${salon.nom}`}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-5xl">✂️</div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/50" />
-      </div>
+      <GalerieHero photoCouverture={salon.photo_couverture_url} photos={photos} nomSalon={salon.nom} />
 
       <main className="mx-auto max-w-6xl px-4 pb-16">
         <div className="card-soft -mt-12 relative p-5 sm:p-6">
@@ -201,10 +263,10 @@ function FicheSalonPage() {
           </section>
         )}
 
-        {photos.length > 0 && (
+        {photos.length > 3 && (
           <section className="mt-5">
-            <h2 className="text-lg font-semibold">En images</h2>
-            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <h2 className="text-lg font-semibold">Toutes les photos</h2>
+            <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
               {photos.map((p) => (
                 <img
                   key={p.id}

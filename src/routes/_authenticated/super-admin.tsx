@@ -122,7 +122,7 @@ function SuperAdminPage() {
       <section className="card-soft p-5">
         <h2 className="text-lg font-semibold">Importer des fiches non réclamées</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Une ligne par salon : nom, adresse, ville, téléphone, catégorie, lien externe, note Google, nb avis Google, URL photo de couverture (les 4 derniers sont optionnels).
+          Une ligne par salon : nom, adresse, ville, téléphone, catégorie, lien externe, note Google, nb avis Google, photo(s) (les 4 derniers sont optionnels). Pour plusieurs photos, séparez les URLs par un « | » dans la dernière colonne.
           Catégories acceptées : {CATEGORIES.map((c) => c.value).join(", ")}.
         </p>
         <div className="mt-4 grid gap-3">
@@ -130,7 +130,7 @@ function SuperAdminPage() {
             rows={8}
             value={csv}
             onChange={(e) => setCsv(e.target.value)}
-            placeholder="Salon Léa;12 rue de Paris;Lyon;0478000000;coiffeur;https://www.planity.com/...;4.6;128;https://exemple.com/photo.jpg"
+            placeholder="Salon Léa;12 rue de Paris;Lyon;0478000000;coiffeur;https://www.planity.com/...;4.6;128;https://exemple.com/photo1.jpg|https://exemple.com/photo2.jpg"
           />
           <div className="grid gap-2 sm:max-w-xs">
             <Label htmlFor="source">Source</Label>
