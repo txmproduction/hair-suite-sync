@@ -1,9 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { EntetePublique } from "@/components/annuaire/EntetePublique";
 import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { ResultatsSalons } from "@/routes/recherche";
-import { villesFn } from "@/lib/annuaire.functions";
 import { parSlugCategorie, villeSlug } from "@/lib/categories";
 
 type Contexte = { categorie: string; label: string; pluriel: string; ville: string };
@@ -48,8 +46,6 @@ export const Route = createFileRoute("/$categorie/$ville")({
 
 function PageLocale() {
   const ctx = Route.useLoaderData() as Contexte;
-  const { data: villes } = useQuery({ queryKey: ["villes"], queryFn: () => villesFn() });
-
   return (
     <div className="min-h-screen bg-background">
       <EntetePublique />
@@ -59,7 +55,6 @@ function PageLocale() {
           ville={ctx.ville}
           titre={`${ctx.label} à ${ctx.ville}`}
           sousTitre={`Les meilleurs salons de ${ctx.pluriel} à ${ctx.ville}, avec réservation en ligne immédiate.`}
-          villes={villes ?? []}
         />
       </main>
       <PiedPublic />

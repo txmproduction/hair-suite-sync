@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DistribuerRouteImport } from './routes/distribuer'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as CategorieVilleRouteImport } from './routes/$categorie.$ville'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedBienvenueRouteImport } from './routes/_authenticated/bienvenue'
@@ -55,6 +56,11 @@ const RechercheRoute = RechercheRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategorieVilleRoute = CategorieVilleRouteImport.update({
+  id: '/$categorie/$ville',
+  path: '/$categorie/$ville',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/distribuer': typeof DistribuerRoute
   '/recherche': typeof RechercheRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/$categorie/$ville': typeof CategorieVilleRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/bienvenue': typeof AuthenticatedBienvenueRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/distribuer': typeof DistribuerRoute
   '/recherche': typeof RechercheRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/$categorie/$ville': typeof CategorieVilleRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/bienvenue': typeof AuthenticatedBienvenueRoute
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   '/distribuer': typeof DistribuerRoute
   '/recherche': typeof RechercheRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/$categorie/$ville': typeof CategorieVilleRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/bienvenue': typeof AuthenticatedBienvenueRoute
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/distribuer'
     | '/recherche'
     | '/sitemap.xml'
+    | '/$categorie/$ville'
     | '/admin'
     | '/agenda'
     | '/bienvenue'
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/distribuer'
     | '/recherche'
     | '/sitemap.xml'
+    | '/$categorie/$ville'
     | '/admin'
     | '/agenda'
     | '/bienvenue'
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/distribuer'
     | '/recherche'
     | '/sitemap.xml'
+    | '/$categorie/$ville'
     | '/_authenticated/admin'
     | '/_authenticated/agenda'
     | '/_authenticated/bienvenue'
@@ -249,6 +261,7 @@ export interface RootRouteChildren {
   DistribuerRoute: typeof DistribuerRoute
   RechercheRoute: typeof RechercheRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  CategorieVilleRoute: typeof CategorieVilleRoute
   AvisTokenRoute: typeof AvisTokenRoute
   ReservationTokenRoute: typeof ReservationTokenRoute
   ReserverSlugRoute: typeof ReserverSlugRoute
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$categorie/$ville': {
+      id: '/$categorie/$ville'
+      path: '/$categorie/$ville'
+      fullPath: '/$categorie/$ville'
+      preLoaderRoute: typeof CategorieVilleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -417,6 +437,7 @@ const rootRouteChildren: RootRouteChildren = {
   DistribuerRoute: DistribuerRoute,
   RechercheRoute: RechercheRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  CategorieVilleRoute: CategorieVilleRoute,
   AvisTokenRoute: AvisTokenRoute,
   ReservationTokenRoute: ReservationTokenRoute,
   ReserverSlugRoute: ReserverSlugRoute,
