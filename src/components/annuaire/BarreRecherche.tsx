@@ -3,7 +3,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Search, MapPin, LocateFixed, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { suggestionsFn } from "@/lib/annuaire.functions";
+import { lieuxFn } from "@/lib/annuaire.functions";
+import { CATALOGUE_PRESTATIONS } from "@/lib/catalogue-prestations";
 
 /** Normalise pour comparer sans accents ni casse. */
 const sansAccents = (v: string) =>
@@ -11,8 +12,6 @@ const sansAccents = (v: string) =>
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
-
-type Suggestion = { texte: string; type: "prestation" | "salon" };
 
 export function BarreRecherche({
   villes,
@@ -35,31 +34,30 @@ export function BarreRecherche({
   const [localisation, setLocalisation] = useState<"inactif" | "chargement" | "refuse">("inactif");
   const conteneurRef = useRef<HTMLFormElement>(null);
 
-  const { data: suggestions } = useQuery({
-    queryKey: ["suggestions-recherche"],
-    queryFn: () => suggestionsFn(),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  // Les villes proposées viennent des salons réellement référencés.
-  const villesDisponibles = suggestions?.villes?.length ? suggestions.villes : villes;
-
-  const propositionsQ = useMemo<Suggestion[]>(() => {
-    if (!suggestions) return [];
+  // Types de prestations proposés (catalogue métier, indépendant de ce qui est déjà en base).
+  const propositionsQ = useMemo(() => {
     const terme = sansAccents(q.trim());
-    const tout: Suggestion[] = [
-      ...suggestions.prestations.map((t) => ({ texte: t, type: "prestation" as const })),
-      ...suggestions.salons.map((t) => ({ texte: t, type: "salon" as const })),
-    ];
-    if (!terme) return tout.slice(0, 8);
-    return tout.filter((s) => sansAccents(s.texte).includes(terme)).slice(0, 8);
-  }, [suggestions, q]);
+    if (!terme) return CATALOGUE_PRESTATIONS.slice(0, 8);
+    const commence = CATALOGUE_PRESTATIONS.filter((p) => sansAccents(p.nom).startsWith(terme));
+    const contient = CATALOGUE_PRESTATIONS.filter(
+      (p) => !sansAccents(p.nom).startsWith(terme) && sansAccents(p.nom).includes(terme),
+    );
+    return [...commence, ...contient].slice(0, 8);
+  }, [q]);
 
-  const propositionsVille = useMemo(() => {
-    const terme = sansAccents(ville.trim());
-    if (!terme) return villesDisponibles.slice(0, 8);
-    return villesDisponibles.filter((v) => sansAccents(v).includes(terme)).slice(0, 8);
-  }, [villesDisponibles, ville]);
+  // Lieux : villes et codes postaux (France, Martinique, Suisse), interrogés à la frappe.
+  const [villeDebouncee, setVilleDebouncee] = useState(villeInitiale);
+  useEffect(() => {
+    const t = setTimeout(() => setVilleDebouncee(ville), 250);
+    return () => clearTimeout(t);
+  }, [ville]);
+
+  const { data: lieux = [] } = useQuery({
+    queryKey: ["lieux", villeDebouncee],
+    queryFn: () => lieuxFn({ data: { q: villeDebouncee } }),
+    enabled: villeDebouncee.trim().length >= 2,
+    staleTime: 10 * 60 * 1000,
+  });
 
   // Fermeture des listes au clic à l'extérieur.
   useEffect(() => {
@@ -137,20 +135,18 @@ export function BarreRecherche({
         </div>
         {listeQ && propositionsQ.length > 0 && (
           <ul className="absolute z-50 mt-1 max-h-72 w-full overflow-auto rounded-lg border border-border bg-card py-1 shadow-lg">
-            {propositionsQ.map((s) => (
-              <li key={`${s.type}-${s.texte}`}>
+            {propositionsQ.map((p) => (
+              <li key={p.nom}>
                 <button
                   type="button"
                   onClick={() => {
-                    setQ(s.texte);
+                    setQ(p.nom);
                     setListeQ(false);
                   }}
                   className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-secondary"
                 >
-                  <span className="truncate">{s.texte}</span>
-                  <span className="shrink-0 text-xs text-muted-foreground">
-                    {s.type === "salon" ? "Salon" : "Prestation"}
-                  </span>
+                  <span className="truncate">{p.nom}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">{p.metier}</span>
                 </button>
               </li>
             ))}
@@ -203,20 +199,28 @@ export function BarreRecherche({
                 Autour de moi
               </button>
             </li>
-            {propositionsVille.map((v) => (
-              <li key={v}>
+            {lieux.map((l) => (
+              <li key={`${l.pays}-${l.codePostal}-${l.ville}`}>
                 <button
                   type="button"
                   onClick={() => {
-                    setVille(v);
+                    setVille(l.ville);
                     setListeVille(false);
                   }}
-                  className="w-full px-3 py-2 text-left text-sm hover:bg-secondary"
+                  className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-secondary"
                 >
-                  {v}
+                  <span className="truncate">
+                    <span className="font-medium">{l.codePostal}</span> {l.ville}
+                  </span>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {l.pays === "CH" ? `${l.region}, Suisse` : l.region}
+                  </span>
                 </button>
               </li>
             ))}
+            {villeDebouncee.trim().length >= 2 && lieux.length === 0 && (
+              <li className="px-3 py-2 text-sm text-muted-foreground">Aucun lieu trouvé.</li>
+            )}
           </ul>
         )}
         {localisation === "refuse" && (

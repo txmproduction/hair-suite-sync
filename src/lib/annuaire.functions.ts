@@ -15,6 +15,13 @@ export const suggestionsFn = createServerFn({ method: "GET" }).handler(async () 
   return chargerSuggestions();
 });
 
+export const lieuxFn = createServerFn({ method: "GET" })
+  .inputValidator((data: { q: string }) => ({ q: String(data.q ?? "").slice(0, 60) }))
+  .handler(async ({ data }) => {
+    const { rechercherLieux } = await import("./lieux.server");
+    return rechercherLieux(data.q);
+  });
+
 export const rechercheFn = createServerFn({ method: "GET" })
   .inputValidator((data: { categorie?: string | null; q?: string | null; ville?: string | null; noteMin?: number | null; lat?: number | null; lng?: number | null }) => ({
     categorie: data.categorie ? String(data.categorie).slice(0, 40) : null,
