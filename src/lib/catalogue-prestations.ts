@@ -101,3 +101,43 @@ export const CATALOGUE_PRESTATIONS: TypePrestation[] = [
   { nom: "Séance de coaching", metier: "Coach de vie" },
   { nom: "Bilan de compétences", metier: "Coach de vie" },
 ];
+
+/** Correspondance métier du catalogue → catégories de salons en base. */
+const METIER_VERS_CATEGORIES: Record<string, string[]> = {
+  Coiffeur: ["coiffeur", "barbier"],
+  Barbier: ["barbier", "coiffeur"],
+  Manucure: ["manucure", "institut_beaute"],
+  "Institut de beauté": ["institut_beaute"],
+  Massage: ["massage", "bien_etre"],
+  "Bien-être": ["bien_etre", "massage"],
+  Réflexologue: ["reflexologue", "bien_etre"],
+  Sophrologue: ["sophrologue"],
+  Hypnothérapeute: ["hypnotherapeute"],
+  Naturopathe: ["naturopathe"],
+  "Coach de vie": ["coach_de_vie"],
+};
+
+const sansAccent = (t: string) =>
+  t
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+/**
+ * Une recherche par prestation ("pose américaine", "coloration"…) ne doit pas
+ * dépendre des prestations réellement saisies par les salons : on déduit les
+ * catégories de professionnels qui réalisent ce type de soin.
+ */
+export function categoriesPourPrestation(recherche: string): string[] {
+  const terme = sansAccent(recherche);
+  if (terme.length < 2) return [];
+  const cats = new Set<string>();
+  for (const p of CATALOGUE_PRESTATIONS) {
+    const nom = sansAccent(p.nom);
+    if (nom.includes(terme) || terme.includes(nom)) {
+      for (const c of METIER_VERS_CATEGORIES[p.metier] ?? []) cats.add(c);
+    }
+  }
+  return [...cats];
+}
