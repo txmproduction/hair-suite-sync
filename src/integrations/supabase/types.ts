@@ -371,39 +371,54 @@ export type Database = {
       rdv: {
         Row: {
           acompte: number
+          annulation_token: string
           client_id: string | null
           created_at: string
           debut: string
           duree_min: number
           employe_id: string
+          expire_at: string | null
+          fin: string | null
           id: string
           notes: string | null
+          origine: string
+          paiement_ref: string | null
           prestation_id: string | null
           salon_id: string
           statut: Database["public"]["Enums"]["statut_rdv"]
         }
         Insert: {
           acompte?: number
+          annulation_token?: string
           client_id?: string | null
           created_at?: string
           debut: string
           duree_min?: number
           employe_id: string
+          expire_at?: string | null
+          fin?: string | null
           id?: string
           notes?: string | null
+          origine?: string
+          paiement_ref?: string | null
           prestation_id?: string | null
           salon_id: string
           statut?: Database["public"]["Enums"]["statut_rdv"]
         }
         Update: {
           acompte?: number
+          annulation_token?: string
           client_id?: string | null
           created_at?: string
           debut?: string
           duree_min?: number
           employe_id?: string
+          expire_at?: string | null
+          fin?: string | null
           id?: string
           notes?: string | null
+          origine?: string
+          paiement_ref?: string | null
           prestation_id?: string | null
           salon_id?: string
           statut?: Database["public"]["Enums"]["statut_rdv"]
@@ -446,6 +461,8 @@ export type Database = {
           gerant_user_id: string
           id: string
           nom: string
+          reservation_en_ligne: boolean
+          slug: string | null
           telephone: string | null
         }
         Insert: {
@@ -454,6 +471,8 @@ export type Database = {
           gerant_user_id: string
           id?: string
           nom: string
+          reservation_en_ligne?: boolean
+          slug?: string | null
           telephone?: string | null
         }
         Update: {
@@ -462,6 +481,8 @@ export type Database = {
           gerant_user_id?: string
           id?: string
           nom?: string
+          reservation_en_ligne?: boolean
+          slug?: string | null
           telephone?: string | null
         }
         Relationships: []
@@ -471,10 +492,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      creneaux_disponibles: {
+        Args: {
+          p_date: string
+          p_employe: string
+          p_prestation: string
+          p_salon: string
+        }
+        Returns: {
+          debut: string
+          employe_id: string
+        }[]
+      }
       current_salon_id: { Args: never; Returns: string }
       is_gerant: { Args: never; Returns: boolean }
       mon_employe_id: { Args: never; Returns: string }
       reclamer_invitation: { Args: never; Returns: string }
+      slugifier: { Args: { p_texte: string }; Returns: string }
+      unaccent_immutable: { Args: { p_texte: string }; Returns: string }
     }
     Enums: {
       moyen_paiement: "cb" | "especes" | "cheque" | "autre"
