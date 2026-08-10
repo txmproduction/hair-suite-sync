@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { EntetePublique } from "@/components/annuaire/EntetePublique";
 import { PiedPublic } from "@/components/annuaire/PiedPublic";
@@ -72,6 +72,37 @@ export function ResultatsSalons({
   const [cat, setCat] = useState<string | undefined>(categorie);
   const [villeF, setVilleF] = useState<string | undefined>(ville);
 
+  // Les filtres sont initialisés depuis l'URL au premier rendu seulement :
+  // sans cette synchronisation, cliquer sur une catégorie du menu du haut
+  // change le titre mais laisse l'ancienne puce sélectionnée en dessous.
+  useEffect(() => setCat(categorie), [categorie]);
+  useEffect(() => setVilleF(ville), [ville]);
+  useEffect(() => setNoteMin(note), [note]);
+
+  // Et inversement : cliquer une puce mets l'URL à jour, pour que le titre de
+  // la page suive le filtre choisi au lieu de rester sur l'ancien.
+  const navigate = useNavigate();
+  const appliquer = (modif: {
+    categorie?: string | undefined;
+    note?: number | undefined;
+    ville?: string | undefined;
+  }) => {
+    const suivant = {
+      categorie: "categorie" in modif ? modif.categorie : cat,
+      q,
+      ville: "ville" in modif ? modif.ville : villeF,
+      note: "note" in modif ? modif.note : noteMin,
+      lat,
+      lng,
+    };
+    navigate({
+      to: "/recherche",
+      search: Object.fromEntries(
+        Object.entries(suivant).filter(([, v]) => v !== undefined && v !== null && v !== ""),
+      ),
+    });
+  };
+
   const { data: villes = [] } = useQuery({
     queryKey: ["villes"],
     queryFn: () => villesFn(),
@@ -107,7 +138,7 @@ export function ResultatsSalons({
           <Button
             variant={cat ? "outline" : "default"}
             size="sm"
-            onClick={() => setCat(undefined)}
+            onClick={() => appliquer({ categorie: undefined })}
           >
             Toutes
           </Button>
@@ -116,7 +147,7 @@ export function ResultatsSalons({
               key={c.value}
               variant={cat === c.value ? "default" : "outline"}
               size="sm"
-              onClick={() => setCat(c.value)}
+              onClick={() => appliquer({ categorie: c.value })}
             >
               {c.label}
             </Button>
@@ -127,13 +158,13 @@ export function ResultatsSalons({
               key={n}
               variant={noteMin === n ? "default" : "outline"}
               size="sm"
-              onClick={() => setNoteMin(noteMin === n ? undefined : n)}
+              onClick={() => appliquer({ note: noteMin === n ? undefined : n })}
             >
               {n}+ ★
             </Button>
           ))}
           {villeF && (
-            <Button variant="outline" size="sm" onClick={() => setVilleF(undefined)}>
+            <Button variant="outline" size="sm" onClick={() => appliquer({ ville: undefined })}>
               {villeF} ✕
             </Button>
           )}
