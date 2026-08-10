@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import logo from "@/assets/logo-light.png";
+import { reclamerInvitationFn } from "@/lib/invitation.functions";
 
 export const Route = createFileRoute("/_authenticated/bienvenue")({
   component: Bienvenue,
@@ -31,12 +32,14 @@ function Bienvenue() {
     }
     if (!isLoading && data && !data.employe && !verifie) {
       setVerifie(true);
-      supabase.rpc("reclamer_invitation").then(async ({ data: salonId }) => {
-        if (salonId) {
-          await queryClient.invalidateQueries();
-          await refetch();
-        }
-      });
+      reclamerInvitationFn()
+        .then(async ({ salonId }) => {
+          if (salonId) {
+            await queryClient.invalidateQueries();
+            await refetch();
+          }
+        })
+        .catch(() => undefined);
     }
   }, [data, isLoading, navigate, queryClient, refetch, verifie]);
 
