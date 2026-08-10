@@ -173,6 +173,7 @@ function Agenda() {
                 <SelectValue placeholder="Employé" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="tous">Tous</SelectItem>
                 {employes.map((e) => (
                   <SelectItem key={e.id} value={e.id}>
                     {e.nom}
@@ -181,6 +182,7 @@ function Agenda() {
               </SelectContent>
             </Select>
           )}
+
           <Tabs
             value={vue}
             onValueChange={(v) => {
