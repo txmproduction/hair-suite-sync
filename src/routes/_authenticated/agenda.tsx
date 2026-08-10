@@ -298,8 +298,12 @@ function Agenda() {
                           {r.clients?.nom ?? "Client"}
                         </span>
                         <span className="block truncate text-muted-foreground">
-                          {r.prestations?.nom}
+                          {col.id === "tous"
+                            ? (employes.find((e) => e.id === r.employe_id)?.nom ??
+                              r.prestations?.nom)
+                            : r.prestations?.nom}
                         </span>
+
                         <span className="flex flex-wrap items-center gap-1">
                           {r.origine === "en_ligne" && (
                             <span className="rounded-full bg-gold-soft px-1.5 text-[10px] font-medium text-gold-foreground">
