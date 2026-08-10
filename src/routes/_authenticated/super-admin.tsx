@@ -16,7 +16,7 @@ import {
 import { CATEGORIES } from "@/lib/categories";
 
 export const Route = createFileRoute("/_authenticated/super-admin")({
-  component: SuperAdminPage;
+  component: SuperAdminPage,
 });
 
 type LigneCsv = {

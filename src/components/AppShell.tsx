@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { contexteQuery } from "@/lib/hairtrack";
 import logo from "@/assets/logo-light.png";
 import { LogOut } from "lucide-react";
+import { estSuperAdminFn } from "@/lib/superadmin.functions";
 
 export function useContexte() {
   return useQuery(contexteQuery);
@@ -32,6 +33,11 @@ export function AppShell({
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const gerant = data?.employe?.role === "gerant";
+  const { data: acces } = useQuery({
+    queryKey: ["super-admin"],
+    queryFn: () => estSuperAdminFn(),
+    enabled: !!data?.user,
+  });
 
   if (!isLoading && data && !data.employe && pathname !== "/bienvenue") {
     navigate({ to: "/bienvenue", replace: true });
@@ -63,7 +69,12 @@ export function AppShell({
           </div>
         </div>
         <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-2 pb-2">
-          {LIENS.filter((l) => !l.gerant || gerant).map((l) => (
+          {[
+            ...LIENS.filter((l) => !l.gerant || gerant),
+            ...(acces?.superAdmin
+              ? [{ to: "/super-admin", label: "Super-admin", gerant: false } as const]
+              : []),
+          ].map((l) => (
             <Link
               key={l.to}
               to={l.to}
