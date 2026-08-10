@@ -155,7 +155,12 @@ function FicheSalonPage() {
                 )}
               </div>
               <div className="mt-3">
-                <NoteSalon note={salon.note_moyenne} nbAvis={salon.nb_avis} />
+                <NoteSalon
+                  note={salon.note_moyenne}
+                  nbAvis={salon.nb_avis}
+                  noteGoogle={salon.note_google}
+                  nbAvisGoogle={salon.nb_avis_google}
+                />
               </div>
             </div>
             {nonReclame ? (

@@ -26,6 +26,8 @@ type LigneCsv = {
   telephone: string;
   categorie: string;
   lien_externe: string;
+  note_google: string;
+  nb_avis_google: string;
 };
 
 function parserCsv(texte: string): LigneCsv[] {
@@ -46,6 +48,8 @@ function parserCsv(texte: string): LigneCsv[] {
       telephone: c[3] ?? "",
       categorie: c[4] ?? "",
       lien_externe: c[5] ?? "",
+      note_google: c[6] ?? "",
+      nb_avis_google: c[7] ?? "",
     };
   });
 }
@@ -116,7 +120,7 @@ function SuperAdminPage() {
       <section className="card-soft p-5">
         <h2 className="text-lg font-semibold">Importer des fiches non réclamées</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Une ligne par salon : nom, adresse, ville, téléphone, catégorie, lien externe (optionnel).
+          Une ligne par salon : nom, adresse, ville, téléphone, catégorie, lien externe, note Google, nb avis Google (les 3 derniers sont optionnels).
           Catégories acceptées : {CATEGORIES.map((c) => c.value).join(", ")}.
         </p>
         <div className="mt-4 grid gap-3">
@@ -124,7 +128,7 @@ function SuperAdminPage() {
             rows={8}
             value={csv}
             onChange={(e) => setCsv(e.target.value)}
-            placeholder="Salon Léa;12 rue de Paris;Lyon;0478000000;coiffeur;https://www.planity.com/..."
+            placeholder="Salon Léa;12 rue de Paris;Lyon;0478000000;coiffeur;https://www.planity.com/...;4.6;128"
           />
           <div className="grid gap-2 sm:max-w-xs">
             <Label htmlFor="source">Source</Label>

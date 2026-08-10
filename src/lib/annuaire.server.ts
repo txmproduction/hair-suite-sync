@@ -7,7 +7,7 @@ import type { ContexteAvis, FicheSalon, SalonCarte } from "@/lib/annuaire-types"
 export type { ContexteAvis, FicheSalon, SalonCarte };
 
 const COLONNES =
-  "id, slug, nom, ville, code_postal, categorie, description, photo_couverture_url, note_moyenne, nb_avis, statut, lien_externe";
+  "id, slug, nom, ville, code_postal, categorie, description, photo_couverture_url, note_moyenne, nb_avis, note_google, nb_avis_google, statut, lien_externe";
 
 // Un salon apparaît dans l'annuaire s'il réserve en ligne, ou s'il s'agit d'une fiche non réclamée.
 const FILTRE_VISIBLE = "reservation_en_ligne.eq.true,statut.eq.non_reclame";
@@ -39,6 +39,8 @@ type LigneSalon = {
   photo_couverture_url: string | null;
   note_moyenne: number | null;
   nb_avis: number;
+  note_google: number | null;
+  nb_avis_google: number | null;
   statut: "reclame" | "non_reclame";
   lien_externe: string | null;
 };
@@ -55,6 +57,8 @@ function versCarte(s: LigneSalon, prixMin: Map<string, number>): SalonCarte {
     photo_couverture_url: s.photo_couverture_url,
     note_moyenne: s.note_moyenne === null ? null : Number(s.note_moyenne),
     nb_avis: Number(s.nb_avis ?? 0),
+    note_google: s.note_google === null ? null : Number(s.note_google),
+    nb_avis_google: s.nb_avis_google === null ? null : Number(s.nb_avis_google),
     statut: s.statut,
     prix_min: prixMin.get(s.id) ?? null,
   };

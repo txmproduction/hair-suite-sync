@@ -35,6 +35,8 @@ export const importerSalonsFn = createServerFn({ method: "POST" })
         telephone?: string;
         categorie: string;
         lien_externe?: string;
+        note_google?: string | number;
+        nb_avis_google?: string | number;
       }[];
       source?: string;
     }) => {
@@ -43,6 +45,8 @@ export const importerSalonsFn = createServerFn({ method: "POST" })
         if (nom.length < 2) throw new Error(`Ligne ${i + 1} : nom manquant.`);
         const categorie = String(l.categorie ?? "").trim();
         if (!CATS.has(categorie)) throw new Error(`Ligne ${i + 1} : catégorie « ${categorie} » inconnue.`);
+        const note = Number(String(l.note_google ?? "").replace(",", "."));
+        const nbAvis = Number(String(l.nb_avis_google ?? "").replace(/[^\d]/g, ""));
         return {
           nom: nom.slice(0, 160),
           adresse: String(l.adresse ?? "").trim().slice(0, 240),
@@ -50,6 +54,8 @@ export const importerSalonsFn = createServerFn({ method: "POST" })
           telephone: String(l.telephone ?? "").trim().slice(0, 40),
           categorie: categorie as CategorieSalon,
           lien_externe: String(l.lien_externe ?? "").trim().slice(0, 500) || null,
+          note_google: Number.isFinite(note) && note > 0 && note <= 5 ? note : null,
+          nb_avis_google: Number.isFinite(nbAvis) && nbAvis > 0 ? nbAvis : null,
         };
       });
       if (!lignes.length) throw new Error("Aucune ligne à importer.");

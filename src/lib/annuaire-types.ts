@@ -11,6 +11,8 @@ export type SalonCarte = {
   photo_couverture_url: string | null;
   note_moyenne: number | null;
   nb_avis: number;
+  note_google: number | null;
+  nb_avis_google: number | null;
   statut: "reclame" | "non_reclame";
   prix_min: number | null;
 };

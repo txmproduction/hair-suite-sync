@@ -30,6 +30,8 @@ export type LigneImport = {
   telephone: string;
   categorie: CategorieSalon;
   lien_externe: string | null;
+  note_google?: number | null;
+  nb_avis_google?: number | null;
 };
 
 export async function importerSalonsNonReclames(lignes: LigneImport[], source: string) {
@@ -56,6 +58,8 @@ export async function importerSalonsNonReclames(lignes: LigneImport[], source: s
       telephone: l.telephone || null,
       categorie: l.categorie,
       lien_externe: l.lien_externe,
+      note_google: l.note_google ?? null,
+      nb_avis_google: l.nb_avis_google ?? null,
       source,
       slug,
       statut: "non_reclame",
