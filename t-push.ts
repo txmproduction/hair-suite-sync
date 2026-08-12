@@ -1,0 +1,15 @@
+import crypto from "node:crypto";
+import ece from "http_ece";
+process.env.VAPID_PUBLIC_KEY="BEqU9NjFe9POuBSCBAPaf04WA0DfoM9-IIn0iWkLxpbvHZbgwqms-zS7U2lE2hkXzIlnIaf3R2UwFNJus5CLbHk";
+process.env.VAPID_PRIVATE_KEY="23tFOENGTB-LCUaE0Mpojqsp3zYe766pk5PYwApeeaU";
+process.env.VAPID_SUBJECT="mailto:a@b.c";
+const cl = crypto.createECDH("prime256v1"); cl.generateKeys();
+const authSecret = crypto.randomBytes(16);
+let captured: any;
+globalThis.fetch = (async (url: any, init: any) => { captured = { url, init }; return new Response("", {status:201}); }) as any;
+const { envoyerPush } = await import("/dev-server/src/lib/webpush.server.ts");
+const st = await envoyerPush({ endpoint: "https://fcm.googleapis.com/x/abc", p256dh: cl.getPublicKey().toString("base64url"), auth: authSecret.toString("base64url") }, { titre: "T", corps: "Bonjour", url: "/x" });
+console.log("status", st, "auth header ok:", /^vapid t=[\w-]+\.[\w-]+\.[\w-]+, k=/.test(captured.init.headers.Authorization));
+const body = Buffer.from(captured.init.body);
+const dec = ece.decrypt(body, { version: "aes128gcm", privateKey: cl, dh: cl.getPublicKey().toString("base64url"), authSecret: authSecret.toString("base64url") });
+console.log("decrypted:", dec.toString());
