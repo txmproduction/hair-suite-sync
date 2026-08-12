@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export type EtatEssai = {
   actif: boolean;
   expire: boolean;
+  suspendu: boolean;
   joursRestants: number;
   finLe: string | null;
   abonnement: boolean;
