@@ -211,3 +211,69 @@ export async function convertirEnClient(input: {
   // L'historique des clics reste rattaché au même salon_id : rien à supprimer.
   return { ok: true as const, motDePasse };
 }
+
+export type StatutCompte = "permanent" | "essai" | "essai_expire" | "suspendu";
+
+export type ClientAbonne = {
+  id: string;
+  nom: string;
+  ville: string | null;
+  email: string | null;
+  statut: StatutCompte;
+  joursRestants: number;
+};
+
+/** Liste des salons réclamés avec leur statut d'abonnement calculé côté serveur. */
+export async function listerClientsAbonnes(): Promise<ClientAbonne[]> {
+  const { data: salons } = await supabaseAdmin
+    .from("salons")
+    .select("id, nom, ville, gerant_user_id, abonnement_actif, compte_suspendu, trial_ends_at")
+    .eq("statut", "reclame")
+    .order("nom");
+
+  const emails = new Map<string, string>();
+  const { data: liste } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  for (const u of liste?.users ?? []) if (u.email) emails.set(u.id, u.email);
+
+  return (salons ?? []).map((s) => {
+    const restantMs = new Date(s.trial_ends_at).getTime() - Date.now();
+    const joursRestants = Math.max(0, Math.ceil(restantMs / 86_400_000));
+    const statut: StatutCompte = s.compte_suspendu
+      ? "suspendu"
+      : s.abonnement_actif
+        ? "permanent"
+        : restantMs > 0
+          ? "essai"
+          : "essai_expire";
+    return {
+      id: s.id,
+      nom: s.nom,
+      ville: s.ville,
+      email: s.gerant_user_id ? (emails.get(s.gerant_user_id) ?? null) : null,
+      statut,
+      joursRestants,
+    };
+  });
+}
+
+/** Définit le statut d'abonnement d'un salon (accès permanent, essai de 14 jours, suspension). */
+export async function definirStatutCompte(
+  salonId: string,
+  statut: "permanent" | "essai" | "suspendu",
+) {
+  const maj =
+    statut === "permanent"
+      ? { abonnement_actif: true, compte_suspendu: false }
+      : statut === "essai"
+        ? {
+            abonnement_actif: false,
+            compte_suspendu: false,
+            trial_started_at: new Date().toISOString(),
+            trial_ends_at: new Date(Date.now() + 14 * 86_400_000).toISOString(),
+          }
+        : { compte_suspendu: true };
+
+  const { error } = await supabaseAdmin.from("salons").update(maj).eq("id", salonId);
+  if (error) throw new Error(error.message);
+  return { ok: true as const };
+}
