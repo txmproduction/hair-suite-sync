@@ -119,7 +119,7 @@ export const definirStatutCompteFn = createServerFn({ method: "POST" })
     const statut = String(data.statut);
     if (statut !== "permanent" && statut !== "essai" && statut !== "suspendu")
       throw new Error("Statut inconnu.");
-    return { salonId: String(data.salonId), statut };
+    return { salonId: String(data.salonId), statut: statut as "permanent" | "essai" | "suspendu" };
   })
   .handler(async ({ data, context }) => {
     await verifier(context.userId);
