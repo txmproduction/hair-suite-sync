@@ -12,6 +12,8 @@ import {
   salonsNonReclamesFn,
   importerSalonsFn,
   convertirEnClientFn,
+  clientsAbonnesFn,
+  definirStatutCompteFn,
 } from "@/lib/superadmin.functions";
 import { CATEGORIES } from "@/lib/categories";
 
@@ -60,6 +62,20 @@ function parserCsv(texte: string): LigneCsv[] {
   });
 }
 
+const BADGE: Record<string, string> = {
+  permanent: "bg-emerald-100 text-emerald-800",
+  essai: "bg-gold-soft text-gold-foreground",
+  essai_expire: "bg-orange-100 text-orange-800",
+  suspendu: "bg-red-100 text-red-800",
+};
+
+const LIBELLE: Record<string, string> = {
+  permanent: "Accès permanent",
+  essai: "Essai en cours",
+  essai_expire: "Essai expiré",
+  suspendu: "Suspendu",
+};
+
 function SuperAdminPage() {
   const queryClient = useQueryClient();
   const { data: acces, isLoading } = useQuery({
@@ -72,6 +88,29 @@ function SuperAdminPage() {
     queryKey: ["salons-non-reclames"],
     enabled: autorise,
     queryFn: () => salonsNonReclamesFn(),
+  });
+
+  const { data: abonnes } = useQuery({
+    queryKey: ["clients-abonnes"],
+    enabled: autorise,
+    queryFn: () => clientsAbonnesFn(),
+    refetchInterval: 15_000,
+  });
+
+  const changerStatut = useMutation({
+    mutationFn: (v: { salonId: string; statut: "permanent" | "essai" | "suspendu" }) =>
+      definirStatutCompteFn({ data: v }),
+    onSuccess: (_r, v) => {
+      toast.success(
+        v.statut === "permanent"
+          ? "Accès permanent activé."
+          : v.statut === "essai"
+            ? "Nouvel essai de 14 jours activé."
+            : "Compte suspendu.",
+      );
+      queryClient.invalidateQueries({ queryKey: ["clients-abonnes"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const [csv, setCsv] = useState("");
@@ -227,6 +266,86 @@ function SuperAdminPage() {
                 <tr>
                   <td colSpan={6} className="py-4 text-muted-foreground">
                     Aucune fiche non réclamée pour le moment.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="card-soft mt-5 p-5">
+        <h2 className="text-lg font-semibold">Clients abonnés ({abonnes?.length ?? 0})</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Vue en direct (actualisée toutes les 15 secondes). Les données d'un salon ne sont jamais
+          supprimées, même en cas de suspension.
+        </p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-muted-foreground">
+                <th className="py-2 pr-3 font-medium">Salon</th>
+                <th className="py-2 pr-3 font-medium">Ville</th>
+                <th className="py-2 pr-3 font-medium">Gérant</th>
+                <th className="py-2 pr-3 font-medium">Statut</th>
+                <th className="py-2 pr-3 font-medium">Jours restants</th>
+                <th className="py-2" />
+              </tr>
+            </thead>
+            <tbody>
+              {(abonnes ?? []).map((c) => (
+                <tr key={c.id} className="border-b border-border/60">
+                  <td className="py-2.5 pr-3 font-medium">{c.nom}</td>
+                  <td className="py-2.5 pr-3 text-muted-foreground">{c.ville ?? "—"}</td>
+                  <td className="py-2.5 pr-3 text-muted-foreground">{c.email ?? "—"}</td>
+                  <td className="py-2.5 pr-3">
+                    <span
+                      className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium ${BADGE[c.statut]}`}
+                    >
+                      {LIBELLE[c.statut]}
+                    </span>
+                  </td>
+                  <td className="py-2.5 pr-3 text-muted-foreground">
+                    {c.statut === "essai" ? `J-${c.joursRestants}` : "—"}
+                  </td>
+                  <td className="py-2.5">
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={changerStatut.isPending}
+                        onClick={() =>
+                          changerStatut.mutate({ salonId: c.id, statut: "permanent" })
+                        }
+                      >
+                        Accès permanent
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={changerStatut.isPending}
+                        onClick={() => changerStatut.mutate({ salonId: c.id, statut: "essai" })}
+                      >
+                        Essai gratuit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={changerStatut.isPending}
+                        onClick={() =>
+                          changerStatut.mutate({ salonId: c.id, statut: "suspendu" })
+                        }
+                      >
+                        Suspendre
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {!abonnes?.length && (
+                <tr>
+                  <td colSpan={6} className="py-4 text-muted-foreground">
+                    Aucun client abonné pour le moment.
                   </td>
                 </tr>
               )}

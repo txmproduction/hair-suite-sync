@@ -4,8 +4,14 @@ import logo from "@/assets/logo-light.png";
 
 const CONTACT = "contact.txmproduction@gmail.com";
 
-/** Écran affiché quand l'essai gratuit de 14 jours est terminé. */
-export function EssaiTermine({ onDeconnexion }: { onDeconnexion: () => void }) {
+/** Écran affiché quand l'essai gratuit est terminé ou le compte suspendu. */
+export function EssaiTermine({
+  onDeconnexion,
+  suspendu,
+}: {
+  onDeconnexion: () => void;
+  suspendu?: boolean;
+}) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-lg text-center">
@@ -13,15 +19,20 @@ export function EssaiTermine({ onDeconnexion }: { onDeconnexion: () => void }) {
           <img src={logo} alt="HairTrack" className="h-9 w-auto" />
         </div>
         <div className="card-soft p-7">
-          <h1 className="text-2xl font-semibold">Votre essai gratuit est terminé</h1>
+          <h1 className="text-2xl font-semibold">
+            {suspendu ? "Votre accès a été suspendu" : "Votre essai gratuit est terminé"}
+          </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Vos données sont conservées, rien n'est supprimé. HairTrack vous a plu ? Contactez-nous
-            pour un accès complet sans restriction.
+            {suspendu
+              ? "Vos données sont conservées, rien n'est supprimé. Contactez-nous pour plus d'informations."
+              : "Vos données sont conservées, rien n'est supprimé. HairTrack vous a plu ? Contactez-nous pour un accès complet sans restriction."}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <Button asChild>
               <a
-                href={`mailto:${CONTACT}?subject=${encodeURIComponent("Accès complet HairTrack")}`}
+                href={`mailto:${CONTACT}?subject=${encodeURIComponent(
+                  suspendu ? "Accès suspendu HairTrack" : "Accès complet HairTrack",
+                )}`}
               >
                 Nous contacter
               </a>

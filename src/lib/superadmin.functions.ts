@@ -104,3 +104,25 @@ export const convertirEnClientFn = createServerFn({ method: "POST" })
     const { convertirEnClient } = await import("./superadmin.server");
     return convertirEnClient(data);
   });
+
+export const clientsAbonnesFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await verifier(context.userId);
+    const { listerClientsAbonnes } = await import("./superadmin.server");
+    return listerClientsAbonnes();
+  });
+
+export const definirStatutCompteFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { salonId: string; statut: string }) => {
+    const statut = String(data.statut);
+    if (statut !== "permanent" && statut !== "essai" && statut !== "suspendu")
+      throw new Error("Statut inconnu.");
+    return { salonId: String(data.salonId), statut: statut as "permanent" | "essai" | "suspendu" };
+  })
+  .handler(async ({ data, context }) => {
+    await verifier(context.userId);
+    const { definirStatutCompte } = await import("./superadmin.server");
+    return definirStatutCompte(data.salonId, data.statut);
+  });

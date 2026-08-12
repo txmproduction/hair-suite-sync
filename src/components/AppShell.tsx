@@ -65,9 +65,9 @@ export function AppShell({
     navigate({ to: "/auth", replace: true });
   }
 
-  // Essai terminé : accès restreint (les données ne sont ni bloquées ni supprimées).
-  if (essai?.expire && !acces?.superAdmin) {
-    return <EssaiTermine onDeconnexion={deconnexion} />;
+  // Essai terminé ou compte suspendu : accès restreint (aucune donnée supprimée).
+  if ((essai?.expire || essai?.suspendu) && !acces?.superAdmin) {
+    return <EssaiTermine onDeconnexion={deconnexion} suspendu={essai?.suspendu} />;
   }
 
   return (
