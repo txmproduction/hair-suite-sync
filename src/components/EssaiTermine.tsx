@@ -4,8 +4,14 @@ import logo from "@/assets/logo-light.png";
 
 const CONTACT = "contact.txmproduction@gmail.com";
 
-/** Écran affiché quand l'essai gratuit de 14 jours est terminé. */
-export function EssaiTermine({ onDeconnexion }: { onDeconnexion: () => void }) {
+/** Écran affiché quand l'essai gratuit est terminé ou le compte suspendu. */
+export function EssaiTermine({
+  onDeconnexion,
+  suspendu,
+}: {
+  onDeconnexion: () => void;
+  suspendu?: boolean;
+}) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-lg text-center">
