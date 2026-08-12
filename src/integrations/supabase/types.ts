@@ -510,6 +510,39 @@ export type Database = {
           },
         ]
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       rdv: {
         Row: {
           acompte: number
@@ -601,6 +634,7 @@ export type Database = {
       }
       salons: {
         Row: {
+          abonnement_actif: boolean
           adresse: string | null
           categorie: Database["public"]["Enums"]["categorie_salon"]
           code_postal: string | null
@@ -622,9 +656,12 @@ export type Database = {
           source: string | null
           statut: Database["public"]["Enums"]["statut_salon"]
           telephone: string | null
+          trial_ends_at: string
+          trial_started_at: string
           ville: string | null
         }
         Insert: {
+          abonnement_actif?: boolean
           adresse?: string | null
           categorie?: Database["public"]["Enums"]["categorie_salon"]
           code_postal?: string | null
@@ -646,9 +683,12 @@ export type Database = {
           source?: string | null
           statut?: Database["public"]["Enums"]["statut_salon"]
           telephone?: string | null
+          trial_ends_at?: string
+          trial_started_at?: string
           ville?: string | null
         }
         Update: {
+          abonnement_actif?: boolean
           adresse?: string | null
           categorie?: Database["public"]["Enums"]["categorie_salon"]
           code_postal?: string | null
@@ -670,6 +710,8 @@ export type Database = {
           source?: string | null
           statut?: Database["public"]["Enums"]["statut_salon"]
           telephone?: string | null
+          trial_ends_at?: string
+          trial_started_at?: string
           ville?: string | null
         }
         Relationships: []

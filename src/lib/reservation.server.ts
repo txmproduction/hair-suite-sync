@@ -187,6 +187,7 @@ export async function creerReservationPublique(input: {
       .maybeSingle();
     clientId = existant?.id ?? null;
   }
+  let nouveauClient = false;
   if (!clientId) {
     const { data: cree, error } = await supabaseAdmin
       .from("clients")
@@ -200,12 +201,14 @@ export async function creerReservationPublique(input: {
       .single();
     if (error) throw new Error(error.message);
     clientId = cree.id;
+    nouveauClient = true;
   } else {
     await supabaseAdmin
       .from("clients")
       .update({ nom: input.nom.trim(), email: input.email.trim() || null })
       .eq("id", clientId);
   }
+
 
   const acompte = calculAcompteServeur(prestation.prix, contexte.acompte);
   const avecPaiement = acompte > 0;
@@ -234,7 +237,17 @@ export async function creerReservationPublique(input: {
     throw new Error(error.message);
   }
 
+  if (nouveauClient) {
+    const { notifierSuperAdmins } = await import("./push.server");
+    await notifierSuperAdmins({
+      titre: "Nouveau client inscrit",
+      corps: `Nouveau client inscrit : ${input.nom.trim()} veut réserver chez ${contexte.salon.nom}`,
+      url: "/super-admin",
+    });
+  }
+
   return { token: rdv.annulation_token, paiement_url: null };
+
 }
 
 export type RecapReservation = {

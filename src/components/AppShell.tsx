@@ -6,10 +6,17 @@ import { contexteQuery } from "@/lib/hairtrack";
 import logo from "@/assets/logo-light.png";
 import { LogOut } from "lucide-react";
 import { estSuperAdminFn } from "@/lib/superadmin.functions";
+import { etatEssaiFn } from "@/lib/essai.functions";
+import { EssaiTermine } from "@/components/EssaiTermine";
 
 export function useContexte() {
   return useQuery(contexteQuery);
 }
+
+export function useEtatEssai() {
+  return useQuery({ queryKey: ["essai"], queryFn: () => etatEssaiFn(), staleTime: 60_000 });
+}
+
 
 const LIENS = [
   { to: "/agenda", label: "Agenda", gerant: false },
@@ -49,6 +56,8 @@ export function AppShell({
     navigate({ to: "/bienvenue", replace: true });
   }
 
+  const { data: essai } = useEtatEssai();
+
   async function deconnexion() {
     await queryClient.cancelQueries();
     queryClient.clear();
@@ -56,11 +65,23 @@ export function AppShell({
     navigate({ to: "/auth", replace: true });
   }
 
+  // Essai terminé : accès restreint (les données ne sont ni bloquées ni supprimées).
+  if (essai?.expire && !acces?.superAdmin) {
+    return <EssaiTermine onDeconnexion={deconnexion} />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
+      {essai?.actif && !essai.expire && (
+        <div className="bg-gold-soft px-4 py-2 text-center text-sm font-medium text-gold-foreground">
+          Essai gratuit — J-{essai.joursRestants} jour{essai.joursRestants > 1 ? "s" : ""} restant
+          {essai.joursRestants > 1 ? "s" : ""}
+        </div>
+      )}
       <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <img src={logo} alt="HairTrack" className="h-7 w-auto" />
+
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden text-sm text-muted-foreground sm:inline">
               {data?.salon?.nom}

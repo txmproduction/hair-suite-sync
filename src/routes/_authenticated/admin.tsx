@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { CarteNotifications } from "@/components/CarteNotifications";
 import { ArrowDown, ArrowUp, Copy, Pencil, Plus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -46,7 +47,10 @@ function Admin() {
           <TabsTrigger value="reservation">Réservation</TabsTrigger>
         </TabsList>
         <TabsContent value="salon">
-          <OngletSalon />
+          <div className="space-y-4">
+            <OngletSalon />
+            <CarteNotifications />
+          </div>
         </TabsContent>
         <TabsContent value="employes">
           <OngletEmployes />

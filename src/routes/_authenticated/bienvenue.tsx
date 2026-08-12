@@ -11,6 +11,7 @@ import logo from "@/assets/logo-light.png";
 import { reclamerInvitationFn } from "@/lib/invitation.functions";
 import { infosRepriseFn } from "@/lib/annuaire.functions";
 import { reprendreFicheFn } from "@/lib/reprise.functions";
+import { notifierNouveauSalonFn } from "@/lib/push.functions";
 import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/bienvenue")({
@@ -111,6 +112,8 @@ function Bienvenue() {
           ferme: jour === 6,
         })),
       );
+
+      await notifierNouveauSalonFn({ data: { salonId: salon.id } }).catch(() => undefined);
 
       await queryClient.invalidateQueries();
       toast.success("Salon créé !");

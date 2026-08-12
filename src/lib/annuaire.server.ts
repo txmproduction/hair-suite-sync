@@ -422,6 +422,8 @@ export async function reprendreFiche(input: {
       nom: input.nomSalon,
       adresse: input.adresse || null,
       telephone: input.telephone || null,
+      trial_started_at: new Date().toISOString(),
+      trial_ends_at: new Date(Date.now() + 14 * 86_400_000).toISOString(),
     })
     .eq("id", salon.id);
   if (error) throw new Error(error.message);
@@ -438,5 +440,12 @@ export async function reprendreFiche(input: {
   await supabaseAdmin.from("horaires_salon").insert(
     Array.from({ length: 7 }, (_, jour) => ({ salon_id: salon.id, jour, ferme: jour === 6 })),
   );
+  const { notifierSuperAdmins } = await import("./push.server");
+  await notifierSuperAdmins({
+    titre: "Nouveau salon référencé",
+    corps: `Nouveau salon référencé : ${input.nomSalon}`,
+    url: "/super-admin",
+  });
+
   return { ok: true as const, salonId: salon.id };
 }
