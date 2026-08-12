@@ -12,6 +12,8 @@ import {
   salonsNonReclamesFn,
   importerSalonsFn,
   convertirEnClientFn,
+  clientsAbonnesFn,
+  definirStatutCompteFn,
 } from "@/lib/superadmin.functions";
 import { CATEGORIES } from "@/lib/categories";
 
