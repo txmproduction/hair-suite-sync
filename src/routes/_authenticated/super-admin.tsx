@@ -76,6 +76,29 @@ function SuperAdminPage() {
     queryFn: () => salonsNonReclamesFn(),
   });
 
+  const { data: abonnes } = useQuery({
+    queryKey: ["clients-abonnes"],
+    enabled: autorise,
+    queryFn: () => clientsAbonnesFn(),
+    refetchInterval: 15_000,
+  });
+
+  const changerStatut = useMutation({
+    mutationFn: (v: { salonId: string; statut: "permanent" | "essai" | "suspendu" }) =>
+      definirStatutCompteFn({ data: v }),
+    onSuccess: (_r, v) => {
+      toast.success(
+        v.statut === "permanent"
+          ? "Accès permanent activé."
+          : v.statut === "essai"
+            ? "Nouvel essai de 14 jours activé."
+            : "Compte suspendu.",
+      );
+      queryClient.invalidateQueries({ queryKey: ["clients-abonnes"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const [csv, setCsv] = useState("");
   const [source, setSource] = useState("import_csv");
   const [conversion, setConversion] = useState<{ id: string; email: string; nom: string } | null>(
