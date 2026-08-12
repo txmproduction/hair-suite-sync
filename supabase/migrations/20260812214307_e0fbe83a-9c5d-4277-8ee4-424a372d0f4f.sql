@@ -1,0 +1,1 @@
+ALTER TABLE public.salons ADD COLUMN IF NOT EXISTS compte_suspendu boolean NOT NULL DEFAULT false;

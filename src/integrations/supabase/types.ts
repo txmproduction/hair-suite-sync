@@ -638,6 +638,7 @@ export type Database = {
           adresse: string | null
           categorie: Database["public"]["Enums"]["categorie_salon"]
           code_postal: string | null
+          compte_suspendu: boolean
           created_at: string
           description: string | null
           gerant_user_id: string | null
@@ -665,6 +666,7 @@ export type Database = {
           adresse?: string | null
           categorie?: Database["public"]["Enums"]["categorie_salon"]
           code_postal?: string | null
+          compte_suspendu?: boolean
           created_at?: string
           description?: string | null
           gerant_user_id?: string | null
@@ -692,6 +694,7 @@ export type Database = {
           adresse?: string | null
           categorie?: Database["public"]["Enums"]["categorie_salon"]
           code_postal?: string | null
+          compte_suspendu?: boolean
           created_at?: string
           description?: string | null
           gerant_user_id?: string | null
