@@ -220,61 +220,6 @@ function SuperAdminPage() {
       </section>
 
       <section className="card-soft mt-5 p-5">
-        <h2 className="text-lg font-semibold">
-          Fiches non réclamées ({salons?.length ?? 0})
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Triées par nombre de clics « réservation indisponible » sur 30 jours.
-        </p>
-        <div className="mt-4 overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-muted-foreground">
-                <th className="py-2 pr-3 font-medium">Salon</th>
-                <th className="py-2 pr-3 font-medium">Ville</th>
-                <th className="py-2 pr-3 font-medium">Clics 30 j</th>
-                <th className="py-2 pr-3 font-medium">Total</th>
-                <th className="py-2 pr-3 font-medium">Source</th>
-                <th className="py-2" />
-              </tr>
-            </thead>
-            <tbody>
-              {(salons ?? []).map((s) => (
-                <tr key={s.id} className="border-b border-border/60">
-                  <td className="py-2.5 pr-3">
-                    <span className="font-medium">{s.nom}</span>
-                    {s.telephone && (
-                      <span className="ml-2 text-muted-foreground">{s.telephone}</span>
-                    )}
-                  </td>
-                  <td className="py-2.5 pr-3 text-muted-foreground">{s.ville ?? "—"}</td>
-                  <td className="py-2.5 pr-3 font-semibold">{s.clics_30j}</td>
-                  <td className="py-2.5 pr-3 text-muted-foreground">{s.clics_total}</td>
-                  <td className="py-2.5 pr-3 text-muted-foreground">{s.source ?? "—"}</td>
-                  <td className="py-2.5">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setConversion({ id: s.id, email: "", nom: s.nom })}
-                    >
-                      Convertir en client
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-              {!salons?.length && (
-                <tr>
-                  <td colSpan={6} className="py-4 text-muted-foreground">
-                    Aucune fiche non réclamée pour le moment.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="card-soft mt-5 p-5">
         <h2 className="text-lg font-semibold">Clients abonnés ({abonnes?.length ?? 0})</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Vue en direct (actualisée toutes les 15 secondes). Les données d'un salon ne sont jamais
@@ -346,6 +291,61 @@ function SuperAdminPage() {
                 <tr>
                   <td colSpan={6} className="py-4 text-muted-foreground">
                     Aucun client abonné pour le moment.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="card-soft mt-5 p-5">
+        <h2 className="text-lg font-semibold">
+          Fiches non réclamées ({salons?.length ?? 0})
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Triées par nombre de clics « réservation indisponible » sur 30 jours.
+        </p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-muted-foreground">
+                <th className="py-2 pr-3 font-medium">Salon</th>
+                <th className="py-2 pr-3 font-medium">Ville</th>
+                <th className="py-2 pr-3 font-medium">Clics 30 j</th>
+                <th className="py-2 pr-3 font-medium">Total</th>
+                <th className="py-2 pr-3 font-medium">Source</th>
+                <th className="py-2" />
+              </tr>
+            </thead>
+            <tbody>
+              {(salons ?? []).map((s) => (
+                <tr key={s.id} className="border-b border-border/60">
+                  <td className="py-2.5 pr-3">
+                    <span className="font-medium">{s.nom}</span>
+                    {s.telephone && (
+                      <span className="ml-2 text-muted-foreground">{s.telephone}</span>
+                    )}
+                  </td>
+                  <td className="py-2.5 pr-3 text-muted-foreground">{s.ville ?? "—"}</td>
+                  <td className="py-2.5 pr-3 font-semibold">{s.clics_30j}</td>
+                  <td className="py-2.5 pr-3 text-muted-foreground">{s.clics_total}</td>
+                  <td className="py-2.5 pr-3 text-muted-foreground">{s.source ?? "—"}</td>
+                  <td className="py-2.5">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setConversion({ id: s.id, email: "", nom: s.nom })}
+                    >
+                      Convertir en client
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+              {!salons?.length && (
+                <tr>
+                  <td colSpan={6} className="py-4 text-muted-foreground">
+                    Aucune fiche non réclamée pour le moment.
                   </td>
                 </tr>
               )}
