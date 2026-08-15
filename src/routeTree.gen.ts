@@ -16,6 +16,7 @@ import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as DistribuerRouteImport } from './routes/distribuer'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as RechercheRouteImport } from './routes/recherche'
+import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as VillesRouteImport } from './routes/villes'
 import { Route as CategorieIndexRouteImport } from './routes/$categorie.index'
@@ -67,6 +68,11 @@ const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
 const RechercheRoute = RechercheRouteImport.update({
   id: '/recherche',
   path: '/recherche',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
+  id: '/sitemap-pages.xml',
+  path: '/sitemap-pages.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
   '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
   '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
@@ -225,6 +233,7 @@ export interface FileRoutesById {
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
   '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
@@ -253,6 +262,7 @@ export interface FileRouteTypes {
     | '/distribuer'
     | '/mentions-legales'
     | '/recherche'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/villes'
     | '/$categorie/$ville'
@@ -279,6 +289,7 @@ export interface FileRouteTypes {
     | '/distribuer'
     | '/mentions-legales'
     | '/recherche'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/villes'
     | '/$categorie/$ville'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/distribuer'
     | '/mentions-legales'
     | '/recherche'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/villes'
     | '/$categorie/$ville'
@@ -334,6 +346,7 @@ export interface RootRouteChildren {
   DistribuerRoute: typeof DistribuerRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   RechercheRoute: typeof RechercheRoute
+  SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VillesRoute: typeof VillesRoute
   CategorieVilleRoute: typeof CategorieVilleRouteWithChildren
@@ -394,6 +407,13 @@ declare module '@tanstack/react-router' {
       path: '/recherche'
       fullPath: '/recherche'
       preLoaderRoute: typeof RechercheRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-pages.xml': {
+      id: '/sitemap-pages.xml'
+      path: '/sitemap-pages.xml'
+      fullPath: '/sitemap-pages.xml'
+      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -570,6 +590,7 @@ const rootRouteChildren: RootRouteChildren = {
   DistribuerRoute: DistribuerRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
   RechercheRoute: RechercheRoute,
+  SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   VillesRoute: VillesRoute,
   CategorieVilleRoute: CategorieVilleRouteWithChildren,
