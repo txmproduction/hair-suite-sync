@@ -8,6 +8,11 @@ import { Button } from "@/components/ui/button";
 import { ficheSalonFn, clicReservationManqueeFn } from "@/lib/annuaire.functions";
 import { labelCategorie } from "@/lib/categories";
 import { euro, JOURS } from "@/lib/hairtrack";
+import { jsonLdSalon, jsonLdFilArianeSalon } from "@/lib/seo-salon";
+import { FilAriane } from "@/components/annuaire/FilAriane";
+import { LienSeo } from "@/components/annuaire/LienSeo";
+import { normaliserSlug } from "@/lib/seo";
+import { parCategorie } from "@/lib/categories";
 import type { FicheSalon } from "@/lib/annuaire-types";
 
 
@@ -43,6 +48,17 @@ export const Route = createFileRoute("/salon/$slug")({
           : []),
       ],
       links: [{ rel: "canonical", href: url }],
+      ...(loaderData
+        ? {
+            scripts: [
+              { type: "application/ld+json", children: JSON.stringify(jsonLdSalon(loaderData)) },
+              {
+                type: "application/ld+json",
+                children: JSON.stringify(jsonLdFilArianeSalon(loaderData)),
+              },
+            ],
+          }
+        : {}),
     };
   },
   component: FicheSalonPage,
@@ -273,6 +289,7 @@ function FicheSalonPage() {
       <GalerieHero photoCouverture={salon.photo_couverture_url} photos={photos} nomSalon={salon.nom} />
 
       <main className="mx-auto max-w-6xl px-4 pb-16">
+
         <div className="card-soft -mt-12 relative p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -443,8 +460,52 @@ function FicheSalonPage() {
             </div>
           )}
         </section>
+        <SectionMaillage salon={salon} />
       </main>
+
       <PiedPublic />
     </div>
+  );
+}
+
+/** Maillage interne : fiche → page ville, page département, page métier. */
+function SectionMaillage({ salon }: { salon: FicheSalon["salon"] }) {
+  const info = parCategorie(salon.categorie);
+  if (!info) return null;
+  const villeSlugSalon = salon.ville ? normaliserSlug(salon.ville) : null;
+  const liens = [
+    ...(villeSlugSalon && salon.ville
+      ? [{ href: `/${info.slug}/${villeSlugSalon}`, label: `${info.label} à ${salon.ville}` }]
+      : []),
+    { href: `/${info.slug}`, label: `Tous les ${info.plurielNom} en France` },
+    { href: "/villes", label: "Toutes les villes" },
+    { href: "/metiers", label: "Tous les métiers" },
+  ];
+  return (
+    <section className="mt-10 border-t border-border pt-6">
+      <FilAriane
+        items={[
+          { label: "Accueil", href: "/" },
+          { label: info.label, href: `/${info.slug}` },
+          ...(villeSlugSalon && salon.ville
+            ? [{ label: salon.ville, href: `/${info.slug}/${villeSlugSalon}` }]
+            : []),
+          { label: salon.nom },
+        ]}
+      />
+      <h2 className="mt-4 text-lg font-semibold">Continuer votre recherche</h2>
+      <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+        {liens.map((l) => (
+          <li key={l.href}>
+            <LienSeo
+              href={l.href}
+              className="text-sm text-muted-foreground hover:text-foreground hover:underline"
+            >
+              {l.label}
+            </LienSeo>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

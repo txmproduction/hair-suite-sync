@@ -1,3 +1,15 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /avis/
+Disallow: /reservation/
+Disallow: /reserver/
+Disallow: /*?tri=
+Disallow: /*?page=
+
 User-agent: Googlebot
 Allow: /
 
@@ -9,11 +21,5 @@ Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
-
-User-agent: *
-Allow: /
-
-Disallow: /avis/
-Disallow: /reservation/
 
 Sitemap: https://hairtrack.fr/sitemap.xml

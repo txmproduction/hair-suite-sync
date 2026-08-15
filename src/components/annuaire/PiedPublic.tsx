@@ -93,6 +93,16 @@ export function PiedPublic() {
               </Link>
             </li>
             <li>
+              <Link to="/metiers" className="hover:text-foreground">
+                Tous les métiers
+              </Link>
+            </li>
+            <li>
+              <Link to="/villes" className="hover:text-foreground">
+                Toutes les villes
+              </Link>
+            </li>
+            <li>
               <Link to="/distribuer" className="hover:text-foreground">
                 Distribuer HairTrack
               </Link>

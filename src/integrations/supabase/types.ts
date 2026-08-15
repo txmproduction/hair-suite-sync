@@ -632,6 +632,27 @@ export type Database = {
           },
         ]
       }
+      redirections: {
+        Row: {
+          chemin_cible: string
+          chemin_source: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          chemin_cible: string
+          chemin_source: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          chemin_cible?: string
+          chemin_source?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       salons: {
         Row: {
           abonnement_actif: boolean
@@ -659,6 +680,7 @@ export type Database = {
           telephone: string | null
           trial_ends_at: string
           trial_started_at: string
+          updated_at: string
           ville: string | null
         }
         Insert: {
@@ -687,6 +709,7 @@ export type Database = {
           telephone?: string | null
           trial_ends_at?: string
           trial_started_at?: string
+          updated_at?: string
           ville?: string | null
         }
         Update: {
@@ -715,6 +738,7 @@ export type Database = {
           telephone?: string | null
           trial_ends_at?: string
           trial_started_at?: string
+          updated_at?: string
           ville?: string | null
         }
         Relationships: []

@@ -1,76 +1,51 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { EntetePublique } from "@/components/annuaire/EntetePublique";
 import { PiedPublic } from "@/components/annuaire/PiedPublic";
-import { ResultatsSalons } from "@/routes/recherche";
-import { parSlugCategorie, villeSlug } from "@/lib/categories";
+import { VuePageDepartement, VuePageLocale } from "@/components/annuaire/PageAnnuaire";
+import { pageDepartementFn, pageLocaleFn } from "@/lib/annuaire-seo.functions";
+import { headPageDepartement, headPageLocale } from "@/lib/seo-annuaire";
+import { departementParSlug } from "@/lib/geo-fr";
+import type { PageDepartement, PageLocale } from "@/lib/annuaire-seo-types";
 
-type Contexte = {
-  categorie: string;
-  slug: string;
-  label: string;
-  pluriel: string;
-  plurielNom: string;
-  ville: string;
-};
-
-function resoudre(paramCategorie: string, paramVille: string): Contexte | null {
-  const info = parSlugCategorie(paramCategorie);
-  if (!info) return null;
-  const ville = paramVille
-    .split("-")
-    .map((m) => (m.length > 2 ? m.charAt(0).toUpperCase() + m.slice(1) : m))
-    .join("-");
-  return {
-    categorie: info.value,
-    slug: info.slug,
-    label: info.label,
-    pluriel: info.pluriel,
-    plurielNom: info.plurielNom,
-    ville,
-  };
-}
+type Donnees =
+  | { genre: "ville"; page: PageLocale }
+  | { genre: "departement"; page: PageDepartement };
 
 export const Route = createFileRoute("/$categorie/$ville")({
-  loader: ({ params }): Contexte => {
-    const ctx = resoudre(params.categorie, params.ville);
-    if (!ctx) throw notFound();
-    return ctx;
+  // Le second segment peut être une ville ou un département : on tranche ici,
+  // ce qui évite deux routes concurrentes sur le même motif d'URL.
+  loader: async ({ params }): Promise<Donnees> => {
+    if (departementParSlug(params.ville)) {
+      const page = (await pageDepartementFn({
+        data: { categorie: params.categorie, departement: params.ville },
+      })) as PageDepartement | null;
+      if (page) return { genre: "departement", page };
+    }
+    const page = (await pageLocaleFn({
+      data: { categorie: params.categorie, ville: params.ville, page: 1 },
+    })) as PageLocale | null;
+    if (!page) throw notFound();
+    return { genre: "ville", page };
   },
   head: ({ loaderData }) => {
-    const ctx = loaderData as Contexte | undefined;
-    if (!ctx) return {};
-    const url = `https://hairtrack.fr/${ctx.slug}/${villeSlug(ctx.ville)}`;
-    const titre = `Trouvez les meilleurs ${ctx.plurielNom} à proximité de ${ctx.ville} | HairTrack`;
-    const desc = `${ctx.label} à ${ctx.ville} : comparez les prestations, les prix et les avis, puis réservez votre rendez-vous en ligne en quelques secondes sur HairTrack.`;
-    return {
-      meta: [
-        { title: titre },
-        { name: "description", content: desc },
-        { property: "og:title", content: titre },
-        { property: "og:description", content: desc },
-        { property: "og:type", content: "website" },
-        { property: "og:url", content: url },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-      links: [{ rel: "canonical", href: url }],
-    };
+    if (!loaderData) return { meta: [{ name: "robots", content: "noindex" }] };
+    return loaderData.genre === "departement"
+      ? headPageDepartement(loaderData.page)
+      : headPageLocale(loaderData.page);
   },
-  component: PageLocale,
+  component: PageAnnuaireLocale,
 });
 
-function PageLocale() {
-  const ctx = Route.useLoaderData() as Contexte;
+function PageAnnuaireLocale() {
+  const donnees = Route.useLoaderData() as Donnees;
   return (
     <div className="min-h-screen bg-background">
       <EntetePublique />
-      <main className="mx-auto max-w-6xl px-4 py-10">
-        <ResultatsSalons
-          categorie={ctx.categorie}
-          ville={ctx.ville}
-          titre={`${ctx.label} à ${ctx.ville}`}
-          sousTitre={`Les meilleurs ${ctx.plurielNom} à ${ctx.ville}, avec réservation en ligne immédiate.`}
-        />
-      </main>
+      {donnees.genre === "departement" ? (
+        <VuePageDepartement page={donnees.page} />
+      ) : (
+        <VuePageLocale page={donnees.page} />
+      )}
       <PiedPublic />
     </div>
   );

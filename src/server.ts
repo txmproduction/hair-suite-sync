@@ -47,6 +47,27 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const url = new URL(request.url);
+      const { estRedirigeable, redirectionCanonique, redirectionEnregistree } = await import(
+        "./lib/redirections.server"
+      );
+
+      if (estRedirigeable(request, url)) {
+        // 1) forme canonique (minuscules, sans accent, sans slash final)
+        const canonique = redirectionCanonique(url);
+        if (canonique) {
+          return new Response(null, { status: 301, headers: { location: canonique } });
+        }
+        // 2) redirections enregistrées (anciennes URLs, slugs modifiés)
+        const cible = await redirectionEnregistree(url.pathname);
+        if (cible && cible !== url.pathname) {
+          return new Response(null, {
+            status: 301,
+            headers: { location: `${cible}${url.search}` },
+          });
+        }
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

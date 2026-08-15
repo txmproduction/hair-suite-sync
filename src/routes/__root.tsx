@@ -97,6 +97,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-title", content: "HairTrack" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { property: "og:site_name", content: "HairTrack" },
+      { property: "og:locale", content: "fr_FR" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -109,6 +111,41 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "apple-touch-icon",
         href: "https://res.cloudinary.com/dgfdye7cl/image/upload/w_180,h_180,c_pad,b_black/v1786366946/logo_hairtrack_etgz8g.png",
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://hairtrack.fr/#organisation",
+              name: "HairTrack",
+              url: "https://hairtrack.fr",
+              logo: "https://res.cloudinary.com/dgfdye7cl/image/upload/v1786366946/logo_hairtrack_etgz8g.png",
+              sameAs: ["https://www.instagram.com/hairtrack.fr"],
+              areaServed: { "@type": "Country", name: "France" },
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://hairtrack.fr/#site",
+              url: "https://hairtrack.fr",
+              name: "HairTrack",
+              inLanguage: "fr-FR",
+              publisher: { "@id": "https://hairtrack.fr/#organisation" },
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: "https://hairtrack.fr/recherche?q={search_term_string}",
+                },
+                "query-input": "required name=search_term_string",
+              },
+            },
+          ],
+        }),
       },
     ],
   }),

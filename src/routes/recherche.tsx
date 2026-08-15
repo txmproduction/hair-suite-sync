@@ -29,6 +29,7 @@ export const Route = createFileRoute("/recherche")({
   }),
   head: () => ({
     meta: [
+      { name: "robots", content: "noindex, follow" },
       { title: "Rechercher un salon de coiffure ou de beauté — HairTrack" },
       {
         name: "description",
@@ -45,6 +46,8 @@ export const Route = createFileRoute("/recherche")({
       { property: "og:url", content: "https://hairtrack.fr/recherche" },
     ],
     links: [{ rel: "canonical", href: "https://hairtrack.fr/recherche" }],
+    // Page de filtres (résultats combinatoires) : suivie mais non indexée,
+    // les pages métier/ville portent le référencement.
   }),
   component: PageRecherche,
 });

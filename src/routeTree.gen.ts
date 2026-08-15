@@ -15,8 +15,13 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as DistribuerRouteImport } from './routes/distribuer'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
+import { Route as MetiersRouteImport } from './routes/metiers'
 import { Route as RechercheRouteImport } from './routes/recherche'
+import { Route as SitemapMetiersDotxmlRouteImport } from './routes/sitemap-metiers[.]xml'
+import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as VillesRouteImport } from './routes/villes'
+import { Route as CategorieIndexRouteImport } from './routes/$categorie.index'
 import { Route as CategorieVilleRouteImport } from './routes/$categorie.$ville'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
@@ -28,6 +33,9 @@ import { Route as AvisTokenRouteImport } from './routes/avis.$token'
 import { Route as ReservationTokenRouteImport } from './routes/reservation.$token'
 import { Route as ReserverSlugRouteImport } from './routes/reserver.$slug'
 import { Route as SalonSlugRouteImport } from './routes/salon.$slug'
+import { Route as SitemapSalonsNRouteImport } from './routes/sitemap-salons.$n'
+import { Route as SitemapVillesNRouteImport } from './routes/sitemap-villes.$n'
+import { Route as CategorieVillePageRouteImport } from './routes/$categorie.$ville.$page'
 import { Route as AuthenticatedClientsIndexRouteImport } from './routes/_authenticated/clients.index'
 import { Route as AuthenticatedClientsClientIdRouteImport } from './routes/_authenticated/clients.$clientId'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -61,14 +69,39 @@ const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
   path: '/mentions-legales',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MetiersRoute = MetiersRouteImport.update({
+  id: '/metiers',
+  path: '/metiers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RechercheRoute = RechercheRouteImport.update({
   id: '/recherche',
   path: '/recherche',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapMetiersDotxmlRoute = SitemapMetiersDotxmlRouteImport.update({
+  id: '/sitemap-metiers.xml',
+  path: '/sitemap-metiers.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
+  id: '/sitemap-pages.xml',
+  path: '/sitemap-pages.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VillesRoute = VillesRouteImport.update({
+  id: '/villes',
+  path: '/villes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategorieIndexRoute = CategorieIndexRouteImport.update({
+  id: '/$categorie/',
+  path: '/$categorie/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategorieVilleRoute = CategorieVilleRouteImport.update({
@@ -127,6 +160,21 @@ const SalonSlugRoute = SalonSlugRouteImport.update({
   path: '/salon/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapSalonsNRoute = SitemapSalonsNRouteImport.update({
+  id: '/sitemap-salons/$n',
+  path: '/sitemap-salons/$n',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapVillesNRoute = SitemapVillesNRouteImport.update({
+  id: '/sitemap-villes/$n',
+  path: '/sitemap-villes/$n',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategorieVillePageRoute = CategorieVillePageRouteImport.update({
+  id: '/$page',
+  path: '/$page',
+  getParentRoute: () => CategorieVilleRoute,
+} as any)
 const AuthenticatedClientsIndexRoute =
   AuthenticatedClientsIndexRouteImport.update({
     id: '/clients/',
@@ -152,9 +200,13 @@ export interface FileRoutesByFullPath {
   '/cgv': typeof CgvRoute
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/metiers': typeof MetiersRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/$categorie/$ville': typeof CategorieVilleRoute
+  '/villes': typeof VillesRoute
+  '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/bienvenue': typeof AuthenticatedBienvenueRoute
@@ -165,6 +217,10 @@ export interface FileRoutesByFullPath {
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/salon/$slug': typeof SalonSlugRoute
+  '/sitemap-salons/$n': typeof SitemapSalonsNRoute
+  '/sitemap-villes/$n': typeof SitemapVillesNRoute
+  '/$categorie/': typeof CategorieIndexRoute
+  '/$categorie/$ville/$page': typeof CategorieVillePageRoute
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/clients/': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -175,9 +231,13 @@ export interface FileRoutesByTo {
   '/cgv': typeof CgvRoute
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/metiers': typeof MetiersRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/$categorie/$ville': typeof CategorieVilleRoute
+  '/villes': typeof VillesRoute
+  '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/bienvenue': typeof AuthenticatedBienvenueRoute
@@ -188,6 +248,10 @@ export interface FileRoutesByTo {
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/salon/$slug': typeof SalonSlugRoute
+  '/sitemap-salons/$n': typeof SitemapSalonsNRoute
+  '/sitemap-villes/$n': typeof SitemapVillesNRoute
+  '/$categorie': typeof CategorieIndexRoute
+  '/$categorie/$ville/$page': typeof CategorieVillePageRoute
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/clients': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -200,9 +264,13 @@ export interface FileRoutesById {
   '/cgv': typeof CgvRoute
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/metiers': typeof MetiersRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/$categorie/$ville': typeof CategorieVilleRoute
+  '/villes': typeof VillesRoute
+  '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/bienvenue': typeof AuthenticatedBienvenueRoute
@@ -213,6 +281,10 @@ export interface FileRoutesById {
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/salon/$slug': typeof SalonSlugRoute
+  '/sitemap-salons/$n': typeof SitemapSalonsNRoute
+  '/sitemap-villes/$n': typeof SitemapVillesNRoute
+  '/$categorie/': typeof CategorieIndexRoute
+  '/$categorie/$ville/$page': typeof CategorieVillePageRoute
   '/_authenticated/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/_authenticated/clients/': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
@@ -225,8 +297,12 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/distribuer'
     | '/mentions-legales'
+    | '/metiers'
     | '/recherche'
+    | '/sitemap-metiers.xml'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
+    | '/villes'
     | '/$categorie/$ville'
     | '/admin'
     | '/agenda'
@@ -238,6 +314,10 @@ export interface FileRouteTypes {
     | '/reservation/$token'
     | '/reserver/$slug'
     | '/salon/$slug'
+    | '/sitemap-salons/$n'
+    | '/sitemap-villes/$n'
+    | '/$categorie/'
+    | '/$categorie/$ville/$page'
     | '/clients/$clientId'
     | '/clients/'
     | '/api/public/payments/webhook'
@@ -248,8 +328,12 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/distribuer'
     | '/mentions-legales'
+    | '/metiers'
     | '/recherche'
+    | '/sitemap-metiers.xml'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
+    | '/villes'
     | '/$categorie/$ville'
     | '/admin'
     | '/agenda'
@@ -261,6 +345,10 @@ export interface FileRouteTypes {
     | '/reservation/$token'
     | '/reserver/$slug'
     | '/salon/$slug'
+    | '/sitemap-salons/$n'
+    | '/sitemap-villes/$n'
+    | '/$categorie'
+    | '/$categorie/$ville/$page'
     | '/clients/$clientId'
     | '/clients'
     | '/api/public/payments/webhook'
@@ -272,8 +360,12 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/distribuer'
     | '/mentions-legales'
+    | '/metiers'
     | '/recherche'
+    | '/sitemap-metiers.xml'
+    | '/sitemap-pages.xml'
     | '/sitemap.xml'
+    | '/villes'
     | '/$categorie/$ville'
     | '/_authenticated/admin'
     | '/_authenticated/agenda'
@@ -285,6 +377,10 @@ export interface FileRouteTypes {
     | '/reservation/$token'
     | '/reserver/$slug'
     | '/salon/$slug'
+    | '/sitemap-salons/$n'
+    | '/sitemap-villes/$n'
+    | '/$categorie/'
+    | '/$categorie/$ville/$page'
     | '/_authenticated/clients/$clientId'
     | '/_authenticated/clients/'
     | '/api/public/payments/webhook'
@@ -297,13 +393,20 @@ export interface RootRouteChildren {
   CgvRoute: typeof CgvRoute
   DistribuerRoute: typeof DistribuerRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
+  MetiersRoute: typeof MetiersRoute
   RechercheRoute: typeof RechercheRoute
+  SitemapMetiersDotxmlRoute: typeof SitemapMetiersDotxmlRoute
+  SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  CategorieVilleRoute: typeof CategorieVilleRoute
+  VillesRoute: typeof VillesRoute
+  CategorieVilleRoute: typeof CategorieVilleRouteWithChildren
   AvisTokenRoute: typeof AvisTokenRoute
   ReservationTokenRoute: typeof ReservationTokenRoute
   ReserverSlugRoute: typeof ReserverSlugRoute
   SalonSlugRoute: typeof SalonSlugRoute
+  SitemapSalonsNRoute: typeof SitemapSalonsNRoute
+  SitemapVillesNRoute: typeof SitemapVillesNRoute
+  CategorieIndexRoute: typeof CategorieIndexRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -351,6 +454,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MentionsLegalesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/metiers': {
+      id: '/metiers'
+      path: '/metiers'
+      fullPath: '/metiers'
+      preLoaderRoute: typeof MetiersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recherche': {
       id: '/recherche'
       path: '/recherche'
@@ -358,11 +468,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RechercheRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap-metiers.xml': {
+      id: '/sitemap-metiers.xml'
+      path: '/sitemap-metiers.xml'
+      fullPath: '/sitemap-metiers.xml'
+      preLoaderRoute: typeof SitemapMetiersDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-pages.xml': {
+      id: '/sitemap-pages.xml'
+      path: '/sitemap-pages.xml'
+      fullPath: '/sitemap-pages.xml'
+      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/villes': {
+      id: '/villes'
+      path: '/villes'
+      fullPath: '/villes'
+      preLoaderRoute: typeof VillesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$categorie/': {
+      id: '/$categorie/'
+      path: '/$categorie'
+      fullPath: '/$categorie/'
+      preLoaderRoute: typeof CategorieIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$categorie/$ville': {
@@ -442,6 +580,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SalonSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap-salons/$n': {
+      id: '/sitemap-salons/$n'
+      path: '/sitemap-salons/$n'
+      fullPath: '/sitemap-salons/$n'
+      preLoaderRoute: typeof SitemapSalonsNRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-villes/$n': {
+      id: '/sitemap-villes/$n'
+      path: '/sitemap-villes/$n'
+      fullPath: '/sitemap-villes/$n'
+      preLoaderRoute: typeof SitemapVillesNRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$categorie/$ville/$page': {
+      id: '/$categorie/$ville/$page'
+      path: '/$page'
+      fullPath: '/$categorie/$ville/$page'
+      preLoaderRoute: typeof CategorieVillePageRouteImport
+      parentRoute: typeof CategorieVilleRoute
+    }
     '/_authenticated/clients/': {
       id: '/_authenticated/clients/'
       path: '/clients'
@@ -491,6 +650,18 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface CategorieVilleRouteChildren {
+  CategorieVillePageRoute: typeof CategorieVillePageRoute
+}
+
+const CategorieVilleRouteChildren: CategorieVilleRouteChildren = {
+  CategorieVillePageRoute: CategorieVillePageRoute,
+}
+
+const CategorieVilleRouteWithChildren = CategorieVilleRoute._addFileChildren(
+  CategorieVilleRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -498,13 +669,20 @@ const rootRouteChildren: RootRouteChildren = {
   CgvRoute: CgvRoute,
   DistribuerRoute: DistribuerRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
+  MetiersRoute: MetiersRoute,
   RechercheRoute: RechercheRoute,
+  SitemapMetiersDotxmlRoute: SitemapMetiersDotxmlRoute,
+  SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  CategorieVilleRoute: CategorieVilleRoute,
+  VillesRoute: VillesRoute,
+  CategorieVilleRoute: CategorieVilleRouteWithChildren,
   AvisTokenRoute: AvisTokenRoute,
   ReservationTokenRoute: ReservationTokenRoute,
   ReserverSlugRoute: ReserverSlugRoute,
   SalonSlugRoute: SalonSlugRoute,
+  SitemapSalonsNRoute: SitemapSalonsNRoute,
+  SitemapVillesNRoute: SitemapVillesNRoute,
+  CategorieIndexRoute: CategorieIndexRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
