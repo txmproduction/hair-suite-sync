@@ -63,3 +63,46 @@ export const creerSessionAcompteFn = createServerFn({ method: "POST" })
       return { error: getStripeErrorMessage(error) };
     }
   });
+
+/**
+ * Vérifie directement auprès de Stripe si l'acompte a été réglé et confirme
+ * le rendez-vous. Filet de sécurité si le webhook n'est pas encore arrivé.
+ */
+export const verifierAcompteFn = createServerFn({ method: "POST" })
+  .inputValidator((data: { token: string; environment: "sandbox" | "live" }) => {
+    const token = String(data.token ?? "");
+    if (!/^[a-zA-Z0-9_-]{10,60}$/.test(token)) throw new Error("Réservation introuvable.");
+    if (data.environment !== "sandbox" && data.environment !== "live")
+      throw new Error("Environnement de paiement invalide.");
+    return { token, environment: data.environment };
+  })
+  .handler(async ({ data }): Promise<{ statut: string; paye: boolean }> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rdv } = await supabaseAdmin
+      .from("rdv")
+      .select("id, statut, paiement_ref")
+      .eq("annulation_token", data.token)
+      .maybeSingle();
+
+    if (!rdv) return { statut: "inconnu", paye: false };
+    if (rdv.statut !== "en_attente_paiement")
+      return { statut: rdv.statut, paye: rdv.statut === "a_venir" };
+    if (!rdv.paiement_ref) return { statut: rdv.statut, paye: false };
+
+    try {
+      const { createStripeClient } = await import("@/lib/stripe.server");
+      const stripe = createStripeClient(data.environment);
+      const session = await stripe.checkout.sessions.retrieve(rdv.paiement_ref);
+      if (session.payment_status === "unpaid") return { statut: rdv.statut, paye: false };
+
+      const { error } = await supabaseAdmin
+        .from("rdv")
+        .update({ statut: "a_venir", expire_at: null })
+        .eq("id", rdv.id)
+        .eq("statut", "en_attente_paiement");
+      if (error) return { statut: rdv.statut, paye: false };
+      return { statut: "a_venir", paye: true };
+    } catch {
+      return { statut: rdv.statut, paye: false };
+    }
+  });
