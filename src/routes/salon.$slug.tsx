@@ -459,7 +459,9 @@ function FicheSalonPage() {
             </div>
           )}
         </section>
+        <SectionMaillage salon={salon} />
       </main>
+
       <PiedPublic />
     </div>
   );
