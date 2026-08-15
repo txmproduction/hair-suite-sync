@@ -18,6 +18,7 @@ import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as SitemapMetiersDotxmlRouteImport } from './routes/sitemap-metiers[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
+import { Route as SitemapVillesDotnDotxmlRouteImport } from './routes/sitemap-villes[.]$n[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as VillesRouteImport } from './routes/villes'
 import { Route as CategorieIndexRouteImport } from './routes/$categorie.index'
@@ -79,6 +80,11 @@ const SitemapMetiersDotxmlRoute = SitemapMetiersDotxmlRouteImport.update({
 const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
   id: '/sitemap-pages.xml',
   path: '/sitemap-pages.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapVillesDotnDotxmlRoute = SitemapVillesDotnDotxmlRouteImport.update({
+  id: '/sitemap-villes.$n.xml',
+  path: '/sitemap-villes.$n.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/recherche': typeof RechercheRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-villes.$n.xml': typeof SitemapVillesDotnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
   '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/recherche': typeof RechercheRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-villes.$n.xml': typeof SitemapVillesDotnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
   '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
@@ -243,6 +251,7 @@ export interface FileRoutesById {
   '/recherche': typeof RechercheRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-villes.$n.xml': typeof SitemapVillesDotnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
   '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
@@ -273,6 +282,7 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
+    | '/sitemap-villes.$n.xml'
     | '/sitemap.xml'
     | '/villes'
     | '/$categorie/$ville'
@@ -301,6 +311,7 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
+    | '/sitemap-villes.$n.xml'
     | '/sitemap.xml'
     | '/villes'
     | '/$categorie/$ville'
@@ -330,6 +341,7 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
+    | '/sitemap-villes.$n.xml'
     | '/sitemap.xml'
     | '/villes'
     | '/$categorie/$ville'
@@ -360,6 +372,7 @@ export interface RootRouteChildren {
   RechercheRoute: typeof RechercheRoute
   SitemapMetiersDotxmlRoute: typeof SitemapMetiersDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
+  SitemapVillesDotnDotxmlRoute: typeof SitemapVillesDotnDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VillesRoute: typeof VillesRoute
   CategorieVilleRoute: typeof CategorieVilleRouteWithChildren
@@ -434,6 +447,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap-pages.xml'
       fullPath: '/sitemap-pages.xml'
       preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-villes.$n.xml': {
+      id: '/sitemap-villes.$n.xml'
+      path: '/sitemap-villes.$n.xml'
+      fullPath: '/sitemap-villes.$n.xml'
+      preLoaderRoute: typeof SitemapVillesDotnDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -612,6 +632,7 @@ const rootRouteChildren: RootRouteChildren = {
   RechercheRoute: RechercheRoute,
   SitemapMetiersDotxmlRoute: SitemapMetiersDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
+  SitemapVillesDotnDotxmlRoute: SitemapVillesDotnDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   VillesRoute: VillesRoute,
   CategorieVilleRoute: CategorieVilleRouteWithChildren,
