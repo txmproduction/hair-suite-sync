@@ -54,7 +54,11 @@ export const creerSessionAcompteFn = createServerFn({ method: "POST" })
         payment_intent_data: { description: libelle },
         metadata: { rdv_token: rdv.annulation_token, rdv_id: rdv.id },
       });
+      // On mémorise la session pour pouvoir vérifier le paiement au retour,
+      // sans dépendre uniquement du webhook Stripe.
+      await supabaseAdmin.from("rdv").update({ paiement_ref: session.id }).eq("id", rdv.id);
       return { clientSecret: session.client_secret ?? "" };
+
     } catch (error) {
       return { error: getStripeErrorMessage(error) };
     }
