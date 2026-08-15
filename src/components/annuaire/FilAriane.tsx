@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
+import { LienSeo } from "@/components/annuaire/LienSeo";
 
 export type MailleAriane = { label: string; href?: string | undefined };
 
@@ -11,9 +11,9 @@ export function FilAriane({ items }: { items: MailleAriane[] }) {
         {items.map((item, i) => (
           <li key={`${item.label}-${i}`} className="flex items-center gap-1">
             {item.href ? (
-              <Link to={item.href} className="hover:text-foreground hover:underline">
+              <LienSeo href={item.href} className="hover:text-foreground hover:underline">
                 {item.label}
-              </Link>
+              </LienSeo>
             ) : (
               <span aria-current="page" className="text-foreground">
                 {item.label}

@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { EntetePublique } from "@/components/annuaire/EntetePublique";
 import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { FilAriane } from "@/components/annuaire/FilAriane";
+import { LienSeo } from "@/components/annuaire/LienSeo";
 import { indexVillesFn } from "@/lib/annuaire-seo.functions";
 import { absolu, metaOg } from "@/lib/seo";
 import { parSlugCategorie } from "@/lib/categories";
@@ -47,12 +48,12 @@ function PageIndexVilles() {
                   return (
                     <li key={v.slug} className="text-sm">
                       {premier ? (
-                        <Link
-                          to={`/${premier.slug}/${v.slug}`}
+                        <LienSeo
+                          href={`/${premier.slug}/${v.slug}`}
                           className="text-muted-foreground hover:text-foreground hover:underline"
                         >
                           {v.nom} <span className="text-xs">({v.nb})</span>
-                        </Link>
+                        </LienSeo>
                       ) : (
                         <span className="text-muted-foreground">{v.nom}</span>
                       )}
@@ -62,13 +63,13 @@ function PageIndexVilles() {
                             const info = parSlugCategorie(m);
                             if (!info) return null;
                             return (
-                              <Link
+                              <LienSeo
                                 key={m}
-                                to={`/${info.slug}/${v.slug}`}
+                                href={`/${info.slug}/${v.slug}`}
                                 className="mr-2 hover:text-foreground hover:underline"
                               >
                                 {info.label}
-                              </Link>
+                              </LienSeo>
                             );
                           })}
                         </span>

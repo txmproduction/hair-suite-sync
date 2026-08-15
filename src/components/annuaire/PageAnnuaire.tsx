@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { LienSeo } from "@/components/annuaire/LienSeo";
 import { CarteSalon } from "@/components/annuaire/CarteSalon";
 import { FilAriane } from "@/components/annuaire/FilAriane";
 import { contenuPageLocale } from "@/lib/contenu-seo";
@@ -18,10 +18,10 @@ function ListeLiens({
       <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {liens.map((l) => (
           <li key={l.href}>
-            <Link to={l.href} className="text-sm text-muted-foreground hover:text-foreground hover:underline">
+            <LienSeo href={l.href} className="text-sm text-muted-foreground hover:text-foreground hover:underline">
               {l.label}
               {l.note ? <span className="text-xs"> ({l.note})</span> : null}
-            </Link>
+            </LienSeo>
           </li>
         ))}
       </ul>
@@ -70,18 +70,17 @@ export function VuePageLocale({ page }: { page: PageLocale }) {
       {page.nbPages > 1 && (
         <nav aria-label="Pagination" className="mt-8 flex flex-wrap items-center gap-2 text-sm">
           {Array.from({ length: page.nbPages }, (_, i) => i + 1).map((n) => (
-            <Link
+            <LienSeo
               key={n}
-              to={n === 1 ? base : `${base}/page-${n}`}
+              href={n === 1 ? base : `${base}/page-${n}`}
               className={
                 n === page.page
                   ? "rounded-md bg-foreground px-3 py-1.5 font-medium text-background"
                   : "rounded-md border border-border px-3 py-1.5 text-muted-foreground hover:text-foreground"
               }
-              aria-current={n === page.page ? "page" : undefined}
             >
               {n}
-            </Link>
+            </LienSeo>
           ))}
         </nav>
       )}
