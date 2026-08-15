@@ -9,7 +9,6 @@ export const Route = createFileRoute("/sitemap-pages.xml")({
         reponseXml(
           urlset([
             { loc: "/", changefreq: "daily", priority: "1.0" },
-            { loc: "/recherche", changefreq: "daily", priority: "0.8" },
             { loc: "/villes", changefreq: "weekly", priority: "0.7" },
             { loc: "/metiers", changefreq: "weekly", priority: "0.7" },
             { loc: "/distribuer", changefreq: "monthly", priority: "0.4" },
