@@ -19,8 +19,6 @@ import { Route as MetiersRouteImport } from './routes/metiers'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as SitemapMetiersDotxmlRouteImport } from './routes/sitemap-metiers[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
-import { Route as SitemapSalonsDotnDotxmlRouteImport } from './routes/sitemap-salons[.]$n[.]xml'
-import { Route as SitemapVillesDotnDotxmlRouteImport } from './routes/sitemap-villes[.]$n[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as VillesRouteImport } from './routes/villes'
 import { Route as CategorieIndexRouteImport } from './routes/$categorie.index'
@@ -35,6 +33,8 @@ import { Route as AvisTokenRouteImport } from './routes/avis.$token'
 import { Route as ReservationTokenRouteImport } from './routes/reservation.$token'
 import { Route as ReserverSlugRouteImport } from './routes/reserver.$slug'
 import { Route as SalonSlugRouteImport } from './routes/salon.$slug'
+import { Route as SitemapSalonsNRouteImport } from './routes/sitemap-salons.$n'
+import { Route as SitemapVillesNRouteImport } from './routes/sitemap-villes.$n'
 import { Route as CategorieVillePageRouteImport } from './routes/$categorie.$ville.$page'
 import { Route as AuthenticatedClientsIndexRouteImport } from './routes/_authenticated/clients.index'
 import { Route as AuthenticatedClientsClientIdRouteImport } from './routes/_authenticated/clients.$clientId'
@@ -87,16 +87,6 @@ const SitemapMetiersDotxmlRoute = SitemapMetiersDotxmlRouteImport.update({
 const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
   id: '/sitemap-pages.xml',
   path: '/sitemap-pages.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapSalonsDotnDotxmlRoute = SitemapSalonsDotnDotxmlRouteImport.update({
-  id: '/sitemap-salons.$n.xml',
-  path: '/sitemap-salons.$n.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapVillesDotnDotxmlRoute = SitemapVillesDotnDotxmlRouteImport.update({
-  id: '/sitemap-villes.$n.xml',
-  path: '/sitemap-villes.$n.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -170,6 +160,16 @@ const SalonSlugRoute = SalonSlugRouteImport.update({
   path: '/salon/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapSalonsNRoute = SitemapSalonsNRouteImport.update({
+  id: '/sitemap-salons/$n',
+  path: '/sitemap-salons/$n',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapVillesNRoute = SitemapVillesNRouteImport.update({
+  id: '/sitemap-villes/$n',
+  path: '/sitemap-villes/$n',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategorieVillePageRoute = CategorieVillePageRouteImport.update({
   id: '/$page',
   path: '/$page',
@@ -204,8 +204,6 @@ export interface FileRoutesByFullPath {
   '/recherche': typeof RechercheRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
-  '/sitemap-salons.$n.xml': typeof SitemapSalonsDotnDotxmlRoute
-  '/sitemap-villes.$n.xml': typeof SitemapVillesDotnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
   '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
@@ -219,6 +217,8 @@ export interface FileRoutesByFullPath {
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/salon/$slug': typeof SalonSlugRoute
+  '/sitemap-salons/$n': typeof SitemapSalonsNRoute
+  '/sitemap-villes/$n': typeof SitemapVillesNRoute
   '/$categorie/': typeof CategorieIndexRoute
   '/$categorie/$ville/$page': typeof CategorieVillePageRoute
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
@@ -235,8 +235,6 @@ export interface FileRoutesByTo {
   '/recherche': typeof RechercheRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
-  '/sitemap-salons.$n.xml': typeof SitemapSalonsDotnDotxmlRoute
-  '/sitemap-villes.$n.xml': typeof SitemapVillesDotnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
   '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
@@ -250,6 +248,8 @@ export interface FileRoutesByTo {
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/salon/$slug': typeof SalonSlugRoute
+  '/sitemap-salons/$n': typeof SitemapSalonsNRoute
+  '/sitemap-villes/$n': typeof SitemapVillesNRoute
   '/$categorie': typeof CategorieIndexRoute
   '/$categorie/$ville/$page': typeof CategorieVillePageRoute
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
@@ -268,8 +268,6 @@ export interface FileRoutesById {
   '/recherche': typeof RechercheRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
-  '/sitemap-salons.$n.xml': typeof SitemapSalonsDotnDotxmlRoute
-  '/sitemap-villes.$n.xml': typeof SitemapVillesDotnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
   '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
@@ -283,6 +281,8 @@ export interface FileRoutesById {
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/salon/$slug': typeof SalonSlugRoute
+  '/sitemap-salons/$n': typeof SitemapSalonsNRoute
+  '/sitemap-villes/$n': typeof SitemapVillesNRoute
   '/$categorie/': typeof CategorieIndexRoute
   '/$categorie/$ville/$page': typeof CategorieVillePageRoute
   '/_authenticated/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
@@ -301,8 +301,6 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
-    | '/sitemap-salons.$n.xml'
-    | '/sitemap-villes.$n.xml'
     | '/sitemap.xml'
     | '/villes'
     | '/$categorie/$ville'
@@ -316,6 +314,8 @@ export interface FileRouteTypes {
     | '/reservation/$token'
     | '/reserver/$slug'
     | '/salon/$slug'
+    | '/sitemap-salons/$n'
+    | '/sitemap-villes/$n'
     | '/$categorie/'
     | '/$categorie/$ville/$page'
     | '/clients/$clientId'
@@ -332,8 +332,6 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
-    | '/sitemap-salons.$n.xml'
-    | '/sitemap-villes.$n.xml'
     | '/sitemap.xml'
     | '/villes'
     | '/$categorie/$ville'
@@ -347,6 +345,8 @@ export interface FileRouteTypes {
     | '/reservation/$token'
     | '/reserver/$slug'
     | '/salon/$slug'
+    | '/sitemap-salons/$n'
+    | '/sitemap-villes/$n'
     | '/$categorie'
     | '/$categorie/$ville/$page'
     | '/clients/$clientId'
@@ -364,8 +364,6 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
-    | '/sitemap-salons.$n.xml'
-    | '/sitemap-villes.$n.xml'
     | '/sitemap.xml'
     | '/villes'
     | '/$categorie/$ville'
@@ -379,6 +377,8 @@ export interface FileRouteTypes {
     | '/reservation/$token'
     | '/reserver/$slug'
     | '/salon/$slug'
+    | '/sitemap-salons/$n'
+    | '/sitemap-villes/$n'
     | '/$categorie/'
     | '/$categorie/$ville/$page'
     | '/_authenticated/clients/$clientId'
@@ -397,8 +397,6 @@ export interface RootRouteChildren {
   RechercheRoute: typeof RechercheRoute
   SitemapMetiersDotxmlRoute: typeof SitemapMetiersDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
-  SitemapSalonsDotnDotxmlRoute: typeof SitemapSalonsDotnDotxmlRoute
-  SitemapVillesDotnDotxmlRoute: typeof SitemapVillesDotnDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VillesRoute: typeof VillesRoute
   CategorieVilleRoute: typeof CategorieVilleRouteWithChildren
@@ -406,6 +404,8 @@ export interface RootRouteChildren {
   ReservationTokenRoute: typeof ReservationTokenRoute
   ReserverSlugRoute: typeof ReserverSlugRoute
   SalonSlugRoute: typeof SalonSlugRoute
+  SitemapSalonsNRoute: typeof SitemapSalonsNRoute
+  SitemapVillesNRoute: typeof SitemapVillesNRoute
   CategorieIndexRoute: typeof CategorieIndexRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
@@ -480,20 +480,6 @@ declare module '@tanstack/react-router' {
       path: '/sitemap-pages.xml'
       fullPath: '/sitemap-pages.xml'
       preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap-salons.$n.xml': {
-      id: '/sitemap-salons.$n.xml'
-      path: '/sitemap-salons.$n.xml'
-      fullPath: '/sitemap-salons.$n.xml'
-      preLoaderRoute: typeof SitemapSalonsDotnDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap-villes.$n.xml': {
-      id: '/sitemap-villes.$n.xml'
-      path: '/sitemap-villes.$n.xml'
-      fullPath: '/sitemap-villes.$n.xml'
-      preLoaderRoute: typeof SitemapVillesDotnDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -594,6 +580,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SalonSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap-salons/$n': {
+      id: '/sitemap-salons/$n'
+      path: '/sitemap-salons/$n'
+      fullPath: '/sitemap-salons/$n'
+      preLoaderRoute: typeof SitemapSalonsNRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-villes/$n': {
+      id: '/sitemap-villes/$n'
+      path: '/sitemap-villes/$n'
+      fullPath: '/sitemap-villes/$n'
+      preLoaderRoute: typeof SitemapVillesNRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$categorie/$ville/$page': {
       id: '/$categorie/$ville/$page'
       path: '/$page'
@@ -673,8 +673,6 @@ const rootRouteChildren: RootRouteChildren = {
   RechercheRoute: RechercheRoute,
   SitemapMetiersDotxmlRoute: SitemapMetiersDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
-  SitemapSalonsDotnDotxmlRoute: SitemapSalonsDotnDotxmlRoute,
-  SitemapVillesDotnDotxmlRoute: SitemapVillesDotnDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   VillesRoute: VillesRoute,
   CategorieVilleRoute: CategorieVilleRouteWithChildren,
@@ -682,6 +680,8 @@ const rootRouteChildren: RootRouteChildren = {
   ReservationTokenRoute: ReservationTokenRoute,
   ReserverSlugRoute: ReserverSlugRoute,
   SalonSlugRoute: SalonSlugRoute,
+  SitemapSalonsNRoute: SitemapSalonsNRoute,
+  SitemapVillesNRoute: SitemapVillesNRoute,
   CategorieIndexRoute: CategorieIndexRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
