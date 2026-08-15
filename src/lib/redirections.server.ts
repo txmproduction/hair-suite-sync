@@ -39,10 +39,10 @@ export async function redirectionEnregistree(chemin: string): Promise<string | n
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data } = await supabaseAdmin
     .from("redirections")
-    .select("cible")
-    .eq("source", chemin)
+    .select("chemin_cible")
+    .eq("chemin_source", chemin)
     .maybeSingle();
-  const cible = data?.cible ?? null;
+  const cible = data?.chemin_cible ?? null;
   cache.set(chemin, { cible, expire: Date.now() + 5 * 60_000 });
   return cible;
 }
