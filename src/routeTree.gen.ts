@@ -18,6 +18,7 @@ import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as SitemapMetiersDotxmlRouteImport } from './routes/sitemap-metiers[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
+import { Route as SitemapSalonsDotnDotxmlRouteImport } from './routes/sitemap-salons[.]$n[.]xml'
 import { Route as SitemapVillesDotnDotxmlRouteImport } from './routes/sitemap-villes[.]$n[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as VillesRouteImport } from './routes/villes'
@@ -80,6 +81,11 @@ const SitemapMetiersDotxmlRoute = SitemapMetiersDotxmlRouteImport.update({
 const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
   id: '/sitemap-pages.xml',
   path: '/sitemap-pages.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapSalonsDotnDotxmlRoute = SitemapSalonsDotnDotxmlRouteImport.update({
+  id: '/sitemap-salons.$n.xml',
+  path: '/sitemap-salons.$n.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapVillesDotnDotxmlRoute = SitemapVillesDotnDotxmlRouteImport.update({
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/recherche': typeof RechercheRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-salons.$n.xml': typeof SitemapSalonsDotnDotxmlRoute
   '/sitemap-villes.$n.xml': typeof SitemapVillesDotnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByTo {
   '/recherche': typeof RechercheRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-salons.$n.xml': typeof SitemapSalonsDotnDotxmlRoute
   '/sitemap-villes.$n.xml': typeof SitemapVillesDotnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
@@ -251,6 +259,7 @@ export interface FileRoutesById {
   '/recherche': typeof RechercheRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap-salons.$n.xml': typeof SitemapSalonsDotnDotxmlRoute
   '/sitemap-villes.$n.xml': typeof SitemapVillesDotnDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
@@ -282,6 +291,7 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
+    | '/sitemap-salons.$n.xml'
     | '/sitemap-villes.$n.xml'
     | '/sitemap.xml'
     | '/villes'
@@ -311,6 +321,7 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
+    | '/sitemap-salons.$n.xml'
     | '/sitemap-villes.$n.xml'
     | '/sitemap.xml'
     | '/villes'
@@ -341,6 +352,7 @@ export interface FileRouteTypes {
     | '/recherche'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
+    | '/sitemap-salons.$n.xml'
     | '/sitemap-villes.$n.xml'
     | '/sitemap.xml'
     | '/villes'
@@ -372,6 +384,7 @@ export interface RootRouteChildren {
   RechercheRoute: typeof RechercheRoute
   SitemapMetiersDotxmlRoute: typeof SitemapMetiersDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
+  SitemapSalonsDotnDotxmlRoute: typeof SitemapSalonsDotnDotxmlRoute
   SitemapVillesDotnDotxmlRoute: typeof SitemapVillesDotnDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VillesRoute: typeof VillesRoute
@@ -447,6 +460,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap-pages.xml'
       fullPath: '/sitemap-pages.xml'
       preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-salons.$n.xml': {
+      id: '/sitemap-salons.$n.xml'
+      path: '/sitemap-salons.$n.xml'
+      fullPath: '/sitemap-salons.$n.xml'
+      preLoaderRoute: typeof SitemapSalonsDotnDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-villes.$n.xml': {
@@ -632,6 +652,7 @@ const rootRouteChildren: RootRouteChildren = {
   RechercheRoute: RechercheRoute,
   SitemapMetiersDotxmlRoute: SitemapMetiersDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
+  SitemapSalonsDotnDotxmlRoute: SitemapSalonsDotnDotxmlRoute,
   SitemapVillesDotnDotxmlRoute: SitemapVillesDotnDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   VillesRoute: VillesRoute,
