@@ -1,13 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { annulerReservationFn, reservationFn } from "@/lib/reservation.functions";
+import { verifierAcompteFn } from "@/lib/paiement.functions";
+import { getStripeEnvironment, paiementConfigure } from "@/lib/stripe";
 import type { RecapReservationData } from "@/lib/reservation-types";
 import { euro, heureFR } from "@/lib/hairtrack";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import logo from "@/assets/logo-light.png";
 import { CalendarCheck, CircleAlert, Clock3, XCircle } from "lucide-react";
+
 
 export const Route = createFileRoute("/reservation/$token")({
   loader: ({ params }) => reservationFn({ data: { token: params.token } }),
