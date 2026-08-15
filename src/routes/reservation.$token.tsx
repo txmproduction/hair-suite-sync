@@ -62,10 +62,43 @@ function PageConfirmation() {
   const initial = Route.useLoaderData() as RecapReservationData | null;
   const { token } = Route.useParams();
   const annuler = useServerFn(annulerReservationFn);
+  const verifier = useServerFn(verifierAcompteFn);
+  const recharger = useServerFn(reservationFn);
   const [recap, setRecap] = useState<RecapReservationData | null>(initial);
   const [envoi, setEnvoi] = useState(false);
+  const dejaVerifie = useRef(false);
+
+  // Au retour du paiement, on confirme l'acompte auprès de Stripe sans
+  // attendre le webhook (avec quelques nouvelles tentatives).
+  useEffect(() => {
+    if (recap?.statut !== "en_attente_paiement" || !paiementConfigure()) return;
+    if (dejaVerifie.current) return;
+    dejaVerifie.current = true;
+    let annuleEffet = false;
+    (async () => {
+      for (let essai = 0; essai < 4 && !annuleEffet; essai++) {
+        try {
+          const res = await verifier({
+            data: { token, environment: getStripeEnvironment() },
+          });
+          if (res.paye) {
+            const maj = await recharger({ data: { token } });
+            if (!annuleEffet) setRecap(maj as RecapReservationData);
+            return;
+          }
+        } catch {
+          /* on retente */
+        }
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+    })();
+    return () => {
+      annuleEffet = true;
+    };
+  }, [recap?.statut, token, verifier, recharger]);
 
   if (!recap) return <Coquille>Réservation introuvable.</Coquille>;
+
 
   const date = new Date(recap.debut);
   const annule = recap.statut === "annule";
