@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { ficheSalonFn, clicReservationManqueeFn } from "@/lib/annuaire.functions";
 import { labelCategorie } from "@/lib/categories";
 import { euro, JOURS } from "@/lib/hairtrack";
+import { jsonLdSalon, jsonLdFilArianeSalon } from "@/lib/seo-salon";
+import { FilAriane } from "@/components/annuaire/FilAriane";
+import { normaliserSlug } from "@/lib/seo";
+import { parCategorie } from "@/lib/categories";
 import type { FicheSalon } from "@/lib/annuaire-types";
 
 
@@ -43,6 +47,17 @@ export const Route = createFileRoute("/salon/$slug")({
           : []),
       ],
       links: [{ rel: "canonical", href: url }],
+      ...(loaderData
+        ? {
+            scripts: [
+              { type: "application/ld+json", children: JSON.stringify(jsonLdSalon(loaderData)) },
+              {
+                type: "application/ld+json",
+                children: JSON.stringify(jsonLdFilArianeSalon(loaderData)),
+              },
+            ],
+          }
+        : {}),
     };
   },
   component: FicheSalonPage,
