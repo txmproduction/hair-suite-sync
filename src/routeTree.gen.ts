@@ -16,6 +16,7 @@ import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as DistribuerRouteImport } from './routes/distribuer'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as RechercheRouteImport } from './routes/recherche'
+import { Route as SitemapMetiersDotxmlRouteImport } from './routes/sitemap-metiers[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as VillesRouteImport } from './routes/villes'
@@ -68,6 +69,11 @@ const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
 const RechercheRoute = RechercheRouteImport.update({
   id: '/recherche',
   path: '/recherche',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapMetiersDotxmlRoute = SitemapMetiersDotxmlRouteImport.update({
+  id: '/sitemap-metiers.xml',
+  path: '/sitemap-metiers.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
@@ -233,6 +241,7 @@ export interface FileRoutesById {
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
@@ -262,6 +271,7 @@ export interface FileRouteTypes {
     | '/distribuer'
     | '/mentions-legales'
     | '/recherche'
+    | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/villes'
@@ -289,6 +299,7 @@ export interface FileRouteTypes {
     | '/distribuer'
     | '/mentions-legales'
     | '/recherche'
+    | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/villes'
@@ -317,6 +328,7 @@ export interface FileRouteTypes {
     | '/distribuer'
     | '/mentions-legales'
     | '/recherche'
+    | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/villes'
@@ -346,6 +358,7 @@ export interface RootRouteChildren {
   DistribuerRoute: typeof DistribuerRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   RechercheRoute: typeof RechercheRoute
+  SitemapMetiersDotxmlRoute: typeof SitemapMetiersDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VillesRoute: typeof VillesRoute
@@ -407,6 +420,13 @@ declare module '@tanstack/react-router' {
       path: '/recherche'
       fullPath: '/recherche'
       preLoaderRoute: typeof RechercheRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-metiers.xml': {
+      id: '/sitemap-metiers.xml'
+      path: '/sitemap-metiers.xml'
+      fullPath: '/sitemap-metiers.xml'
+      preLoaderRoute: typeof SitemapMetiersDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-pages.xml': {
@@ -590,6 +610,7 @@ const rootRouteChildren: RootRouteChildren = {
   DistribuerRoute: DistribuerRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
   RechercheRoute: RechercheRoute,
+  SitemapMetiersDotxmlRoute: SitemapMetiersDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   VillesRoute: VillesRoute,
