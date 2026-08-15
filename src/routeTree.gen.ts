@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as DistribuerRouteImport } from './routes/distribuer'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
+import { Route as MetiersRouteImport } from './routes/metiers'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as SitemapMetiersDotxmlRouteImport } from './routes/sitemap-metiers[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
@@ -66,6 +67,11 @@ const DistribuerRoute = DistribuerRouteImport.update({
 const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
   id: '/mentions-legales',
   path: '/mentions-legales',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MetiersRoute = MetiersRouteImport.update({
+  id: '/metiers',
+  path: '/metiers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RechercheRoute = RechercheRouteImport.update({
@@ -194,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/cgv': typeof CgvRoute
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/metiers': typeof MetiersRoute
   '/recherche': typeof RechercheRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
@@ -224,6 +231,7 @@ export interface FileRoutesByTo {
   '/cgv': typeof CgvRoute
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/metiers': typeof MetiersRoute
   '/recherche': typeof RechercheRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
@@ -256,6 +264,7 @@ export interface FileRoutesById {
   '/cgv': typeof CgvRoute
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/metiers': typeof MetiersRoute
   '/recherche': typeof RechercheRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
@@ -288,6 +297,7 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/distribuer'
     | '/mentions-legales'
+    | '/metiers'
     | '/recherche'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/distribuer'
     | '/mentions-legales'
+    | '/metiers'
     | '/recherche'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
@@ -349,6 +360,7 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/distribuer'
     | '/mentions-legales'
+    | '/metiers'
     | '/recherche'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
@@ -381,6 +393,7 @@ export interface RootRouteChildren {
   CgvRoute: typeof CgvRoute
   DistribuerRoute: typeof DistribuerRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
+  MetiersRoute: typeof MetiersRoute
   RechercheRoute: typeof RechercheRoute
   SitemapMetiersDotxmlRoute: typeof SitemapMetiersDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
@@ -439,6 +452,13 @@ declare module '@tanstack/react-router' {
       path: '/mentions-legales'
       fullPath: '/mentions-legales'
       preLoaderRoute: typeof MentionsLegalesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/metiers': {
+      id: '/metiers'
+      path: '/metiers'
+      fullPath: '/metiers'
+      preLoaderRoute: typeof MetiersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recherche': {
@@ -649,6 +669,7 @@ const rootRouteChildren: RootRouteChildren = {
   CgvRoute: CgvRoute,
   DistribuerRoute: DistribuerRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
+  MetiersRoute: MetiersRoute,
   RechercheRoute: RechercheRoute,
   SitemapMetiersDotxmlRoute: SitemapMetiersDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
