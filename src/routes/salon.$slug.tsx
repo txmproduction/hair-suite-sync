@@ -6,7 +6,7 @@ import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { Etoiles, NoteSalon } from "@/components/annuaire/Etoiles";
 import { Button } from "@/components/ui/button";
 import { ficheSalonFn, clicReservationManqueeFn } from "@/lib/annuaire.functions";
-import { labelCategorie } from "@/lib/categories";
+import { labelCategorie, photoCategorie } from "@/lib/categories";
 import { euro, JOURS } from "@/lib/hairtrack";
 import { jsonLdSalon, jsonLdFilArianeSalon } from "@/lib/seo-salon";
 import { FilAriane } from "@/components/annuaire/FilAriane";
@@ -121,15 +121,18 @@ function GalerieHero({
   photoCouverture,
   photos,
   nomSalon,
+  categorie,
 }: {
   photoCouverture: string | null;
   photos: { id: string; url: string }[];
   nomSalon: string;
+  categorie: string;
 }) {
-  const urls = [
+  const propres = [
     ...(photoCouverture ? [photoCouverture] : []),
     ...photos.map((p) => p.url).filter((u) => u !== photoCouverture),
   ];
+  const urls = propres.length > 0 ? propres : [photoCategorie(categorie)];
   const [index, setIndex] = useState(0);
   const [zoom, setZoom] = useState(false);
   const total = urls.length;
@@ -150,15 +153,6 @@ function GalerieHero({
       document.body.style.overflow = overflow;
     };
   }, [zoom, total]);
-
-  if (total === 0) {
-    return (
-      <div className="relative h-56 w-full overflow-hidden bg-secondary sm:h-72">
-        <div className="flex h-full items-center justify-center text-5xl">✂️</div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/50" />
-      </div>
-    );
-  }
 
   return (
     <div className="relative h-56 w-full overflow-hidden bg-secondary sm:h-72">
@@ -286,7 +280,12 @@ function FicheSalonPage() {
     <div className="min-h-screen bg-background">
       <EntetePublique />
 
-      <GalerieHero photoCouverture={salon.photo_couverture_url} photos={photos} nomSalon={salon.nom} />
+      <GalerieHero
+        photoCouverture={salon.photo_couverture_url}
+        photos={photos}
+        nomSalon={salon.nom}
+        categorie={salon.categorie}
+      />
 
       <main className="mx-auto max-w-6xl px-4 pb-16">
 
