@@ -199,7 +199,7 @@ export const parSlugCategorie = (s?: string | null) =>
   CATEGORIES.find((c) => c.slug === s) ?? null;
 
 export const photoCategorie = (v?: string | null) =>
-  parCategorie(v)?.photo ?? CATEGORIES[0].photo;
+  parCategorie(v)?.photo ?? CATEGORIES[0]!.photo;
 
 export const labelCategorie = (v?: string | null) => parCategorie(v)?.label ?? "Salon";
 
