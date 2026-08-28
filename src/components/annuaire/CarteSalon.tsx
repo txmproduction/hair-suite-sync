@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { MapPin } from "lucide-react";
-import { labelCategorie } from "@/lib/categories";
+import { labelCategorie, photoCategorie } from "@/lib/categories";
 import { euro } from "@/lib/hairtrack";
 import { NoteSalon } from "./Etoiles";
 import type { SalonCarte } from "@/lib/annuaire-types";
