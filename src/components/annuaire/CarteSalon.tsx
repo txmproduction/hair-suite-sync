@@ -13,16 +13,12 @@ export function CarteSalon({ salon }: { salon: SalonCarte }) {
       className="card-soft group block overflow-hidden transition-shadow hover:shadow-lg"
     >
       <div className="aspect-[4/3] w-full overflow-hidden bg-secondary">
-        {salon.photo_couverture_url ? (
-          <img
-            src={salon.photo_couverture_url}
-            alt={`Salon ${salon.nom}`}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-3xl">✂️</div>
-        )}
+        <img
+          src={salon.photo_couverture_url ?? photoCategorie(salon.categorie)}
+          alt={`${labelCategorie(salon.categorie)} ${salon.nom}`}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
       </div>
       <div className="space-y-1.5 p-4">
         <div className="flex items-start justify-between gap-2">
