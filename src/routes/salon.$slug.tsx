@@ -6,7 +6,7 @@ import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { Etoiles, NoteSalon } from "@/components/annuaire/Etoiles";
 import { Button } from "@/components/ui/button";
 import { ficheSalonFn, clicReservationManqueeFn } from "@/lib/annuaire.functions";
-import { labelCategorie, photoCategorie } from "@/lib/categories";
+import { labelCategorie, photoCategorie, imageOptimisee } from "@/lib/categories";
 import { euro, JOURS } from "@/lib/hairtrack";
 import { jsonLdSalon, jsonLdFilArianeSalon } from "@/lib/seo-salon";
 import { FilAriane } from "@/components/annuaire/FilAriane";
@@ -131,8 +131,8 @@ function GalerieHero({
   const propres = [
     ...(photoCouverture ? [photoCouverture] : []),
     ...photos.map((p) => p.url).filter((u) => u !== photoCouverture),
-  ];
-  const urls = propres.length > 0 ? propres : [photoCategorie(categorie)];
+  ].map((u) => imageOptimisee(u, 1200));
+  const urls = propres.length > 0 ? propres : [photoCategorie(categorie, 1200)];
   const [index, setIndex] = useState(0);
   const [zoom, setZoom] = useState(false);
   const total = urls.length;
