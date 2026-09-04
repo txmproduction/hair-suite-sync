@@ -198,8 +198,14 @@ export const parCategorie = (v?: string | null) =>
 export const parSlugCategorie = (s?: string | null) =>
   CATEGORIES.find((c) => c.slug === s) ?? null;
 
-export const photoCategorie = (v?: string | null) =>
-  parCategorie(v)?.photo ?? CATEGORIES[0]!.photo;
+/** Optimise une image Cloudinary (poids/format adaptés au navigateur). */
+export const imageOptimisee = (url: string, largeur = 640) =>
+  url.includes("res.cloudinary.com") && url.includes("/image/upload/")
+    ? url.replace("/image/upload/", `/image/upload/f_auto,q_auto,c_fill,w_${largeur}/`)
+    : url;
+
+export const photoCategorie = (v?: string | null, largeur = 640) =>
+  imageOptimisee(parCategorie(v)?.photo ?? CATEGORIES[0]!.photo, largeur);
 
 export const labelCategorie = (v?: string | null) => parCategorie(v)?.label ?? "Salon";
 
