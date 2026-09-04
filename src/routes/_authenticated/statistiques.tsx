@@ -5,7 +5,7 @@ import { useEmployes, useEncaissements } from "@/lib/queries";
 import { debutSemaine, euro, MOYENS } from "@/lib/hairtrack";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/statistiques")({
   component: Statistiques,
@@ -35,14 +35,93 @@ function bornes(periode: Periode, decalage = 0) {
   return [debut, fin] as const;
 }
 
+function libellePeriode(periode: Periode, debut: Date, fin: Date) {
+  if (periode === "jour")
+    return debut.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  if (periode === "mois")
+    return debut.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  const dernier = new Date(fin);
+  dernier.setDate(dernier.getDate() - 1);
+  const opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
+  return `${debut.toLocaleDateString("fr-FR", opts)} — ${dernier.toLocaleDateString("fr-FR", { ...opts, year: "numeric" })}`;
+}
+
+function SelecteurPeriode({
+  periode,
+  setPeriode,
+  decalage,
+  setDecalage,
+  debut,
+  fin,
+}: {
+  periode: Periode;
+  setPeriode: (p: Periode) => void;
+  decalage: number;
+  setDecalage: (n: number) => void;
+  debut: Date;
+  fin: Date;
+}) {
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-3">
+      <Tabs
+        value={periode}
+        onValueChange={(v) => {
+          setPeriode(v as Periode);
+          setDecalage(0);
+        }}
+      >
+        <TabsList>
+          <TabsTrigger value="jour">Jour</TabsTrigger>
+          <TabsTrigger value="semaine">Semaine</TabsTrigger>
+          <TabsTrigger value="mois">Mois</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="Période précédente"
+          onClick={() => setDecalage(decalage - 1)}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <span className="min-w-[13rem] text-center text-sm font-medium capitalize">
+          {libellePeriode(periode, debut, fin)}
+        </span>
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="Période suivante"
+          disabled={decalage >= 0}
+          onClick={() => setDecalage(decalage + 1)}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+        {decalage !== 0 && (
+          <Button variant="ghost" size="sm" onClick={() => setDecalage(0)}>
+            Aujourd'hui
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Statistiques() {
   const { data: ctx } = useContexte();
   const salonId = ctx?.employe?.salon_id;
   const gerant = ctx?.employe?.role === "gerant";
   const [periode, setPeriode] = useState<Periode>("jour");
+  const [decalage, setDecalage] = useState(0);
 
-  const [debut, fin] = useMemo(() => bornes(periode, 0), [periode]);
-  const [debutPrec, finPrec] = useMemo(() => bornes(periode, -1), [periode]);
+  const [debut, fin] = useMemo(() => bornes(periode, decalage), [periode, decalage]);
+  const [debutPrec, finPrec] = useMemo(() => bornes(periode, decalage - 1), [periode, decalage]);
 
   const { data: employes = [] } = useEmployes(salonId, true);
   const { data: actuels = [] } = useEncaissements(salonId, debut, fin);
@@ -97,7 +176,7 @@ function Statistiques() {
     const url = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `encaissements-${periode}.csv`;
+    a.download = `encaissements-${periode}-${debut.toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -108,13 +187,14 @@ function Statistiques() {
       .reduce((s, a) => s + Number(a.montant), 0);
     return (
       <AppShell titre="Mon chiffre d'affaires">
-        <Tabs value={periode} onValueChange={(v) => setPeriode(v as Periode)} className="mb-4">
-          <TabsList>
-            <TabsTrigger value="jour">Jour</TabsTrigger>
-            <TabsTrigger value="semaine">Semaine</TabsTrigger>
-            <TabsTrigger value="mois">Mois</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <SelecteurPeriode
+          periode={periode}
+          setPeriode={setPeriode}
+          decalage={decalage}
+          setDecalage={setDecalage}
+          debut={debut}
+          fin={fin}
+        />
         <div className="card-soft p-6">
           <p className="text-sm text-muted-foreground">Mon CA sur la période</p>
           <p className="mt-2 text-3xl font-semibold">{euro(monTotal)}</p>
@@ -133,13 +213,15 @@ function Statistiques() {
         </Button>
       }
     >
-      <Tabs value={periode} onValueChange={(v) => setPeriode(v as Periode)} className="mb-4">
-        <TabsList>
-          <TabsTrigger value="jour">Jour</TabsTrigger>
-          <TabsTrigger value="semaine">Semaine</TabsTrigger>
-          <TabsTrigger value="mois">Mois</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <SelecteurPeriode
+        periode={periode}
+        setPeriode={setPeriode}
+        decalage={decalage}
+        setDecalage={setDecalage}
+        debut={debut}
+        fin={fin}
+      />
+
 
       <div className="mb-4 grid gap-4 sm:grid-cols-3">
         <div className="card-soft p-5">
