@@ -118,9 +118,10 @@ function Statistiques() {
   const salonId = ctx?.employe?.salon_id;
   const gerant = ctx?.employe?.role === "gerant";
   const [periode, setPeriode] = useState<Periode>("jour");
+  const [decalage, setDecalage] = useState(0);
 
-  const [debut, fin] = useMemo(() => bornes(periode, 0), [periode]);
-  const [debutPrec, finPrec] = useMemo(() => bornes(periode, -1), [periode]);
+  const [debut, fin] = useMemo(() => bornes(periode, decalage), [periode, decalage]);
+  const [debutPrec, finPrec] = useMemo(() => bornes(periode, decalage - 1), [periode, decalage]);
 
   const { data: employes = [] } = useEmployes(salonId, true);
   const { data: actuels = [] } = useEncaissements(salonId, debut, fin);
@@ -175,7 +176,7 @@ function Statistiques() {
     const url = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `encaissements-${periode}.csv`;
+    a.download = `encaissements-${periode}-${debut.toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -186,13 +187,14 @@ function Statistiques() {
       .reduce((s, a) => s + Number(a.montant), 0);
     return (
       <AppShell titre="Mon chiffre d'affaires">
-        <Tabs value={periode} onValueChange={(v) => setPeriode(v as Periode)} className="mb-4">
-          <TabsList>
-            <TabsTrigger value="jour">Jour</TabsTrigger>
-            <TabsTrigger value="semaine">Semaine</TabsTrigger>
-            <TabsTrigger value="mois">Mois</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <SelecteurPeriode
+          periode={periode}
+          setPeriode={setPeriode}
+          decalage={decalage}
+          setDecalage={setDecalage}
+          debut={debut}
+          fin={fin}
+        />
         <div className="card-soft p-6">
           <p className="text-sm text-muted-foreground">Mon CA sur la période</p>
           <p className="mt-2 text-3xl font-semibold">{euro(monTotal)}</p>
@@ -211,13 +213,15 @@ function Statistiques() {
         </Button>
       }
     >
-      <Tabs value={periode} onValueChange={(v) => setPeriode(v as Periode)} className="mb-4">
-        <TabsList>
-          <TabsTrigger value="jour">Jour</TabsTrigger>
-          <TabsTrigger value="semaine">Semaine</TabsTrigger>
-          <TabsTrigger value="mois">Mois</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <SelecteurPeriode
+        periode={periode}
+        setPeriode={setPeriode}
+        decalage={decalage}
+        setDecalage={setDecalage}
+        debut={debut}
+        fin={fin}
+      />
+
 
       <div className="mb-4 grid gap-4 sm:grid-cols-3">
         <div className="card-soft p-5">
