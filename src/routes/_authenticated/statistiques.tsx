@@ -5,7 +5,7 @@ import { useEmployes, useEncaissements } from "@/lib/queries";
 import { debutSemaine, euro, MOYENS } from "@/lib/hairtrack";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/statistiques")({
   component: Statistiques,
@@ -33,6 +33,84 @@ function bornes(periode: Periode, decalage = 0) {
     return [d, fin] as const;
   }
   return [debut, fin] as const;
+}
+
+function libellePeriode(periode: Periode, debut: Date, fin: Date) {
+  if (periode === "jour")
+    return debut.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  if (periode === "mois")
+    return debut.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  const dernier = new Date(fin);
+  dernier.setDate(dernier.getDate() - 1);
+  const opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
+  return `${debut.toLocaleDateString("fr-FR", opts)} — ${dernier.toLocaleDateString("fr-FR", { ...opts, year: "numeric" })}`;
+}
+
+function SelecteurPeriode({
+  periode,
+  setPeriode,
+  decalage,
+  setDecalage,
+  debut,
+  fin,
+}: {
+  periode: Periode;
+  setPeriode: (p: Periode) => void;
+  decalage: number;
+  setDecalage: (n: number) => void;
+  debut: Date;
+  fin: Date;
+}) {
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-3">
+      <Tabs
+        value={periode}
+        onValueChange={(v) => {
+          setPeriode(v as Periode);
+          setDecalage(0);
+        }}
+      >
+        <TabsList>
+          <TabsTrigger value="jour">Jour</TabsTrigger>
+          <TabsTrigger value="semaine">Semaine</TabsTrigger>
+          <TabsTrigger value="mois">Mois</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="Période précédente"
+          onClick={() => setDecalage(decalage - 1)}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <span className="min-w-[13rem] text-center text-sm font-medium capitalize">
+          {libellePeriode(periode, debut, fin)}
+        </span>
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="Période suivante"
+          disabled={decalage >= 0}
+          onClick={() => setDecalage(decalage + 1)}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+        {decalage !== 0 && (
+          <Button variant="ghost" size="sm" onClick={() => setDecalage(0)}>
+            Aujourd'hui
+          </Button>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function Statistiques() {
