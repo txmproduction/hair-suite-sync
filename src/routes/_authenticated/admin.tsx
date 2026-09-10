@@ -20,6 +20,13 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { CarteNotifications } from "@/components/CarteNotifications";
+import {
+  bicValide,
+  ibanFormate,
+  ibanMasque,
+  ibanValide,
+  normaliserIban,
+} from "@/lib/iban";
 import { ArrowDown, ArrowUp, Copy, Pencil, Plus, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
