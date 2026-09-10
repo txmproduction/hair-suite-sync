@@ -14,6 +14,8 @@ import {
   convertirEnClientFn,
   clientsAbonnesFn,
   definirStatutCompteFn,
+  reversementsFn,
+  marquerReversementFn,
 } from "@/lib/superadmin.functions";
 import { CATEGORIES } from "@/lib/categories";
 
@@ -69,6 +71,19 @@ const BADGE: Record<string, string> = {
   suspendu: "bg-red-100 text-red-800",
 };
 
+const euro = (n: number) =>
+  new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
+
+/** « 12 – 18 mai 2026 » à partir du lundi de la semaine. */
+function semaineLisible(lundiIso: string) {
+  const lundi = new Date(`${lundiIso}T00:00:00Z`);
+  const dimanche = new Date(lundi);
+  dimanche.setUTCDate(dimanche.getUTCDate() + 6);
+  const fmt = (d: Date, opts: Intl.DateTimeFormatOptions) =>
+    d.toLocaleDateString("fr-FR", { timeZone: "UTC", ...opts });
+  return `${fmt(lundi, { day: "numeric" })} – ${fmt(dimanche, { day: "numeric", month: "long", year: "numeric" })}`;
+}
+
 const LIBELLE: Record<string, string> = {
   permanent: "Accès permanent",
   essai: "Essai en cours",
@@ -109,6 +124,24 @@ function SuperAdminPage() {
             : "Compte suspendu.",
       );
       queryClient.invalidateQueries({ queryKey: ["clients-abonnes"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const { data: reversements } = useQuery({
+    queryKey: ["reversements"],
+    enabled: autorise,
+    queryFn: () => reversementsFn(),
+  });
+
+  const [historiqueVisible, setHistoriqueVisible] = useState(false);
+
+  const marquerVire = useMutation({
+    mutationFn: (v: { salonId: string; semaineDebut: string; montant: number }) =>
+      marquerReversementFn({ data: v }),
+    onSuccess: () => {
+      toast.success("Virement enregistré.");
+      queryClient.invalidateQueries({ queryKey: ["reversements"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -297,6 +330,123 @@ function SuperAdminPage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section className="card-soft mt-5 p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <h2 className="text-lg font-semibold">Acomptes à reverser</h2>
+          <p className="text-sm">
+            Total à faire :{" "}
+            <span className="font-semibold">{euro(reversements?.totalAFaire ?? 0)}</span>
+          </p>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Acomptes encaissés par semaine calendaire (lundi au dimanche), semaines non soldées en
+          premier.
+        </p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-muted-foreground">
+                <th className="py-2 pr-3 font-medium">Salon</th>
+                <th className="py-2 pr-3 font-medium">Semaine</th>
+                <th className="py-2 pr-3 font-medium">RDV</th>
+                <th className="py-2 pr-3 font-medium">Montant</th>
+                <th className="py-2 pr-3 font-medium">Coordonnées bancaires</th>
+                <th className="py-2" />
+              </tr>
+            </thead>
+            <tbody>
+              {(reversements?.aFaire ?? []).map((l) => (
+                <tr key={`${l.salon_id}-${l.semaine_debut}`} className="border-b border-border/60">
+                  <td className="py-2.5 pr-3 font-medium">{l.salon_nom}</td>
+                  <td className="py-2.5 pr-3 text-muted-foreground">{semaineLisible(l.semaine_debut)}</td>
+                  <td className="py-2.5 pr-3 text-muted-foreground">{l.nb_rdv}</td>
+                  <td className="py-2.5 pr-3 font-semibold">{euro(l.montant)}</td>
+                  <td className="py-2.5 pr-3 text-muted-foreground">
+                    {l.iban ? (
+                      <>
+                        <span className="block">{l.titulaire}</span>
+                        <span className="block font-mono text-xs">{l.iban}</span>
+                      </>
+                    ) : (
+                      "Non renseignées"
+                    )}
+                  </td>
+                  <td className="py-2.5">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={marquerVire.isPending}
+                      onClick={() =>
+                        marquerVire.mutate({
+                          salonId: l.salon_id,
+                          semaineDebut: l.semaine_debut,
+                          montant: l.montant,
+                        })
+                      }
+                    >
+                      Marquer comme viré
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+              {!reversements?.aFaire.length && (
+                <tr>
+                  <td colSpan={6} className="py-4 text-muted-foreground">
+                    Aucun acompte en attente de reversement.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="mt-3"
+          onClick={() => setHistoriqueVisible((v) => !v)}
+        >
+          {historiqueVisible ? "Masquer" : "Voir"} l'historique des virements (
+          {reversements?.historique.length ?? 0})
+        </Button>
+
+        {historiqueVisible && (
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-muted-foreground">
+                  <th className="py-2 pr-3 font-medium">Salon</th>
+                  <th className="py-2 pr-3 font-medium">Semaine</th>
+                  <th className="py-2 pr-3 font-medium">Montant</th>
+                  <th className="py-2 pr-3 font-medium">Viré le</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(reversements?.historique ?? []).map((l) => (
+                  <tr key={`h-${l.salon_id}-${l.semaine_debut}`} className="border-b border-border/60">
+                    <td className="py-2.5 pr-3">{l.salon_nom}</td>
+                    <td className="py-2.5 pr-3 text-muted-foreground">
+                      {semaineLisible(l.semaine_debut)}
+                    </td>
+                    <td className="py-2.5 pr-3">{euro(l.montant)}</td>
+                    <td className="py-2.5 pr-3 text-muted-foreground">
+                      {l.date_virement ? new Date(l.date_virement).toLocaleDateString("fr-FR") : "—"}
+                    </td>
+                  </tr>
+                ))}
+                {!reversements?.historique.length && (
+                  <tr>
+                    <td colSpan={4} className="py-4 text-muted-foreground">
+                      Aucun virement enregistré.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
 
       <section className="card-soft mt-5 p-5">
