@@ -789,6 +789,7 @@ function OngletReservation() {
   return (
     <div className="space-y-4">
       <SectionEnLigne />
+      <SectionAcompte />
       <div className="card-soft space-y-4 p-5">
         <h2 className="font-semibold">Paramètres de réservation</h2>
         <div className="grid gap-4 sm:grid-cols-3">
@@ -828,6 +829,183 @@ function OngletReservation() {
         </div>
         <Button onClick={enregistrer}>Enregistrer</Button>
       </div>
+    </div>
+  );
+}
+
+/* ---------------- Acompte en ligne + coordonnées bancaires ---------------- */
+
+function SectionAcompte() {
+  const { data: ctx } = useContexte();
+  const queryClient = useQueryClient();
+  const salonId = ctx?.salon?.id;
+  const actif = !!ctx?.parametres?.acompte_actif;
+
+  const { data: banque } = useQuery({
+    queryKey: ["coordonnees-bancaires", salonId],
+    enabled: !!salonId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("coordonnees_bancaires")
+        .select("iban, bic, titulaire_compte")
+        .eq("salon_id", salonId!)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const [ouvert, setOuvert] = useState(false);
+  const [iban, setIban] = useState("");
+  const [bic, setBic] = useState("");
+  const [titulaire, setTitulaire] = useState("");
+  const [enregistrement, setEnregistrement] = useState(false);
+
+  // Les infos déjà saisies pré-remplissent toujours le formulaire.
+  useEffect(() => {
+    if (banque) {
+      setIban(ibanFormate(banque.iban));
+      setBic(banque.bic);
+      setTitulaire(banque.titulaire_compte);
+    }
+  }, [banque]);
+
+  async function definirActif(v: boolean) {
+    if (!salonId) return;
+    const { error } = await supabase
+      .from("parametres_salon")
+      .upsert({ salon_id: salonId, acompte_actif: v });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    await queryClient.invalidateQueries();
+    toast.success(
+      v ? "Acompte en ligne activé." : "Acompte désactivé : réservations confirmées sans paiement.",
+    );
+  }
+
+  function basculer(v: boolean) {
+    if (!v) {
+      void definirActif(false);
+      return;
+    }
+    // On exige des coordonnées bancaires valides avant toute activation.
+    setOuvert(true);
+  }
+
+  async function valider() {
+    if (!salonId) return;
+    const ibanPropre = normaliserIban(iban);
+    const bicPropre = normaliserIban(bic);
+    if (!ibanValide(ibanPropre)) {
+      toast.error("IBAN invalide. Vérifiez la saisie.");
+      return;
+    }
+    if (!bicValide(bicPropre)) {
+      toast.error("BIC invalide (8 ou 11 caractères).");
+      return;
+    }
+    if (!titulaire.trim()) {
+      toast.error("Indiquez le titulaire du compte.");
+      return;
+    }
+    setEnregistrement(true);
+    const { error } = await supabase.from("coordonnees_bancaires").upsert({
+      salon_id: salonId,
+      iban: ibanPropre,
+      bic: bicPropre,
+      titulaire_compte: titulaire.trim(),
+    });
+    setEnregistrement(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    await queryClient.invalidateQueries({ queryKey: ["coordonnees-bancaires", salonId] });
+    setOuvert(false);
+    if (!actif) await definirActif(true);
+    else toast.success("Coordonnées bancaires enregistrées.");
+  }
+
+  return (
+    <div className="card-soft space-y-4 p-5">
+      <h2 className="font-semibold">Acompte en ligne</h2>
+
+      <div className="flex items-center gap-3">
+        <Switch checked={actif} onCheckedChange={basculer} aria-label="Demander un acompte" />
+        <span className="text-sm">
+          {actif
+            ? "Un acompte est demandé à vos clients lors de la réservation"
+            : "Demander un acompte en ligne à mes clients"}
+        </span>
+      </div>
+
+      {banque ? (
+        <div className="space-y-1 rounded-xl bg-secondary p-4 text-sm">
+          <p className="font-medium">{banque.titulaire_compte}</p>
+          <p className="text-muted-foreground">
+            IBAN {ibanMasque(banque.iban)} · BIC {banque.bic}
+          </p>
+          <Button variant="outline" size="sm" className="mt-2" onClick={() => setOuvert(true)}>
+            Modifier mes coordonnées bancaires
+          </Button>
+        </div>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          Pour activer l'acompte, renseignez le compte bancaire sur lequel vos acomptes seront
+          reversés.
+        </p>
+      )}
+
+      <Dialog open={ouvert} onOpenChange={setOuvert}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Coordonnées bancaires</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="b-titulaire">Titulaire du compte</Label>
+              <Input
+                id="b-titulaire"
+                value={titulaire}
+                onChange={(e) => setTitulaire(e.target.value)}
+                placeholder="Salon Léa SARL"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="b-iban">IBAN</Label>
+              <Input
+                id="b-iban"
+                value={iban}
+                onChange={(e) => setIban(e.target.value.toUpperCase())}
+                placeholder="FR76 3000 6000 0112 3456 7890 189"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="b-bic">BIC</Label>
+              <Input
+                id="b-bic"
+                value={bic}
+                onChange={(e) => setBic(e.target.value.toUpperCase())}
+                placeholder="AGRIFRPP123"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Ces informations sont strictement confidentielles : seules vous et l'équipe HairTrack
+              y avez accès, jamais vos clients ni vos employés.
+            </p>
+            <div className="flex gap-2">
+              <Button disabled={enregistrement} onClick={valider}>
+                {actif ? "Enregistrer" : "Enregistrer et activer l'acompte"}
+              </Button>
+              <Button variant="ghost" onClick={() => setOuvert(false)}>
+                Annuler
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
