@@ -108,7 +108,7 @@ export const contexteQuery = {
 };
 
 export function calculAcompte(prix: number, p: Parametres | null) {
-  if (!p || !p.acompte_valeur) return 0;
+  if (!p || !p.acompte_actif || !p.acompte_valeur) return 0;
   const v = Number(p.acompte_valeur);
   const montant = p.acompte_type === "pourcentage" ? (prix * v) / 100 : v;
   return Math.min(Math.round(montant * 100) / 100, prix);
