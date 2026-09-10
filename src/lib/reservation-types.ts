@@ -16,7 +16,12 @@ export type SalonPublicData = {
     categorie_id: string | null;
   }[];
   employes: { id: string; nom: string; photo_url: string | null; couleur: string }[];
-  acompte: { type: "montant" | "pourcentage"; valeur: number; delai_annulation_h: number };
+  acompte: {
+    actif: boolean;
+    type: "montant" | "pourcentage";
+    valeur: number;
+    delai_annulation_h: number;
+  };
 };
 
 export type JourCreneauxData = {
