@@ -14,7 +14,12 @@ export type SalonPublic = {
     categorie_id: string | null;
   }[];
   employes: { id: string; nom: string; photo_url: string | null; couleur: string }[];
-  acompte: { type: "montant" | "pourcentage"; valeur: number; delai_annulation_h: number };
+  acompte: {
+    actif: boolean;
+    type: "montant" | "pourcentage";
+    valeur: number;
+    delai_annulation_h: number;
+  };
 };
 
 export const MINUTE = 60_000;
@@ -23,7 +28,7 @@ export function calculAcompteServeur(
   prix: number,
   acompte: SalonPublic["acompte"] | null,
 ): number {
-  if (!acompte || !acompte.valeur) return 0;
+  if (!acompte || !acompte.actif || !acompte.valeur) return 0;
   const montant =
     acompte.type === "pourcentage" ? (prix * acompte.valeur) / 100 : acompte.valeur;
   return Math.min(Math.round(montant * 100) / 100, prix);
@@ -59,7 +64,7 @@ export async function chargerSalonPublic(slug: string): Promise<SalonPublic | nu
         .order("ordre"),
       supabaseAdmin
         .from("parametres_salon")
-        .select("acompte_type, acompte_valeur, delai_annulation_h")
+        .select("acompte_actif, acompte_type, acompte_valeur, delai_annulation_h")
         .eq("salon_id", salon.id)
         .maybeSingle(),
     ]);
@@ -81,6 +86,7 @@ export async function chargerSalonPublic(slug: string): Promise<SalonPublic | nu
       couleur: e.couleur,
     })),
     acompte: {
+      actif: !!params?.acompte_actif,
       type: params?.acompte_type ?? "pourcentage",
       valeur: Number(params?.acompte_valeur ?? 0),
       delai_annulation_h: params?.delai_annulation_h ?? 24,
