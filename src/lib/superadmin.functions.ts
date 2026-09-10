@@ -126,3 +126,33 @@ export const definirStatutCompteFn = createServerFn({ method: "POST" })
     const { definirStatutCompte } = await import("./superadmin.server");
     return definirStatutCompte(data.salonId, data.statut);
   });
+
+export const reversementsFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await verifier(context.userId);
+    const { listerReversements } = await import("./superadmin.server");
+    return listerReversements();
+  });
+
+export const marquerReversementFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (data: { salonId: string; semaineDebut: string; montant: number; note?: string }) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(data.semaineDebut)))
+        throw new Error("Semaine invalide.");
+      const montant = Number(data.montant);
+      if (!Number.isFinite(montant) || montant < 0) throw new Error("Montant invalide.");
+      return {
+        salonId: String(data.salonId),
+        semaineDebut: String(data.semaineDebut),
+        montant: Math.round(montant * 100) / 100,
+        note: String(data.note ?? "").slice(0, 300) || null,
+      };
+    },
+  )
+  .handler(async ({ data, context }) => {
+    await verifier(context.userId);
+    const { marquerReversementFait } = await import("./superadmin.server");
+    return marquerReversementFait(data);
+  });

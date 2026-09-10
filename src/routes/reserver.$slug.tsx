@@ -108,7 +108,7 @@ function PageReservation() {
   const prestation = contexte?.prestations.find((p) => p.id === prestationId) ?? null;
   const acompte = useMemo(() => {
     const cfg = contexte?.acompte;
-    if (!prestation || !cfg?.valeur) return 0;
+    if (!prestation || !cfg?.actif || !cfg?.valeur) return 0;
     const m = cfg.type === "pourcentage" ? (prestation.prix * cfg.valeur) / 100 : cfg.valeur;
     return Math.min(Math.round(m * 100) / 100, prestation.prix);
   }, [prestation, contexte?.acompte]);

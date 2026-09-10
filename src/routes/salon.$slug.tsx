@@ -132,7 +132,12 @@ function GalerieHero({
     ...(photoCouverture ? [photoCouverture] : []),
     ...photos.map((p) => p.url).filter((u) => u !== photoCouverture),
   ].map((u) => imageOptimisee(u, 1200));
-  const urls = propres.length > 0 ? propres : [photoCategorie(categorie, 1200)];
+  const secours = photoCategorie(categorie, 1200);
+  const urls = propres.length > 0 ? propres : [secours];
+  // Certaines photos importées expirent : on retombe sur la photo du métier.
+  const surErreur = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (e.currentTarget.src !== secours) e.currentTarget.src = secours;
+  };
   const [index, setIndex] = useState(0);
   const [zoom, setZoom] = useState(false);
   const total = urls.length;
@@ -165,6 +170,7 @@ function GalerieHero({
         <img
           src={urls[index]}
           alt={`Photo ${index + 1} du salon ${nomSalon}`}
+          onError={surErreur}
           className="h-full w-full object-cover"
         />
       </button>
@@ -225,6 +231,7 @@ function GalerieHero({
           <img
             src={urls[index]}
             alt={`Photo ${index + 1} du salon ${nomSalon}`}
+            onError={surErreur}
             onClick={(e) => e.stopPropagation()}
             className="max-h-full max-w-full cursor-default object-contain"
           />
@@ -365,9 +372,13 @@ function FicheSalonPage() {
               {photos.map((p) => (
                 <img
                   key={p.id}
-                  src={p.url}
+                  src={imageOptimisee(p.url, 400)}
                   alt={`Photo du salon ${salon.nom}`}
                   loading="lazy"
+                  onError={(e) => {
+                    const secours = photoCategorie(salon.categorie, 400);
+                    if (e.currentTarget.src !== secours) e.currentTarget.src = secours;
+                  }}
                   className="aspect-square w-full rounded-xl object-cover"
                 />
               ))}
