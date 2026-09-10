@@ -37,6 +37,30 @@ export type LigneImport = {
   longitude?: number | null;
 };
 
+/** Vérifie qu'une URL renvoie bien une image (sinon la photo est ignorée). */
+async function photoAccessible(url: string): Promise<boolean> {
+  const controleur = new AbortController();
+  const minuteur = setTimeout(() => controleur.abort(), 6000);
+  try {
+    let r = await fetch(url, { method: "HEAD", signal: controleur.signal, redirect: "follow" });
+    if (r.status === 405 || r.status === 501)
+      r = await fetch(url, { method: "GET", signal: controleur.signal, redirect: "follow" });
+    if (!r.ok) return false;
+    const type = r.headers.get("content-type") ?? "";
+    return type.startsWith("image/") || type === "";
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(minuteur);
+  }
+}
+
+/** Ne conserve que les photos qui répondent réellement. */
+async function photosValides(urls: string[]): Promise<string[]> {
+  const resultats = await Promise.all(urls.map((u) => photoAccessible(u)));
+  return urls.filter((_, i) => resultats[i]);
+}
+
 export async function importerSalonsNonReclames(lignes: LigneImport[], source: string) {
   let crees = 0;
   const ignores: string[] = [];
@@ -53,6 +77,13 @@ export async function importerSalonsNonReclames(lignes: LigneImport[], source: s
       continue;
     }
 
+    const photosDemandees = l.photos ?? [];
+    const photos = photosDemandees.length ? await photosValides(photosDemandees) : [];
+    if (photos.length < photosDemandees.length)
+      ignores.push(
+        `Photo ignorée (URL invalide) : ${l.nom} (${photosDemandees.length - photos.length})`,
+      );
+
     const slug = await slugUnique(l.nom, l.ville);
     const { data: cree, error } = await supabaseAdmin
       .from("salons")
@@ -65,7 +96,7 @@ export async function importerSalonsNonReclames(lignes: LigneImport[], source: s
         lien_externe: l.lien_externe,
         note_google: l.note_google ?? null,
         nb_avis_google: l.nb_avis_google ?? null,
-        photo_couverture_url: l.photos?.[0] ?? null,
+        photo_couverture_url: photos[0] ?? null,
         latitude: l.latitude ?? null,
         longitude: l.longitude ?? null,
         source,
@@ -80,9 +111,9 @@ export async function importerSalonsNonReclames(lignes: LigneImport[], source: s
       ignores.push(`${l.nom} — ${error.message}`);
       continue;
     }
-    if (l.photos && l.photos.length > 1) {
+    if (photos.length > 1) {
       await supabaseAdmin.from("photos_salon").insert(
-        l.photos.map((url, ordre) => ({ salon_id: cree.id, url, ordre })),
+        photos.map((url, ordre) => ({ salon_id: cree.id, url, ordre })),
       );
     }
     crees += 1;
