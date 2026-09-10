@@ -1121,7 +1121,7 @@ function SectionEnLigne() {
 
       <p className="text-xs text-muted-foreground">
         Configuration actuelle : acompte{" "}
-        {ctx?.parametres && Number(ctx.parametres.acompte_valeur) > 0
+        {ctx?.parametres?.acompte_actif && Number(ctx.parametres.acompte_valeur) > 0
           ? ctx.parametres.acompte_type === "pourcentage"
             ? `${Number(ctx.parametres.acompte_valeur)} % du prix`
             : euro(Number(ctx.parametres.acompte_valeur))

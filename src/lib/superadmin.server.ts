@@ -277,3 +277,130 @@ export async function definirStatutCompte(
   if (error) throw new Error(error.message);
   return { ok: true as const };
 }
+
+/* ---------------- Acomptes à reverser aux salons ---------------- */
+
+/** Lundi (UTC) de la semaine calendaire d'une date, au format AAAA-MM-JJ. */
+function lundiDeLaSemaine(iso: string): string {
+  const d = new Date(iso);
+  const jour = (d.getUTCDay() + 6) % 7; // 0 = lundi
+  d.setUTCDate(d.getUTCDate() - jour);
+  d.setUTCHours(0, 0, 0, 0);
+  return d.toISOString().slice(0, 10);
+}
+
+export type LigneReversement = {
+  salon_id: string;
+  salon_nom: string;
+  semaine_debut: string;
+  nb_rdv: number;
+  montant: number;
+  iban: string | null;
+  titulaire: string | null;
+  statut: "a_faire" | "fait";
+  date_virement: string | null;
+};
+
+export type SyntheseReversements = {
+  aFaire: LigneReversement[];
+  historique: LigneReversement[];
+  totalAFaire: number;
+};
+
+/** Regroupe les acomptes réellement payés par salon et par semaine calendaire. */
+export async function listerReversements(): Promise<SyntheseReversements> {
+  const { data: rdvs } = await supabaseAdmin
+    .from("rdv")
+    .select("salon_id, debut, acompte, statut")
+    .gt("acompte", 0)
+    .neq("statut", "en_attente_paiement");
+
+  const groupes = new Map<string, { salon_id: string; semaine: string; nb: number; montant: number }>();
+  for (const r of rdvs ?? []) {
+    const semaine = lundiDeLaSemaine(r.debut);
+    const cle = `${r.salon_id}|${semaine}`;
+    const g = groupes.get(cle) ?? { salon_id: r.salon_id, semaine, nb: 0, montant: 0 };
+    g.nb += 1;
+    g.montant += Number(r.acompte);
+    groupes.set(cle, g);
+  }
+
+  const salonIds = [...new Set([...groupes.values()].map((g) => g.salon_id))];
+  const noms = new Map<string, string>();
+  const banque = new Map<string, { iban: string; titulaire: string }>();
+
+  if (salonIds.length) {
+    const [{ data: salons }, { data: comptes }] = await Promise.all([
+      supabaseAdmin.from("salons").select("id, nom").in("id", salonIds),
+      supabaseAdmin
+        .from("coordonnees_bancaires")
+        .select("salon_id, iban, titulaire_compte")
+        .in("salon_id", salonIds),
+    ]);
+    for (const s of salons ?? []) noms.set(s.id, s.nom);
+    for (const c of comptes ?? [])
+      banque.set(c.salon_id, { iban: c.iban, titulaire: c.titulaire_compte });
+  }
+
+  const { data: deja } = await supabaseAdmin
+    .from("reversements")
+    .select("salon_id, semaine_debut, statut, date_virement");
+  const soldes = new Map<string, { statut: string; date_virement: string | null }>();
+  for (const r of deja ?? [])
+    soldes.set(`${r.salon_id}|${r.semaine_debut}`, {
+      statut: r.statut,
+      date_virement: r.date_virement,
+    });
+
+  const lignes: LigneReversement[] = [...groupes.values()].map((g) => {
+    const cle = `${g.salon_id}|${g.semaine}`;
+    const solde = soldes.get(cle);
+    const b = banque.get(g.salon_id);
+    return {
+      salon_id: g.salon_id,
+      salon_nom: noms.get(g.salon_id) ?? "Salon",
+      semaine_debut: g.semaine,
+      nb_rdv: g.nb,
+      montant: Math.round(g.montant * 100) / 100,
+      iban: b?.iban ?? null,
+      titulaire: b?.titulaire ?? null,
+      statut: solde?.statut === "fait" ? "fait" : "a_faire",
+      date_virement: solde?.date_virement ?? null,
+    };
+  });
+
+  const aFaire = lignes
+    .filter((l) => l.statut === "a_faire")
+    .sort((a, b) => b.montant - a.montant || b.semaine_debut.localeCompare(a.semaine_debut));
+  const historique = lignes
+    .filter((l) => l.statut === "fait")
+    .sort((a, b) => b.semaine_debut.localeCompare(a.semaine_debut));
+
+  return {
+    aFaire,
+    historique,
+    totalAFaire: Math.round(aFaire.reduce((t, l) => t + l.montant, 0) * 100) / 100,
+  };
+}
+
+/** Marque une semaine comme virée : le montant ne sera plus recompté. */
+export async function marquerReversementFait(input: {
+  salonId: string;
+  semaineDebut: string;
+  montant: number;
+  note?: string | null;
+}) {
+  const { error } = await supabaseAdmin.from("reversements").upsert(
+    {
+      salon_id: input.salonId,
+      semaine_debut: input.semaineDebut,
+      montant: input.montant,
+      statut: "fait",
+      date_virement: new Date().toISOString(),
+      note: input.note ?? null,
+    },
+    { onConflict: "salon_id,semaine_debut" },
+  );
+  if (error) throw new Error(error.message);
+  return { ok: true as const };
+}
