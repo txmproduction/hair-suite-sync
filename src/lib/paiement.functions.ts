@@ -20,13 +20,31 @@ export const creerSessionAcompteFn = createServerFn({ method: "POST" })
 
     const { data: rdv } = await supabaseAdmin
       .from("rdv")
-      .select("id, statut, acompte, debut, annulation_token, prestations(nom), salons(nom)")
+      .select(
+        "id, statut, acompte, debut, salon_id, annulation_token, prestations(nom), salons(nom)",
+      )
       .eq("annulation_token", data.token)
       .maybeSingle();
 
     if (!rdv) return { error: "Réservation introuvable." };
     if (rdv.statut !== "en_attente_paiement")
       return { error: "Cette réservation n'attend pas de paiement." };
+
+    // Le salon doit avoir activé l'acompte en ligne (et donc renseigné ses
+    // coordonnées bancaires) pour qu'un paiement puisse être demandé.
+    const { data: params } = await supabaseAdmin
+      .from("parametres_salon")
+      .select("acompte_actif")
+      .eq("salon_id", rdv.salon_id)
+      .maybeSingle();
+    if (!params?.acompte_actif) {
+      await supabaseAdmin
+        .from("rdv")
+        .update({ statut: "a_venir", acompte: 0, expire_at: null })
+        .eq("id", rdv.id)
+        .eq("statut", "en_attente_paiement");
+      return { error: "Ce salon ne demande pas d'acompte : votre rendez-vous est confirmé." };
+    }
 
     const montant = Math.round(Number(rdv.acompte) * 100);
     if (montant < 50) return { error: "Montant d'acompte trop faible pour un paiement en ligne." };
