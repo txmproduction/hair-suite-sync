@@ -191,6 +191,41 @@ export type Database = {
           },
         ]
       }
+      coordonnees_bancaires: {
+        Row: {
+          bic: string
+          created_at: string
+          iban: string
+          salon_id: string
+          titulaire_compte: string
+          updated_at: string
+        }
+        Insert: {
+          bic: string
+          created_at?: string
+          iban: string
+          salon_id: string
+          titulaire_compte: string
+          updated_at?: string
+        }
+        Update: {
+          bic?: string
+          created_at?: string
+          iban?: string
+          salon_id?: string
+          titulaire_compte?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coordonnees_bancaires_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: true
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employes: {
         Row: {
           actif: boolean
@@ -394,6 +429,7 @@ export type Database = {
       }
       parametres_salon: {
         Row: {
+          acompte_actif: boolean
           acompte_type: Database["public"]["Enums"]["type_acompte"]
           acompte_valeur: number
           delai_annulation_h: number
@@ -401,6 +437,7 @@ export type Database = {
           salon_id: string
         }
         Insert: {
+          acompte_actif?: boolean
           acompte_type?: Database["public"]["Enums"]["type_acompte"]
           acompte_valeur?: number
           delai_annulation_h?: number
@@ -408,6 +445,7 @@ export type Database = {
           salon_id: string
         }
         Update: {
+          acompte_actif?: boolean
           acompte_type?: Database["public"]["Enums"]["type_acompte"]
           acompte_valeur?: number
           delai_annulation_h?: number
@@ -652,6 +690,50 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      reversements: {
+        Row: {
+          created_at: string
+          date_virement: string | null
+          id: string
+          montant: number
+          note: string | null
+          salon_id: string
+          semaine_debut: string
+          statut: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_virement?: string | null
+          id?: string
+          montant?: number
+          note?: string | null
+          salon_id: string
+          semaine_debut: string
+          statut?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_virement?: string | null
+          id?: string
+          montant?: number
+          note?: string | null
+          salon_id?: string
+          semaine_debut?: string
+          statut?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reversements_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       salons: {
         Row: {
