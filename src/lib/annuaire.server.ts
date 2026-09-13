@@ -227,7 +227,11 @@ export async function chargerFicheSalon(slug: string): Promise<FicheSalon | null
 
   const [{ data: photos }, { data: cats }, { data: prestations }, { data: horaires }, { data: avis }] =
     await Promise.all([
-      supabaseAdmin.from("photos_salon").select("id, url").eq("salon_id", salon.id).order("ordre"),
+      supabaseAdmin
+        .from("photos_salon")
+        .select("id, url, attribution")
+        .eq("salon_id", salon.id)
+        .order("ordre"),
       supabaseAdmin.from("categories").select("id, nom").eq("salon_id", salon.id).order("ordre"),
       supabaseAdmin
         .from("prestations")
