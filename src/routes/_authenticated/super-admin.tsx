@@ -117,6 +117,39 @@ function SuperAdminPage() {
     refetchInterval: 15_000,
   });
 
+  const { data: etatPhotos } = useQuery({
+    queryKey: ["etat-photos"],
+    enabled: autorise,
+    queryFn: () => etatPhotosFn(),
+  });
+
+  const [bilanPhotos, setBilanPhotos] = useState<string[]>([]);
+
+  const lotPhotos = useMutation({
+    mutationFn: () => synchroniserLotPhotosFn({ data: {} }),
+    onSuccess: (r) => {
+      toast.success(`${r.reussis} salon(s) illustré(s) sur ${r.traites} traité(s).`);
+      setBilanPhotos([
+        `${r.traites} traités · ${r.reussis} avec photos · ${r.sansPhoto} sans photo Google · ${r.nbErreurs} en erreur`,
+        ...r.erreurs,
+      ]);
+      queryClient.invalidateQueries({ queryKey: ["etat-photos"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const photosSalon = useMutation({
+    mutationFn: (salonId: string) => resynchroniserPhotosSalonFn({ data: { salonId } }),
+    onSuccess: (r) => {
+      if (r.erreur) toast.error(`${r.nom} — ${r.erreur}`);
+      else if (!r.photos) toast.info(`${r.nom} — aucune photo disponible sur Google.`);
+      else toast.success(`${r.nom} — ${r.photos} photo(s) récupérée(s).`);
+      queryClient.invalidateQueries({ queryKey: ["etat-photos"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
   const changerStatut = useMutation({
     mutationFn: (v: { salonId: string; statut: "permanent" | "essai" | "suspendu" }) =>
       definirStatutCompteFn({ data: v }),
