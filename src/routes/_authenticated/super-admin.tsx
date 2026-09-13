@@ -126,7 +126,7 @@ function SuperAdminPage() {
   const [bilanPhotos, setBilanPhotos] = useState<string[]>([]);
 
   const lotPhotos = useMutation({
-    mutationFn: () => synchroniserLotPhotosFn({ data: {} }),
+    mutationFn: () => synchroniserLotPhotosFn(),
     onSuccess: (r) => {
       toast.success(`${r.reussis} salon(s) illustré(s) sur ${r.traites} traité(s).`);
       setBilanPhotos([
