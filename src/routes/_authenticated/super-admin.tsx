@@ -488,6 +488,41 @@ function SuperAdminPage() {
       </section>
 
       <section className="card-soft mt-5 p-5">
+        <h2 className="text-lg font-semibold">Photos Google</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Les adresses de photos fournies par Google expirent. On les télécharge une fois pour
+          toutes et on les héberge nous-mêmes. Les salons qui ont mis en ligne leur propre photo ne
+          sont jamais modifiés.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-4">
+          {[
+            { label: "À traiter", valeur: etatPhotos?.aTraiter ?? 0 },
+            { label: "Adresses Google expirées", valeur: etatPhotos?.urlsGoogle ?? 0 },
+            { label: "Sans photo", valeur: etatPhotos?.sansPhoto ?? 0 },
+            { label: "En erreur", valeur: etatPhotos?.enErreur ?? 0 },
+          ].map((c) => (
+            <div key={c.label} className="rounded-xl bg-secondary p-3">
+              <p className="text-xs text-muted-foreground">{c.label}</p>
+              <p className="text-xl font-semibold">{c.valeur.toLocaleString("fr-FR")}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4">
+          <Button disabled={lotPhotos.isPending} onClick={() => lotPhotos.mutate()}>
+            {lotPhotos.isPending ? "Synchronisation…" : "Synchroniser un lot de 50"}
+          </Button>
+        </div>
+        {bilanPhotos.length > 0 && (
+          <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
+            {bilanPhotos.map((l, i) => (
+              <li key={i}>{l}</li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+
+      <section className="card-soft mt-5 p-5">
         <h2 className="text-lg font-semibold">
           Fiches non réclamées ({salons?.length ?? 0})
         </h2>
