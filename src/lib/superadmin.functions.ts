@@ -46,6 +46,7 @@ export const importerSalonsFn = createServerFn({ method: "POST" })
         photo_couverture_url?: string;
         latitude?: string | number;
         longitude?: string | number;
+        google_place_id?: string;
       }[];
       source?: string;
     }) => {
@@ -75,6 +76,7 @@ export const importerSalonsFn = createServerFn({ method: "POST" })
           photos: photosBrutes.slice(0, 20).map((u) => u.slice(0, 500)),
           latitude: coord(l.latitude, 90),
           longitude: coord(l.longitude, 180),
+          google_place_id: String(l.google_place_id ?? "").trim().slice(0, 200) || null,
         };
       });
       if (!lignes.length) throw new Error("Aucune ligne à importer.");
@@ -155,4 +157,31 @@ export const marquerReversementFn = createServerFn({ method: "POST" })
     await verifier(context.userId);
     const { marquerReversementFait } = await import("./superadmin.server");
     return marquerReversementFait(data);
+  });
+
+/* ---------------- Photos Google ---------------- */
+
+export const etatPhotosFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await verifier(context.userId);
+    const { etatPhotosGoogle } = await import("./photos-google.server");
+    return etatPhotosGoogle();
+  });
+
+export const synchroniserLotPhotosFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await verifier(context.userId);
+    const { synchroniserLotPhotos } = await import("./photos-google.server");
+    return synchroniserLotPhotos(50);
+  });
+
+export const resynchroniserPhotosSalonFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { salonId: string }) => ({ salonId: String(data.salonId) }))
+  .handler(async ({ data, context }) => {
+    await verifier(context.userId);
+    const { synchroniserPhotosSalon } = await import("./photos-google.server");
+    return synchroniserPhotosSalon(data.salonId);
   });
