@@ -19,7 +19,7 @@ export function PhotoSalon({
   largeur?: number;
   className?: string;
   priorite?: boolean;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLElement>;
 }) {
   const [erreur, setErreur] = useState(false);
 

@@ -6,7 +6,8 @@ import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { Etoiles, NoteSalon } from "@/components/annuaire/Etoiles";
 import { Button } from "@/components/ui/button";
 import { ficheSalonFn, clicReservationManqueeFn } from "@/lib/annuaire.functions";
-import { labelCategorie, photoCategorie, imageOptimisee } from "@/lib/categories";
+import { labelCategorie } from "@/lib/categories";
+import { PhotoSalon } from "@/components/annuaire/PhotoSalon";
 import { euro, JOURS } from "@/lib/hairtrack";
 import { jsonLdSalon, jsonLdFilArianeSalon } from "@/lib/seo-salon";
 import { FilAriane } from "@/components/annuaire/FilAriane";
@@ -303,7 +304,6 @@ function FicheSalonPage() {
         photoCouverture={salon.photo_couverture_url}
         photos={photos}
         nomSalon={salon.nom}
-        categorie={salon.categorie}
       />
 
       <main className="mx-auto max-w-6xl px-4 pb-16">
@@ -382,17 +382,19 @@ function FicheSalonPage() {
             <h2 className="text-lg font-semibold">Toutes les photos</h2>
             <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
               {photos.map((p) => (
-                <img
-                  key={p.id}
-                  src={imageOptimisee(p.url, 400)}
-                  alt={`Photo du salon ${salon.nom}`}
-                  loading="lazy"
-                  onError={(e) => {
-                    const secours = photoCategorie(salon.categorie, 400);
-                    if (e.currentTarget.src !== secours) e.currentTarget.src = secours;
-                  }}
-                  className="aspect-square w-full rounded-xl object-cover"
-                />
+                <figure key={p.id} className="space-y-1">
+                  <PhotoSalon
+                    url={p.url}
+                    alt={`Photo du salon ${salon.nom}`}
+                    largeur={400}
+                    className="aspect-square w-full rounded-xl object-cover"
+                  />
+                  {p.attribution && (
+                    <figcaption className="truncate text-[10px] text-muted-foreground">
+                      Photo : {p.attribution}
+                    </figcaption>
+                  )}
+                </figure>
               ))}
             </div>
           </section>
