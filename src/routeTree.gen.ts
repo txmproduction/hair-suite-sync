@@ -39,6 +39,7 @@ import { Route as CategorieVillePageRouteImport } from './routes/$categorie.$vil
 import { Route as AuthenticatedClientsIndexRouteImport } from './routes/_authenticated/clients.index'
 import { Route as AuthenticatedClientsClientIdRouteImport } from './routes/_authenticated/clients.$clientId'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
+import { Route as ApiPublicPhotosSalonsSplatRouteImport } from './routes/api/public/photos-salons/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -193,6 +194,12 @@ const ApiPublicPaymentsWebhookRoute =
     path: '/api/public/payments/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPhotosSalonsSplatRoute =
+  ApiPublicPhotosSalonsSplatRouteImport.update({
+    id: '/api/public/photos-salons/$',
+    path: '/api/public/photos-salons/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -224,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/clients/': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/photos-salons/$': typeof ApiPublicPhotosSalonsSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -255,6 +263,7 @@ export interface FileRoutesByTo {
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/clients': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/photos-salons/$': typeof ApiPublicPhotosSalonsSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -288,6 +297,7 @@ export interface FileRoutesById {
   '/_authenticated/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
   '/_authenticated/clients/': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/api/public/photos-salons/$': typeof ApiPublicPhotosSalonsSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -321,6 +331,7 @@ export interface FileRouteTypes {
     | '/clients/$clientId'
     | '/clients/'
     | '/api/public/payments/webhook'
+    | '/api/public/photos-salons/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -352,6 +363,7 @@ export interface FileRouteTypes {
     | '/clients/$clientId'
     | '/clients'
     | '/api/public/payments/webhook'
+    | '/api/public/photos-salons/$'
   id:
     | '__root__'
     | '/'
@@ -384,6 +396,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clients/$clientId'
     | '/_authenticated/clients/'
     | '/api/public/payments/webhook'
+    | '/api/public/photos-salons/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -408,6 +421,7 @@ export interface RootRouteChildren {
   SitemapVillesNRoute: typeof SitemapVillesNRoute
   CategorieIndexRoute: typeof CategorieIndexRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  ApiPublicPhotosSalonsSplatRoute: typeof ApiPublicPhotosSalonsSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -622,6 +636,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/photos-salons/$': {
+      id: '/api/public/photos-salons/$'
+      path: '/api/public/photos-salons/$'
+      fullPath: '/api/public/photos-salons/$'
+      preLoaderRoute: typeof ApiPublicPhotosSalonsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -684,6 +705,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapVillesNRoute: SitemapVillesNRoute,
   CategorieIndexRoute: CategorieIndexRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  ApiPublicPhotosSalonsSplatRoute: ApiPublicPhotosSalonsSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

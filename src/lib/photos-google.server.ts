@@ -180,21 +180,21 @@ export type EtatPhotosGoogle = {
 
 /** Compteurs affichés dans l'espace super-admin. */
 export async function etatPhotosGoogle(): Promise<EtatPhotosGoogle> {
-  const compter = async (filtre: (q: ReturnType<typeof requete>) => typeof q) => {
-    const { count } = await filtre(requete());
-    return count ?? 0;
-  };
-  const requete = () =>
+  const base = () =>
     supabaseAdmin
       .from("salons")
       .select("id", { count: "exact", head: true })
       .eq("statut", "non_reclame");
 
-  const urlsGoogle = await compter((q) => q.like("photo_couverture_url", "%googleusercontent.com%"));
-  const sansPhoto = await compter((q) => q.is("photo_couverture_url", null));
-  const enErreur = await compter((q) => q.not("photos_erreur", "is", null));
+  const [g, s, e] = await Promise.all([
+    base().like("photo_couverture_url", "%googleusercontent.com%"),
+    base().is("photo_couverture_url", null),
+    base().not("photos_erreur", "is", null),
+  ]);
 
-  return { aTraiter: urlsGoogle + sansPhoto, urlsGoogle, sansPhoto, enErreur };
+  const urlsGoogle = g.count ?? 0;
+  const sansPhoto = s.count ?? 0;
+  return { aTraiter: urlsGoogle + sansPhoto, urlsGoogle, sansPhoto, enErreur: e.count ?? 0 };
 }
 
 /** Traite un lot de salons (URLs Google en priorité), 5 requêtes en parallèle maximum. */
