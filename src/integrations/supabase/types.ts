@@ -464,6 +464,7 @@ export type Database = {
       }
       photos_salon: {
         Row: {
+          attribution: string | null
           created_at: string
           id: string
           ordre: number
@@ -471,6 +472,7 @@ export type Database = {
           url: string
         }
         Insert: {
+          attribution?: string | null
           created_at?: string
           id?: string
           ordre?: number
@@ -478,6 +480,7 @@ export type Database = {
           url: string
         }
         Update: {
+          attribution?: string | null
           created_at?: string
           id?: string
           ordre?: number
@@ -745,6 +748,7 @@ export type Database = {
           created_at: string
           description: string | null
           gerant_user_id: string | null
+          google_place_id: string | null
           id: string
           latitude: number | null
           lien_externe: string | null
@@ -755,6 +759,8 @@ export type Database = {
           note_google: number | null
           note_moyenne: number | null
           photo_couverture_url: string | null
+          photos_erreur: string | null
+          photos_synchro_le: string | null
           reservation_en_ligne: boolean
           slug: string | null
           source: string | null
@@ -774,6 +780,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           gerant_user_id?: string | null
+          google_place_id?: string | null
           id?: string
           latitude?: number | null
           lien_externe?: string | null
@@ -784,6 +791,8 @@ export type Database = {
           note_google?: number | null
           note_moyenne?: number | null
           photo_couverture_url?: string | null
+          photos_erreur?: string | null
+          photos_synchro_le?: string | null
           reservation_en_ligne?: boolean
           slug?: string | null
           source?: string | null
@@ -803,6 +812,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           gerant_user_id?: string | null
+          google_place_id?: string | null
           id?: string
           latitude?: number | null
           lien_externe?: string | null
@@ -813,6 +823,8 @@ export type Database = {
           note_google?: number | null
           note_moyenne?: number | null
           photo_couverture_url?: string | null
+          photos_erreur?: string | null
+          photos_synchro_le?: string | null
           reservation_en_ligne?: boolean
           slug?: string | null
           source?: string | null
