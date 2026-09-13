@@ -31,7 +31,8 @@ export const Route = createFileRoute("/salon/$slug")({
       loaderData?.salon.description?.slice(0, 155) ??
       `Réservez votre rendez-vous chez ${nom}${ville ? ` à ${ville}` : ""} en ligne, 24h/24, en quelques secondes.`;
     const url = `https://hairtrack.fr/salon/${params.slug}`;
-    const image = loaderData?.salon.photo_couverture_url;
+    const brute = loaderData?.salon.photo_couverture_url;
+    const image = brute?.startsWith("/") ? `https://hairtrack.fr${brute}` : brute;
     return {
       meta: [
         { title: titre },
