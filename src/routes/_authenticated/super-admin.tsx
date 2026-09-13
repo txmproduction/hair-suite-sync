@@ -16,6 +16,9 @@ import {
   definirStatutCompteFn,
   reversementsFn,
   marquerReversementFn,
+  etatPhotosFn,
+  synchroniserLotPhotosFn,
+  resynchroniserPhotosSalonFn,
 } from "@/lib/superadmin.functions";
 import { CATEGORIES } from "@/lib/categories";
 
@@ -35,6 +38,7 @@ type LigneCsv = {
   photo_couverture_url: string;
   latitude: string;
   longitude: string;
+  google_place_id: string;
 };
 
 function parserCsv(texte: string): LigneCsv[] {
@@ -60,6 +64,7 @@ function parserCsv(texte: string): LigneCsv[] {
       photo_couverture_url: c[8] ?? "",
       latitude: c[9] ?? "",
       longitude: c[10] ?? "",
+      google_place_id: c[11] ?? "",
     };
   });
 }
