@@ -205,7 +205,7 @@ function GalerieHero({
             <ChevronRight className="h-5 w-5" />
           </button>
           <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
-            {urls.map((_, i) => (
+            {items.map((_, i) => (
               <button
                 key={i}
                 type="button"
@@ -239,10 +239,11 @@ function GalerieHero({
           >
             <X className="h-5 w-5" />
           </button>
-          <img
-            src={urls[index]}
+          <PhotoSalon
+            url={courant?.url}
             alt={`Photo ${index + 1} du salon ${nomSalon}`}
-            onError={surErreur}
+            largeur={1600}
+            priorite
             onClick={(e) => e.stopPropagation()}
             className="max-h-full max-w-full cursor-default object-contain"
           />
