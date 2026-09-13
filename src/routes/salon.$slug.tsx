@@ -121,26 +121,22 @@ function GalerieHero({
   photoCouverture,
   photos,
   nomSalon,
-  categorie,
 }: {
   photoCouverture: string | null;
-  photos: { id: string; url: string }[];
+  photos: { id: string; url: string; attribution?: string | null }[];
   nomSalon: string;
-  categorie: string;
 }) {
-  const propres = [
-    ...(photoCouverture ? [photoCouverture] : []),
-    ...photos.map((p) => p.url).filter((u) => u !== photoCouverture),
-  ].map((u) => imageOptimisee(u, 1200));
-  const secours = photoCategorie(categorie, 1200);
-  const urls = propres.length > 0 ? propres : [secours];
-  // Certaines photos importées expirent : on retombe sur la photo du métier.
-  const surErreur = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    if (e.currentTarget.src !== secours) e.currentTarget.src = secours;
-  };
+  const items = [
+    ...(photoCouverture &&
+    !photos.some((p) => p.url === photoCouverture)
+      ? [{ url: photoCouverture, attribution: null as string | null }]
+      : []),
+    ...photos.map((p) => ({ url: p.url, attribution: p.attribution ?? null })),
+  ];
   const [index, setIndex] = useState(0);
   const [zoom, setZoom] = useState(false);
-  const total = urls.length;
+  const total = items.length;
+  const courant = items[index];
 
   // Fermeture au clavier + blocage du défilement de la page pendant l'aperçu.
   useEffect(() => {
@@ -159,6 +155,15 @@ function GalerieHero({
     };
   }, [zoom, total]);
 
+  if (!total)
+    return (
+      <PhotoSalon
+        url={null}
+        alt={`Salon ${nomSalon}`}
+        className="h-56 w-full sm:h-72"
+      />
+    );
+
   return (
     <div className="relative h-56 w-full overflow-hidden bg-secondary sm:h-72">
       <button
@@ -167,13 +172,19 @@ function GalerieHero({
         aria-label="Afficher la photo en grand"
         className="block h-full w-full cursor-zoom-in"
       >
-        <img
-          src={urls[index]}
+        <PhotoSalon
+          url={courant?.url}
           alt={`Photo ${index + 1} du salon ${nomSalon}`}
-          onError={surErreur}
+          largeur={1200}
+          priorite
           className="h-full w-full object-cover"
         />
       </button>
+      {courant?.attribution && (
+        <span className="absolute bottom-1 right-2 z-10 text-[10px] text-white/80">
+          Photo : {courant.attribution}
+        </span>
+      )}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 to-black/50" />
       {total > 1 && (
         <>
