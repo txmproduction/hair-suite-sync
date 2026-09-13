@@ -555,13 +555,23 @@ function SuperAdminPage() {
                   <td className="py-2.5 pr-3 text-muted-foreground">{s.clics_total}</td>
                   <td className="py-2.5 pr-3 text-muted-foreground">{s.source ?? "—"}</td>
                   <td className="py-2.5">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setConversion({ id: s.id, email: "", nom: s.nom })}
-                    >
-                      Convertir en client
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setConversion({ id: s.id, email: "", nom: s.nom })}
+                      >
+                        Convertir en client
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={photosSalon.isPending}
+                        onClick={() => photosSalon.mutate(s.id)}
+                      >
+                        Resynchroniser les photos
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
