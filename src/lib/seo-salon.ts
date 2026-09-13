@@ -27,9 +27,9 @@ export function jsonLdSalon(fiche: FicheSalon) {
   const { salon, photos, prestations, horaires, avis } = fiche;
   const info = parCategorie(salon.categorie);
   const url = absolu(`/salon/${salon.slug}`);
-  const images = [salon.photo_couverture_url, ...photos.map((p) => p.url)].filter(
-    (u): u is string => !!u && u.startsWith("https://"),
-  );
+  const images = [salon.photo_couverture_url, ...photos.map((p) => p.url)]
+    .filter((u): u is string => !!u && (u.startsWith("https://") || u.startsWith("/")))
+    .map((u) => (u.startsWith("/") ? absolu(u) : u));
   const prix = prestations.map((p) => p.prix).filter((p) => p > 0);
 
   const donnees: Record<string, unknown> = {

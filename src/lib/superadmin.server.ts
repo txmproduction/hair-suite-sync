@@ -35,6 +35,7 @@ export type LigneImport = {
   photos?: string[];
   latitude?: number | null;
   longitude?: number | null;
+  google_place_id?: string | null;
 };
 
 /** Vérifie qu'une URL renvoie bien une image (sinon la photo est ignorée). */
@@ -62,6 +63,7 @@ async function photosValides(urls: string[]): Promise<string[]> {
 }
 
 export async function importerSalonsNonReclames(lignes: LigneImport[], source: string) {
+  const { estPhotoGoogle, synchroniserPhotosSalon } = await import("./photos-google.server");
   let crees = 0;
   const ignores: string[] = [];
 
@@ -77,7 +79,9 @@ export async function importerSalonsNonReclames(lignes: LigneImport[], source: s
       continue;
     }
 
-    const photosDemandees = l.photos ?? [];
+    // Les URLs Google expirent : on ne les enregistre jamais, on resynchronise depuis Google.
+    const photosDemandees = (l.photos ?? []).filter((u) => !estPhotoGoogle(u));
+    const photosGoogleIgnorees = (l.photos ?? []).length - photosDemandees.length;
     const photos = photosDemandees.length ? await photosValides(photosDemandees) : [];
     if (photos.length < photosDemandees.length)
       ignores.push(
@@ -99,6 +103,7 @@ export async function importerSalonsNonReclames(lignes: LigneImport[], source: s
         photo_couverture_url: photos[0] ?? null,
         latitude: l.latitude ?? null,
         longitude: l.longitude ?? null,
+        google_place_id: l.google_place_id ?? null,
         source,
         slug,
         statut: "non_reclame",
@@ -115,6 +120,11 @@ export async function importerSalonsNonReclames(lignes: LigneImport[], source: s
       await supabaseAdmin.from("photos_salon").insert(
         photos.map((url, ordre) => ({ salon_id: cree.id, url, ordre })),
       );
+    }
+    // Aucune photo pérenne fournie : on récupère celles de Google et on les archive chez nous.
+    if (!photos.length && (photosGoogleIgnorees > 0 || l.google_place_id)) {
+      const r = await synchroniserPhotosSalon(cree.id);
+      if (r.erreur) ignores.push(`Photos non récupérées : ${l.nom} — ${r.erreur}`);
     }
     crees += 1;
   }

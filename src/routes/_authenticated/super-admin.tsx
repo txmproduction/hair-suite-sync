@@ -16,6 +16,9 @@ import {
   definirStatutCompteFn,
   reversementsFn,
   marquerReversementFn,
+  etatPhotosFn,
+  synchroniserLotPhotosFn,
+  resynchroniserPhotosSalonFn,
 } from "@/lib/superadmin.functions";
 import { CATEGORIES } from "@/lib/categories";
 
@@ -35,6 +38,7 @@ type LigneCsv = {
   photo_couverture_url: string;
   latitude: string;
   longitude: string;
+  google_place_id: string;
 };
 
 function parserCsv(texte: string): LigneCsv[] {
@@ -60,6 +64,7 @@ function parserCsv(texte: string): LigneCsv[] {
       photo_couverture_url: c[8] ?? "",
       latitude: c[9] ?? "",
       longitude: c[10] ?? "",
+      google_place_id: c[11] ?? "",
     };
   });
 }
@@ -111,6 +116,39 @@ function SuperAdminPage() {
     queryFn: () => clientsAbonnesFn(),
     refetchInterval: 15_000,
   });
+
+  const { data: etatPhotos } = useQuery({
+    queryKey: ["etat-photos"],
+    enabled: autorise,
+    queryFn: () => etatPhotosFn(),
+  });
+
+  const [bilanPhotos, setBilanPhotos] = useState<string[]>([]);
+
+  const lotPhotos = useMutation({
+    mutationFn: () => synchroniserLotPhotosFn(),
+    onSuccess: (r) => {
+      toast.success(`${r.reussis} salon(s) illustré(s) sur ${r.traites} traité(s).`);
+      setBilanPhotos([
+        `${r.traites} traités · ${r.reussis} avec photos · ${r.sansPhoto} sans photo Google · ${r.nbErreurs} en erreur`,
+        ...r.erreurs,
+      ]);
+      queryClient.invalidateQueries({ queryKey: ["etat-photos"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const photosSalon = useMutation({
+    mutationFn: (salonId: string) => resynchroniserPhotosSalonFn({ data: { salonId } }),
+    onSuccess: (r) => {
+      if (r.erreur) toast.error(`${r.nom} — ${r.erreur}`);
+      else if (!r.photos) toast.info(`${r.nom} — aucune photo disponible sur Google.`);
+      else toast.success(`${r.nom} — ${r.photos} photo(s) récupérée(s).`);
+      queryClient.invalidateQueries({ queryKey: ["etat-photos"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const changerStatut = useMutation({
     mutationFn: (v: { salonId: string; statut: "permanent" | "essai" | "suspendu" }) =>
@@ -450,6 +488,41 @@ function SuperAdminPage() {
       </section>
 
       <section className="card-soft mt-5 p-5">
+        <h2 className="text-lg font-semibold">Photos Google</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Les adresses de photos fournies par Google expirent. On les télécharge une fois pour
+          toutes et on les héberge nous-mêmes. Les salons qui ont mis en ligne leur propre photo ne
+          sont jamais modifiés.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-4">
+          {[
+            { label: "À traiter", valeur: etatPhotos?.aTraiter ?? 0 },
+            { label: "Adresses Google expirées", valeur: etatPhotos?.urlsGoogle ?? 0 },
+            { label: "Sans photo", valeur: etatPhotos?.sansPhoto ?? 0 },
+            { label: "En erreur", valeur: etatPhotos?.enErreur ?? 0 },
+          ].map((c) => (
+            <div key={c.label} className="rounded-xl bg-secondary p-3">
+              <p className="text-xs text-muted-foreground">{c.label}</p>
+              <p className="text-xl font-semibold">{c.valeur.toLocaleString("fr-FR")}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4">
+          <Button disabled={lotPhotos.isPending} onClick={() => lotPhotos.mutate()}>
+            {lotPhotos.isPending ? "Synchronisation…" : "Synchroniser un lot de 50"}
+          </Button>
+        </div>
+        {bilanPhotos.length > 0 && (
+          <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
+            {bilanPhotos.map((l, i) => (
+              <li key={i}>{l}</li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+
+      <section className="card-soft mt-5 p-5">
         <h2 className="text-lg font-semibold">
           Fiches non réclamées ({salons?.length ?? 0})
         </h2>
@@ -482,13 +555,23 @@ function SuperAdminPage() {
                   <td className="py-2.5 pr-3 text-muted-foreground">{s.clics_total}</td>
                   <td className="py-2.5 pr-3 text-muted-foreground">{s.source ?? "—"}</td>
                   <td className="py-2.5">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setConversion({ id: s.id, email: "", nom: s.nom })}
-                    >
-                      Convertir en client
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setConversion({ id: s.id, email: "", nom: s.nom })}
+                      >
+                        Convertir en client
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={photosSalon.isPending}
+                        onClick={() => photosSalon.mutate(s.id)}
+                      >
+                        Resynchroniser les photos
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}

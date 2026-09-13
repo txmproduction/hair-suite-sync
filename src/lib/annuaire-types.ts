@@ -26,7 +26,7 @@ export type FicheSalon = {
     telephone: string | null;
     lien_externe: string | null;
   };
-  photos: { id: string; url: string }[];
+  photos: { id: string; url: string; attribution: string | null }[];
   categories: { id: string; nom: string }[];
   prestations: {
     id: string;

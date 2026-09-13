@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { MapPin } from "lucide-react";
-import { labelCategorie, photoCategorie, imageOptimisee } from "@/lib/categories";
+import { labelCategorie } from "@/lib/categories";
 import { euro } from "@/lib/hairtrack";
 import { NoteSalon } from "./Etoiles";
+import { PhotoSalon } from "./PhotoSalon";
 import type { SalonCarte } from "@/lib/annuaire-types";
 
 export function CarteSalon({ salon }: { salon: SalonCarte }) {
@@ -13,22 +14,10 @@ export function CarteSalon({ salon }: { salon: SalonCarte }) {
       className="card-soft group block overflow-hidden transition-shadow hover:shadow-lg"
     >
       <div className="aspect-[4/3] w-full overflow-hidden bg-secondary">
-        <img
-          src={
-            salon.photo_couverture_url
-              ? imageOptimisee(salon.photo_couverture_url)
-              : photoCategorie(salon.categorie)
-          }
+        <PhotoSalon
+          url={salon.photo_couverture_url}
           alt={`${labelCategorie(salon.categorie)} ${salon.nom}`}
-          loading="lazy"
-          decoding="async"
-          width={640}
-          height={480}
-          onError={(e) => {
-            const img = e.currentTarget;
-            const secours = photoCategorie(salon.categorie);
-            if (img.src !== secours) img.src = secours;
-          }}
+          largeur={640}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       </div>

@@ -6,7 +6,8 @@ import { PiedPublic } from "@/components/annuaire/PiedPublic";
 import { Etoiles, NoteSalon } from "@/components/annuaire/Etoiles";
 import { Button } from "@/components/ui/button";
 import { ficheSalonFn, clicReservationManqueeFn } from "@/lib/annuaire.functions";
-import { labelCategorie, photoCategorie, imageOptimisee } from "@/lib/categories";
+import { labelCategorie } from "@/lib/categories";
+import { PhotoSalon } from "@/components/annuaire/PhotoSalon";
 import { euro, JOURS } from "@/lib/hairtrack";
 import { jsonLdSalon, jsonLdFilArianeSalon } from "@/lib/seo-salon";
 import { FilAriane } from "@/components/annuaire/FilAriane";
@@ -30,7 +31,8 @@ export const Route = createFileRoute("/salon/$slug")({
       loaderData?.salon.description?.slice(0, 155) ??
       `Réservez votre rendez-vous chez ${nom}${ville ? ` à ${ville}` : ""} en ligne, 24h/24, en quelques secondes.`;
     const url = `https://hairtrack.fr/salon/${params.slug}`;
-    const image = loaderData?.salon.photo_couverture_url;
+    const brute = loaderData?.salon.photo_couverture_url;
+    const image = brute?.startsWith("/") ? `https://hairtrack.fr${brute}` : brute;
     return {
       meta: [
         { title: titre },
@@ -121,26 +123,22 @@ function GalerieHero({
   photoCouverture,
   photos,
   nomSalon,
-  categorie,
 }: {
   photoCouverture: string | null;
-  photos: { id: string; url: string }[];
+  photos: { id: string; url: string; attribution?: string | null }[];
   nomSalon: string;
-  categorie: string;
 }) {
-  const propres = [
-    ...(photoCouverture ? [photoCouverture] : []),
-    ...photos.map((p) => p.url).filter((u) => u !== photoCouverture),
-  ].map((u) => imageOptimisee(u, 1200));
-  const secours = photoCategorie(categorie, 1200);
-  const urls = propres.length > 0 ? propres : [secours];
-  // Certaines photos importées expirent : on retombe sur la photo du métier.
-  const surErreur = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    if (e.currentTarget.src !== secours) e.currentTarget.src = secours;
-  };
+  const items = [
+    ...(photoCouverture &&
+    !photos.some((p) => p.url === photoCouverture)
+      ? [{ url: photoCouverture, attribution: null as string | null }]
+      : []),
+    ...photos.map((p) => ({ url: p.url, attribution: p.attribution ?? null })),
+  ];
   const [index, setIndex] = useState(0);
   const [zoom, setZoom] = useState(false);
-  const total = urls.length;
+  const total = items.length;
+  const courant = items[index];
 
   // Fermeture au clavier + blocage du défilement de la page pendant l'aperçu.
   useEffect(() => {
@@ -159,6 +157,15 @@ function GalerieHero({
     };
   }, [zoom, total]);
 
+  if (!total)
+    return (
+      <PhotoSalon
+        url={null}
+        alt={`Salon ${nomSalon}`}
+        className="h-56 w-full sm:h-72"
+      />
+    );
+
   return (
     <div className="relative h-56 w-full overflow-hidden bg-secondary sm:h-72">
       <button
@@ -167,13 +174,19 @@ function GalerieHero({
         aria-label="Afficher la photo en grand"
         className="block h-full w-full cursor-zoom-in"
       >
-        <img
-          src={urls[index]}
+        <PhotoSalon
+          url={courant?.url}
           alt={`Photo ${index + 1} du salon ${nomSalon}`}
-          onError={surErreur}
+          largeur={1200}
+          priorite
           className="h-full w-full object-cover"
         />
       </button>
+      {courant?.attribution && (
+        <span className="absolute bottom-1 right-2 z-10 text-[10px] text-white/80">
+          Photo : {courant.attribution}
+        </span>
+      )}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 to-black/50" />
       {total > 1 && (
         <>
@@ -194,7 +207,7 @@ function GalerieHero({
             <ChevronRight className="h-5 w-5" />
           </button>
           <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
-            {urls.map((_, i) => (
+            {items.map((_, i) => (
               <button
                 key={i}
                 type="button"
@@ -228,10 +241,11 @@ function GalerieHero({
           >
             <X className="h-5 w-5" />
           </button>
-          <img
-            src={urls[index]}
+          <PhotoSalon
+            url={courant?.url}
             alt={`Photo ${index + 1} du salon ${nomSalon}`}
-            onError={surErreur}
+            largeur={1600}
+            priorite
             onClick={(e) => e.stopPropagation()}
             className="max-h-full max-w-full cursor-default object-contain"
           />
@@ -291,7 +305,6 @@ function FicheSalonPage() {
         photoCouverture={salon.photo_couverture_url}
         photos={photos}
         nomSalon={salon.nom}
-        categorie={salon.categorie}
       />
 
       <main className="mx-auto max-w-6xl px-4 pb-16">
@@ -370,17 +383,19 @@ function FicheSalonPage() {
             <h2 className="text-lg font-semibold">Toutes les photos</h2>
             <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
               {photos.map((p) => (
-                <img
-                  key={p.id}
-                  src={imageOptimisee(p.url, 400)}
-                  alt={`Photo du salon ${salon.nom}`}
-                  loading="lazy"
-                  onError={(e) => {
-                    const secours = photoCategorie(salon.categorie, 400);
-                    if (e.currentTarget.src !== secours) e.currentTarget.src = secours;
-                  }}
-                  className="aspect-square w-full rounded-xl object-cover"
-                />
+                <figure key={p.id} className="space-y-1">
+                  <PhotoSalon
+                    url={p.url}
+                    alt={`Photo du salon ${salon.nom}`}
+                    largeur={400}
+                    className="aspect-square w-full rounded-xl object-cover"
+                  />
+                  {p.attribution && (
+                    <figcaption className="truncate text-[10px] text-muted-foreground">
+                      Photo : {p.attribution}
+                    </figcaption>
+                  )}
+                </figure>
               ))}
             </div>
           </section>
