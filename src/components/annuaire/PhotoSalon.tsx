@@ -35,11 +35,20 @@ export function PhotoSalon({
       </div>
     );
 
+  const petite = Math.round(largeur / 2);
+  const src = imageOptimisee(url, largeur);
+  const srcPetite = imageOptimisee(url, petite);
+  const adaptatif = srcPetite !== src;
+
   return (
     <img
-      src={imageOptimisee(url, largeur)}
-      srcSet={`${imageOptimisee(url, Math.round(largeur / 2))} ${Math.round(largeur / 2)}w, ${imageOptimisee(url, largeur)} ${largeur}w`}
-      sizes={`(max-width: 640px) 100vw, ${largeur}px`}
+      src={src}
+      {...(adaptatif
+        ? {
+            srcSet: `${srcPetite} ${petite}w, ${src} ${largeur}w`,
+            sizes: `(max-width: 640px) 100vw, ${largeur}px`,
+          }
+        : {})}
       alt={alt}
       loading={priorite ? "eager" : "lazy"}
       decoding="async"
