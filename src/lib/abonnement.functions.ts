@@ -108,6 +108,27 @@ export const creerCheckoutAbonnementFn = createServerFn({ method: "POST" })
 
     try {
       const stripe = createStripeClient(data.environment);
+
+      // On privilégie le tarif du catalogue Stripe (identique en test et en
+      // production) ; sinon on retombe sur un tarif défini à la volée.
+      const tarifs = await stripe.prices.list({
+        lookup_keys: [plan.lookupKey],
+        active: true,
+        limit: 1,
+      });
+      const tarif = tarifs.data[0];
+      const ligne = tarif
+        ? { price: tarif.id, quantity: 1 }
+        : {
+            price_data: {
+              currency: "eur",
+              unit_amount: plan.prixCentimes,
+              recurring: { interval: "month" as const },
+              product_data: { name: `HairTrack ${plan.nom}` },
+            },
+            quantity: 1,
+          };
+
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
         success_url: `${data.origine}/abonnement?checkout=succes`,
@@ -117,17 +138,7 @@ export const creerCheckoutAbonnementFn = createServerFn({ method: "POST" })
           : email
             ? { customer_email: email }
             : {}),
-        line_items: [
-          {
-            price_data: {
-              currency: "eur",
-              unit_amount: plan.prixCentimes,
-              recurring: { interval: "month" },
-              product_data: { name: `HairTrack ${plan.nom}` },
-            },
-            quantity: 1,
-          },
-        ],
+        line_items: [ligne],
         client_reference_id: membre.salon_id,
         metadata: { salon_id: membre.salon_id, plan: plan.id, type: "abonnement_hairtrack" },
         subscription_data: {
