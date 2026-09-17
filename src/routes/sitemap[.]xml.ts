@@ -13,6 +13,8 @@ export const Route = createFileRoute("/sitemap.xml")({
         const chemins = [
           "/sitemap-pages.xml",
           "/sitemap-metiers.xml",
+          "/sitemap-blog.xml",
+
           ...Array.from({ length: nbVilles }, (_, i) => `/sitemap-villes/${i + 1}`),
           ...Array.from({ length: nbSalons }, (_, i) => `/sitemap-salons/${i + 1}`),
         ];
