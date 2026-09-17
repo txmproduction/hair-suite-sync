@@ -7,6 +7,7 @@ import logo from "@/assets/logo-light.png";
 import { LogOut } from "lucide-react";
 import { estSuperAdminFn } from "@/lib/superadmin.functions";
 import { etatEssaiFn } from "@/lib/essai.functions";
+import { etatAbonnementFn } from "@/lib/abonnement.functions";
 import { EssaiTermine } from "@/components/EssaiTermine";
 
 export function useContexte() {
@@ -58,6 +59,12 @@ export function AppShell({
   }
 
   const { data: essai } = useEtatEssai();
+  const { data: abonnement } = useQuery({
+    queryKey: ["abonnement"],
+    queryFn: () => etatAbonnementFn(),
+    enabled: !!data?.employe,
+    staleTime: 60_000,
+  });
 
   async function deconnexion() {
     await queryClient.cancelQueries();
