@@ -21,6 +21,8 @@ import {
   resynchroniserPhotosSalonFn,
 } from "@/lib/superadmin.functions";
 import { CATEGORIES } from "@/lib/categories";
+import { BlocBlog } from "@/components/superadmin/BlocBlog";
+
 
 export const Route = createFileRoute("/_authenticated/super-admin")({
   component: SuperAdminPage,
@@ -622,6 +624,9 @@ function SuperAdminPage() {
           </div>
         </section>
       )}
+
+      <BlocBlog autorise={autorise} />
     </AppShell>
+
   );
 }

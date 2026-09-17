@@ -17,6 +17,7 @@ import { Route as DistribuerRouteImport } from './routes/distribuer'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as MetiersRouteImport } from './routes/metiers'
 import { Route as RechercheRouteImport } from './routes/recherche'
+import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]xml'
 import { Route as SitemapMetiersDotxmlRouteImport } from './routes/sitemap-metiers[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -31,6 +32,8 @@ import { Route as AuthenticatedCaisseRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedStatistiquesRouteImport } from './routes/_authenticated/statistiques'
 import { Route as AuthenticatedSuperAdminRouteImport } from './routes/_authenticated/super-admin'
 import { Route as AvisTokenRouteImport } from './routes/avis.$token'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ReservationTokenRouteImport } from './routes/reservation.$token'
 import { Route as ReserverSlugRouteImport } from './routes/reserver.$slug'
 import { Route as SalonSlugRouteImport } from './routes/salon.$slug'
@@ -39,6 +42,7 @@ import { Route as SitemapVillesNRouteImport } from './routes/sitemap-villes.$n'
 import { Route as CategorieVillePageRouteImport } from './routes/$categorie.$ville.$page'
 import { Route as AuthenticatedClientsIndexRouteImport } from './routes/_authenticated/clients.index'
 import { Route as AuthenticatedClientsClientIdRouteImport } from './routes/_authenticated/clients.$clientId'
+import { Route as BlogPagePageRouteImport } from './routes/blog.page.$page'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 import { Route as ApiPublicPhotosSalonsSplatRouteImport } from './routes/api/public/photos-salons/$'
 
@@ -79,6 +83,11 @@ const MetiersRoute = MetiersRouteImport.update({
 const RechercheRoute = RechercheRouteImport.update({
   id: '/recherche',
   path: '/recherche',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapBlogDotxmlRoute = SitemapBlogDotxmlRouteImport.update({
+  id: '/sitemap-blog.xml',
+  path: '/sitemap-blog.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapMetiersDotxmlRoute = SitemapMetiersDotxmlRouteImport.update({
@@ -152,6 +161,16 @@ const AvisTokenRoute = AvisTokenRouteImport.update({
   path: '/avis/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReservationTokenRoute = ReservationTokenRouteImport.update({
   id: '/reservation/$token',
   path: '/reservation/$token',
@@ -194,6 +213,11 @@ const AuthenticatedClientsClientIdRoute =
     path: '/clients/$clientId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const BlogPagePageRoute = BlogPagePageRouteImport.update({
+  id: '/blog/page/$page',
+  path: '/blog/page/$page',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -215,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/mentions-legales': typeof MentionsLegalesRoute
   '/metiers': typeof MetiersRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -228,14 +253,17 @@ export interface FileRoutesByFullPath {
   '/statistiques': typeof AuthenticatedStatistiquesRoute
   '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/avis/$token': typeof AvisTokenRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/salon/$slug': typeof SalonSlugRoute
   '/sitemap-salons/$n': typeof SitemapSalonsNRoute
   '/sitemap-villes/$n': typeof SitemapVillesNRoute
   '/$categorie/': typeof CategorieIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/$categorie/$ville/$page': typeof CategorieVillePageRoute
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
+  '/blog/page/$page': typeof BlogPagePageRoute
   '/clients/': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/photos-salons/$': typeof ApiPublicPhotosSalonsSplatRoute
@@ -248,6 +276,7 @@ export interface FileRoutesByTo {
   '/mentions-legales': typeof MentionsLegalesRoute
   '/metiers': typeof MetiersRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -261,14 +290,17 @@ export interface FileRoutesByTo {
   '/statistiques': typeof AuthenticatedStatistiquesRoute
   '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/avis/$token': typeof AvisTokenRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/salon/$slug': typeof SalonSlugRoute
   '/sitemap-salons/$n': typeof SitemapSalonsNRoute
   '/sitemap-villes/$n': typeof SitemapVillesNRoute
   '/$categorie': typeof CategorieIndexRoute
+  '/blog': typeof BlogIndexRoute
   '/$categorie/$ville/$page': typeof CategorieVillePageRoute
   '/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
+  '/blog/page/$page': typeof BlogPagePageRoute
   '/clients': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/photos-salons/$': typeof ApiPublicPhotosSalonsSplatRoute
@@ -283,6 +315,7 @@ export interface FileRoutesById {
   '/mentions-legales': typeof MentionsLegalesRoute
   '/metiers': typeof MetiersRoute
   '/recherche': typeof RechercheRoute
+  '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
   '/sitemap-metiers.xml': typeof SitemapMetiersDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -296,14 +329,17 @@ export interface FileRoutesById {
   '/_authenticated/statistiques': typeof AuthenticatedStatistiquesRoute
   '/_authenticated/super-admin': typeof AuthenticatedSuperAdminRoute
   '/avis/$token': typeof AvisTokenRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/reservation/$token': typeof ReservationTokenRoute
   '/reserver/$slug': typeof ReserverSlugRoute
   '/salon/$slug': typeof SalonSlugRoute
   '/sitemap-salons/$n': typeof SitemapSalonsNRoute
   '/sitemap-villes/$n': typeof SitemapVillesNRoute
   '/$categorie/': typeof CategorieIndexRoute
+  '/blog/': typeof BlogIndexRoute
   '/$categorie/$ville/$page': typeof CategorieVillePageRoute
   '/_authenticated/clients/$clientId': typeof AuthenticatedClientsClientIdRoute
+  '/blog/page/$page': typeof BlogPagePageRoute
   '/_authenticated/clients/': typeof AuthenticatedClientsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/api/public/photos-salons/$': typeof ApiPublicPhotosSalonsSplatRoute
@@ -318,6 +354,7 @@ export interface FileRouteTypes {
     | '/mentions-legales'
     | '/metiers'
     | '/recherche'
+    | '/sitemap-blog.xml'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
@@ -331,14 +368,17 @@ export interface FileRouteTypes {
     | '/statistiques'
     | '/super-admin'
     | '/avis/$token'
+    | '/blog/$slug'
     | '/reservation/$token'
     | '/reserver/$slug'
     | '/salon/$slug'
     | '/sitemap-salons/$n'
     | '/sitemap-villes/$n'
     | '/$categorie/'
+    | '/blog/'
     | '/$categorie/$ville/$page'
     | '/clients/$clientId'
+    | '/blog/page/$page'
     | '/clients/'
     | '/api/public/payments/webhook'
     | '/api/public/photos-salons/$'
@@ -351,6 +391,7 @@ export interface FileRouteTypes {
     | '/mentions-legales'
     | '/metiers'
     | '/recherche'
+    | '/sitemap-blog.xml'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
@@ -364,14 +405,17 @@ export interface FileRouteTypes {
     | '/statistiques'
     | '/super-admin'
     | '/avis/$token'
+    | '/blog/$slug'
     | '/reservation/$token'
     | '/reserver/$slug'
     | '/salon/$slug'
     | '/sitemap-salons/$n'
     | '/sitemap-villes/$n'
     | '/$categorie'
+    | '/blog'
     | '/$categorie/$ville/$page'
     | '/clients/$clientId'
+    | '/blog/page/$page'
     | '/clients'
     | '/api/public/payments/webhook'
     | '/api/public/photos-salons/$'
@@ -385,6 +429,7 @@ export interface FileRouteTypes {
     | '/mentions-legales'
     | '/metiers'
     | '/recherche'
+    | '/sitemap-blog.xml'
     | '/sitemap-metiers.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
@@ -398,14 +443,17 @@ export interface FileRouteTypes {
     | '/_authenticated/statistiques'
     | '/_authenticated/super-admin'
     | '/avis/$token'
+    | '/blog/$slug'
     | '/reservation/$token'
     | '/reserver/$slug'
     | '/salon/$slug'
     | '/sitemap-salons/$n'
     | '/sitemap-villes/$n'
     | '/$categorie/'
+    | '/blog/'
     | '/$categorie/$ville/$page'
     | '/_authenticated/clients/$clientId'
+    | '/blog/page/$page'
     | '/_authenticated/clients/'
     | '/api/public/payments/webhook'
     | '/api/public/photos-salons/$'
@@ -420,18 +468,22 @@ export interface RootRouteChildren {
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   MetiersRoute: typeof MetiersRoute
   RechercheRoute: typeof RechercheRoute
+  SitemapBlogDotxmlRoute: typeof SitemapBlogDotxmlRoute
   SitemapMetiersDotxmlRoute: typeof SitemapMetiersDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VillesRoute: typeof VillesRoute
   CategorieVilleRoute: typeof CategorieVilleRouteWithChildren
   AvisTokenRoute: typeof AvisTokenRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   ReservationTokenRoute: typeof ReservationTokenRoute
   ReserverSlugRoute: typeof ReserverSlugRoute
   SalonSlugRoute: typeof SalonSlugRoute
   SitemapSalonsNRoute: typeof SitemapSalonsNRoute
   SitemapVillesNRoute: typeof SitemapVillesNRoute
   CategorieIndexRoute: typeof CategorieIndexRoute
+  BlogIndexRoute: typeof BlogIndexRoute
+  BlogPagePageRoute: typeof BlogPagePageRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   ApiPublicPhotosSalonsSplatRoute: typeof ApiPublicPhotosSalonsSplatRoute
 }
@@ -492,6 +544,13 @@ declare module '@tanstack/react-router' {
       path: '/recherche'
       fullPath: '/recherche'
       preLoaderRoute: typeof RechercheRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-blog.xml': {
+      id: '/sitemap-blog.xml'
+      path: '/sitemap-blog.xml'
+      fullPath: '/sitemap-blog.xml'
+      preLoaderRoute: typeof SitemapBlogDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap-metiers.xml': {
@@ -592,6 +651,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AvisTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reservation/$token': {
       id: '/reservation/$token'
       path: '/reservation/$token'
@@ -647,6 +720,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/clients/$clientId'
       preLoaderRoute: typeof AuthenticatedClientsClientIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/blog/page/$page': {
+      id: '/blog/page/$page'
+      path: '/blog/page/$page'
+      fullPath: '/blog/page/$page'
+      preLoaderRoute: typeof BlogPagePageRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
@@ -713,18 +793,22 @@ const rootRouteChildren: RootRouteChildren = {
   MentionsLegalesRoute: MentionsLegalesRoute,
   MetiersRoute: MetiersRoute,
   RechercheRoute: RechercheRoute,
+  SitemapBlogDotxmlRoute: SitemapBlogDotxmlRoute,
   SitemapMetiersDotxmlRoute: SitemapMetiersDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   VillesRoute: VillesRoute,
   CategorieVilleRoute: CategorieVilleRouteWithChildren,
   AvisTokenRoute: AvisTokenRoute,
+  BlogSlugRoute: BlogSlugRoute,
   ReservationTokenRoute: ReservationTokenRoute,
   ReserverSlugRoute: ReserverSlugRoute,
   SalonSlugRoute: SalonSlugRoute,
   SitemapSalonsNRoute: SitemapSalonsNRoute,
   SitemapVillesNRoute: SitemapVillesNRoute,
   CategorieIndexRoute: CategorieIndexRoute,
+  BlogIndexRoute: BlogIndexRoute,
+  BlogPagePageRoute: BlogPagePageRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   ApiPublicPhotosSalonsSplatRoute: ApiPublicPhotosSalonsSplatRoute,
 }

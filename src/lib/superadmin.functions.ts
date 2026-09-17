@@ -185,3 +185,65 @@ export const resynchroniserPhotosSalonFn = createServerFn({ method: "POST" })
     const { synchroniserPhotosSalon } = await import("./photos-google.server");
     return synchroniserPhotosSalon(data.salonId);
   });
+
+/* ---------------- Blog ---------------- */
+
+export const articlesAdminFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await verifier(context.userId);
+    const { listerArticlesAdmin } = await import("./blog-admin.server");
+    return listerArticlesAdmin();
+  });
+
+export const enregistrerArticleFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (data: {
+      id?: string | null;
+      slug: string;
+      titre: string;
+      extrait?: string;
+      contenu?: string;
+      categorie_metier?: string | null;
+      image_couverture_url?: string | null;
+      statut: string;
+      date_publication?: string | null;
+    }) => {
+      const titre = String(data.titre ?? "").trim();
+      if (titre.length < 4) throw new Error("Titre trop court.");
+      const statut = String(data.statut);
+      if (statut !== "brouillon" && statut !== "publie") throw new Error("Statut inconnu.");
+      const categorie = String(data.categorie_metier ?? "").trim();
+      if (categorie && !CATS.has(categorie)) throw new Error("Catégorie métier inconnue.");
+      const image = String(data.image_couverture_url ?? "").trim();
+      if (image && !/^https?:\/\//.test(image)) throw new Error("URL d'image invalide.");
+      const date = String(data.date_publication ?? "").trim();
+      return {
+        id: data.id ? String(data.id) : null,
+        slug: String(data.slug ?? titre).trim().slice(0, 200),
+        titre: titre.slice(0, 240),
+        extrait: String(data.extrait ?? "").trim().slice(0, 1200),
+        contenu: String(data.contenu ?? ""),
+        categorie_metier: (categorie || null) as CategorieSalon | null,
+        image_couverture_url: image.slice(0, 500) || null,
+        statut: statut as "brouillon" | "publie",
+        date_publication: date || null,
+      };
+    },
+  )
+  .handler(async ({ data, context }) => {
+    await verifier(context.userId);
+    const { enregistrerArticle } = await import("./blog-admin.server");
+    return enregistrerArticle(data);
+  });
+
+export const supprimerArticleFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { id: string }) => ({ id: String(data.id) }))
+  .handler(async ({ data, context }) => {
+    await verifier(context.userId);
+    const { supprimerArticle } = await import("./blog-admin.server");
+    return supprimerArticle(data.id);
+  });
+

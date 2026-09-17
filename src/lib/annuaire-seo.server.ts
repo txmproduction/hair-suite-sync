@@ -329,6 +329,15 @@ export async function chargerPageMetier(slugCategorie: string): Promise<PageMeti
     if (p.prix > 0 && (actuel === undefined || p.prix < actuel)) prixMin.set(p.salon_id, p.prix);
   }
 
+  // Maillage interne : les 3 derniers articles du blog liés à ce métier.
+  const { articlesDuMetier } = await import("@/lib/blog.server");
+  const articles = (await articlesDuMetier(info.value, 3)).map((a) => ({
+    slug: a.slug,
+    titre: a.titre,
+    extrait: a.extrait,
+    date_publication: a.date_publication,
+  }));
+
   return {
     categorie: info.value,
     slugCategorie: info.slug,
@@ -351,7 +360,9 @@ export async function chargerPageMetier(slugCategorie: string): Promise<PageMeti
       .map((s) => versCarte(s, prixMin))
       .sort(trierSalons)
       .slice(0, 12),
+    articles,
   };
+
 }
 
 export async function chargerPageDepartement(
