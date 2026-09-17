@@ -3,8 +3,10 @@ export type PlanId = "essentiel" | "premium";
 export type Plan = {
   id: PlanId;
   nom: string;
-  /** Prix mensuel en centimes d'euro (tarifs provisoires, ajustables). */
+  /** Prix mensuel en centimes d'euro (doit refléter le tarif Stripe). */
   prixCentimes: number;
+  /** Clé du tarif mensuel dans le catalogue Stripe. */
+  lookupKey: string;
   accroche: string;
   fonctionnalites: string[];
 };
@@ -14,6 +16,7 @@ export const PLANS: Plan[] = [
     id: "essentiel",
     nom: "Essentiel",
     prixCentimes: 2900,
+    lookupKey: "hairtrack_essentiel_mensuel",
     accroche: "Tout le nécessaire pour gérer votre salon au quotidien.",
     fonctionnalites: [
       "Agenda jour et semaine, illimité",
@@ -27,6 +30,7 @@ export const PLANS: Plan[] = [
     id: "premium",
     nom: "Premium",
     prixCentimes: 5900,
+    lookupKey: "hairtrack_premium_mensuel",
     accroche: "Pour développer votre activité et automatiser la réservation.",
     fonctionnalites: [
       "Tout l'Essentiel, sans limite de collaborateurs",
