@@ -103,6 +103,12 @@ export function PiedPublic() {
               </Link>
             </li>
             <li>
+              <Link to="/blog" className="hover:text-foreground">
+                Blog
+              </Link>
+            </li>
+
+            <li>
               <Link to="/distribuer" className="hover:text-foreground">
                 Distribuer HairTrack
               </Link>
