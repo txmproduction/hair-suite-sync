@@ -24,6 +24,7 @@ const LIENS = [
   { to: "/clients", label: "Clients", gerant: false },
   { to: "/statistiques", label: "Statistiques", gerant: false },
   { to: "/admin", label: "Admin", gerant: true },
+  { to: "/abonnement", label: "Abonnement", gerant: true },
 ] as const;
 
 export function AppShell({
