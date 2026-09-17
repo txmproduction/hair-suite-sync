@@ -7,6 +7,7 @@ import logo from "@/assets/logo-light.png";
 import { LogOut } from "lucide-react";
 import { estSuperAdminFn } from "@/lib/superadmin.functions";
 import { etatEssaiFn } from "@/lib/essai.functions";
+import { etatAbonnementFn } from "@/lib/abonnement.functions";
 import { EssaiTermine } from "@/components/EssaiTermine";
 
 export function useContexte() {
@@ -24,6 +25,7 @@ const LIENS = [
   { to: "/clients", label: "Clients", gerant: false },
   { to: "/statistiques", label: "Statistiques", gerant: false },
   { to: "/admin", label: "Admin", gerant: true },
+  { to: "/abonnement", label: "Abonnement", gerant: true },
 ] as const;
 
 export function AppShell({
@@ -57,6 +59,12 @@ export function AppShell({
   }
 
   const { data: essai } = useEtatEssai();
+  const { data: abonnement } = useQuery({
+    queryKey: ["abonnement"],
+    queryFn: () => etatAbonnementFn(),
+    enabled: !!data?.employe,
+    staleTime: 60_000,
+  });
 
   async function deconnexion() {
     await queryClient.cancelQueries();
@@ -66,12 +74,25 @@ export function AppShell({
   }
 
   // Essai terminé ou compte suspendu : accès restreint (aucune donnée supprimée).
-  if ((essai?.expire || essai?.suspendu) && !acces?.superAdmin) {
+  // La page d'abonnement reste accessible pour permettre de souscrire.
+  if (
+    (essai?.expire || essai?.suspendu) &&
+    !acces?.superAdmin &&
+    pathname !== "/abonnement"
+  ) {
     return <EssaiTermine onDeconnexion={deconnexion} suspendu={essai?.suspendu} />;
   }
 
   return (
     <div className="min-h-screen bg-background">
+      {abonnement?.statut === "past_due" && (
+        <div className="bg-destructive/10 px-4 py-2 text-center text-sm font-medium text-destructive">
+          Le dernier prélèvement de votre abonnement a échoué.{" "}
+          <Link to="/abonnement" className="underline">
+            Mettre à jour ma carte
+          </Link>
+        </div>
+      )}
       {essai?.actif && !essai.expire && (
         <div className="bg-gold-soft px-4 py-2 text-center text-sm font-medium text-gold-foreground">
           Essai gratuit — J-{essai.joursRestants} jour{essai.joursRestants > 1 ? "s" : ""} restant

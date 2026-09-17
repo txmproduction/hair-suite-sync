@@ -23,6 +23,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as VillesRouteImport } from './routes/villes'
 import { Route as CategorieIndexRouteImport } from './routes/$categorie.index'
 import { Route as CategorieVilleRouteImport } from './routes/$categorie.$ville'
+import { Route as AuthenticatedAbonnementRouteImport } from './routes/_authenticated/abonnement'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedBienvenueRouteImport } from './routes/_authenticated/bienvenue'
@@ -109,6 +110,11 @@ const CategorieVilleRoute = CategorieVilleRouteImport.update({
   id: '/$categorie/$ville',
   path: '/$categorie/$ville',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAbonnementRoute = AuthenticatedAbonnementRouteImport.update({
+  id: '/abonnement',
+  path: '/abonnement',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
   '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
+  '/abonnement': typeof AuthenticatedAbonnementRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/bienvenue': typeof AuthenticatedBienvenueRoute
@@ -246,6 +253,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
   '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
+  '/abonnement': typeof AuthenticatedAbonnementRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/bienvenue': typeof AuthenticatedBienvenueRoute
@@ -280,6 +288,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/villes': typeof VillesRoute
   '/$categorie/$ville': typeof CategorieVilleRouteWithChildren
+  '/_authenticated/abonnement': typeof AuthenticatedAbonnementRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/bienvenue': typeof AuthenticatedBienvenueRoute
@@ -314,6 +323,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/villes'
     | '/$categorie/$ville'
+    | '/abonnement'
     | '/admin'
     | '/agenda'
     | '/bienvenue'
@@ -346,6 +356,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/villes'
     | '/$categorie/$ville'
+    | '/abonnement'
     | '/admin'
     | '/agenda'
     | '/bienvenue'
@@ -379,6 +390,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/villes'
     | '/$categorie/$ville'
+    | '/_authenticated/abonnement'
     | '/_authenticated/admin'
     | '/_authenticated/agenda'
     | '/_authenticated/bienvenue'
@@ -524,6 +536,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategorieVilleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/abonnement': {
+      id: '/_authenticated/abonnement'
+      path: '/abonnement'
+      fullPath: '/abonnement'
+      preLoaderRoute: typeof AuthenticatedAbonnementRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -647,6 +666,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAbonnementRoute: typeof AuthenticatedAbonnementRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedBienvenueRoute: typeof AuthenticatedBienvenueRoute
@@ -658,6 +678,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAbonnementRoute: AuthenticatedAbonnementRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedBienvenueRoute: AuthenticatedBienvenueRoute,

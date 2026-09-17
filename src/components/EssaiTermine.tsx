@@ -25,18 +25,24 @@ export function EssaiTermine({
           <p className="mt-3 text-sm text-muted-foreground">
             {suspendu
               ? "Vos données sont conservées, rien n'est supprimé. Contactez-nous pour plus d'informations."
-              : "Vos données sont conservées, rien n'est supprimé. HairTrack vous a plu ? Contactez-nous pour un accès complet sans restriction."}
+              : "Vos données sont conservées, rien n'est supprimé. HairTrack vous a plu ? Choisissez votre formule pour retrouver un accès complet, sans engagement."}
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
-            <Button asChild>
-              <a
-                href={`mailto:${CONTACT}?subject=${encodeURIComponent(
-                  suspendu ? "Accès suspendu HairTrack" : "Accès complet HairTrack",
-                )}`}
-              >
-                Nous contacter
-              </a>
-            </Button>
+            {suspendu ? (
+              <Button asChild>
+                <a
+                  href={`mailto:${CONTACT}?subject=${encodeURIComponent(
+                    "Accès suspendu HairTrack",
+                  )}`}
+                >
+                  Nous contacter
+                </a>
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link to="/abonnement">Voir les formules</Link>
+              </Button>
+            )}
             <Button variant="outline" asChild>
               <Link to="/">Retour à l'accueil</Link>
             </Button>
