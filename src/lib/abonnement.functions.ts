@@ -164,8 +164,8 @@ export const creerPortailAbonnementFn = createServerFn({ method: "POST" })
 
     if (!abo?.stripe_customer_id) return { error: "Aucun abonnement à gérer pour le moment." };
 
+    const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
     try {
-      const { createStripeClient, getStripeErrorMessage } = await import("@/lib/stripe.server");
       const stripe = createStripeClient(data.environment);
       const portail = await stripe.billingPortal.sessions.create({
         customer: abo.stripe_customer_id,
@@ -173,7 +173,6 @@ export const creerPortailAbonnementFn = createServerFn({ method: "POST" })
       });
       return { url: portail.url };
     } catch (error) {
-      const { getStripeErrorMessage } = await import("@/lib/stripe.server");
       return { error: getStripeErrorMessage(error) };
     }
   });
