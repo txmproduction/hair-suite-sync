@@ -33,6 +33,13 @@ export type PageLocale = {
   lastmod: string | null;
 };
 
+export type ArticleLie = {
+  slug: string;
+  titre: string;
+  extrait: string;
+  date_publication: string;
+};
+
 export type PageMetier = {
   categorie: string;
   slugCategorie: string;
@@ -42,7 +49,9 @@ export type PageMetier = {
   villes: { nom: string; slug: string; nb: number; departement: RefDepartement | null }[];
   departements: { departement: RefDepartement; nb: number }[];
   salons: SalonCarte[];
+  articles: ArticleLie[];
 };
+
 
 export type PageDepartement = {
   categorie: string;
