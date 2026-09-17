@@ -104,6 +104,8 @@ export const creerCheckoutAbonnementFn = createServerFn({ method: "POST" })
       .limit(1)
       .maybeSingle();
 
+    const email = (context.claims as { email?: string }).email;
+
     try {
       const stripe = createStripeClient(data.environment);
       const session = await stripe.checkout.sessions.create({
@@ -112,7 +114,9 @@ export const creerCheckoutAbonnementFn = createServerFn({ method: "POST" })
         cancel_url: `${data.origine}/abonnement?checkout=annule`,
         ...(abo?.stripe_customer_id
           ? { customer: abo.stripe_customer_id }
-          : { customer_email: (context.claims as { email?: string }).email }),
+          : email
+            ? { customer_email: email }
+            : {}),
         line_items: [
           {
             price_data: {
