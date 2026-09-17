@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      articles_blog: {
+        Row: {
+          categorie_metier:
+            | Database["public"]["Enums"]["categorie_salon"]
+            | null
+          contenu: string
+          created_at: string
+          date_publication: string
+          extrait: string
+          id: string
+          image_couverture_url: string | null
+          slug: string
+          statut: string
+          titre: string
+          updated_at: string
+        }
+        Insert: {
+          categorie_metier?:
+            | Database["public"]["Enums"]["categorie_salon"]
+            | null
+          contenu?: string
+          created_at?: string
+          date_publication?: string
+          extrait?: string
+          id?: string
+          image_couverture_url?: string | null
+          slug: string
+          statut?: string
+          titre: string
+          updated_at?: string
+        }
+        Update: {
+          categorie_metier?:
+            | Database["public"]["Enums"]["categorie_salon"]
+            | null
+          contenu?: string
+          created_at?: string
+          date_publication?: string
+          extrait?: string
+          id?: string
+          image_couverture_url?: string | null
+          slug?: string
+          statut?: string
+          titre?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       avis: {
         Row: {
           client_nom: string | null
