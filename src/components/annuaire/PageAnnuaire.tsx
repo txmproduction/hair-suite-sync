@@ -190,9 +190,30 @@ export function VuePageMetier({ page }: { page: PageMetier }) {
           note: `${d.nb}`,
         }))}
       />
+
+      {page.articles.length > 0 && (
+        <section className="mt-12">
+          <h2 className="text-lg font-semibold">
+            Conseils du blog pour les {page.plurielNom}
+          </h2>
+          <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {page.articles.map((a) => (
+              <li key={a.slug} className="card-soft p-4">
+                <h3 className="text-sm font-semibold leading-snug">
+                  <LienSeo href={`/blog/${a.slug}`} className="hover:text-gold">
+                    {a.titre}
+                  </LienSeo>
+                </h3>
+                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{a.extrait}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </main>
   );
 }
+
 
 export function VuePageDepartement({ page }: { page: PageDepartement }) {
   return (
