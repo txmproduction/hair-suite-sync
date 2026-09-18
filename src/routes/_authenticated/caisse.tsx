@@ -53,9 +53,14 @@ function Caisse() {
       }
     >
       <div className="card-soft mb-4 flex items-baseline justify-between p-5">
-        <span className="text-sm text-muted-foreground">Total encaissé aujourd'hui</span>
+        <span className="text-sm text-muted-foreground">
+          {gerant || ctx?.employe?.voit_ca_global
+            ? "Total encaissé aujourd'hui"
+            : "Mes encaissements aujourd'hui"}
+        </span>
         <span className="text-2xl font-semibold">{euro(total)}</span>
       </div>
+
 
       <div className="card-soft divide-y divide-border">
         <h2 className="px-5 py-3 text-sm font-semibold text-muted-foreground">
