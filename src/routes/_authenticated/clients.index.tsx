@@ -17,6 +17,21 @@ export const Route = createFileRoute("/_authenticated/clients/")({
 
 function Clients() {
   const { data: ctx } = useContexte();
+  const autorise = ctx?.employe?.role === "gerant" || ctx?.employe?.voit_clients === true;
+  if (ctx && !autorise) {
+    return (
+      <AppShell titre="Clients">
+        <div className="card-soft p-6 text-sm text-muted-foreground">
+          Le gérant ne vous a pas donné accès à la liste des clients.
+        </div>
+      </AppShell>
+    );
+  }
+  return <ListeClients />;
+}
+
+function ListeClients() {
+  const { data: ctx } = useContexte();
   const salonId = ctx?.employe?.salon_id;
   const queryClient = useQueryClient();
   const { data: clients = [] } = useClients(salonId);

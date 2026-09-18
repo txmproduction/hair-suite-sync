@@ -1,7 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { DELAI_INACTIVITE_MS, estAppareilPartage } from "@/lib/appareil-partage";
 
 /**
@@ -9,19 +7,19 @@ import { DELAI_INACTIVITE_MS, estAppareilPartage } from "@/lib/appareil-partage"
  * après un moment sans activité et revient à l'écran neutre.
  */
 export function VerrouInactivite() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!estAppareilPartage()) return;
     let minuteur: ReturnType<typeof setTimeout>;
 
-    async function verrouiller() {
-      await queryClient.cancelQueries();
+    function verrouiller() {
+      queryClient.cancelQueries();
       queryClient.clear();
-      await supabase.auth.signOut();
-      navigate({ to: "/caisse-partagee", replace: true });
+      // Rechargement complet vers l'écran neutre, qui referme la session.
+      window.location.replace("/caisse-partagee");
     }
+
 
     function relancer() {
       clearTimeout(minuteur);
@@ -36,7 +34,7 @@ export function VerrouInactivite() {
       clearTimeout(minuteur);
       evenements.forEach((e) => window.removeEventListener(e, relancer));
     };
-  }, [navigate, queryClient]);
+  }, [queryClient]);
 
   return null;
 }
