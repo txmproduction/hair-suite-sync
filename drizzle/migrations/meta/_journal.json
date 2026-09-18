@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789702017529,
+      "tag": "0000_droits_employes_et_pin_appareils",
+      "breakpoints": true
+    }
+  ]
+}
