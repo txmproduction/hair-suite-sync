@@ -83,8 +83,11 @@ export async function chargerContexte(): Promise<Contexte> {
 
   const { data: employe } = await supabase
     .from("employes")
-    .select("*")
+    .select(
+      "id, salon_id, user_id, nom, email, telephone, photo_url, role, actif, voit_ca_global, voit_clients, couleur, ordre, created_at, pin_maj_le, pin_bloque_jusqu_a",
+    )
     .eq("user_id", user.id)
+
     .eq("actif", true)
     .maybeSingle();
 
