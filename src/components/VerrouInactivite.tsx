@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DELAI_INACTIVITE_MS, estAppareilPartage } from "@/lib/appareil-partage";
@@ -9,7 +8,6 @@ import { DELAI_INACTIVITE_MS, estAppareilPartage } from "@/lib/appareil-partage"
  * après un moment sans activité et revient à l'écran neutre.
  */
 export function VerrouInactivite() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -38,7 +36,7 @@ export function VerrouInactivite() {
       clearTimeout(minuteur);
       evenements.forEach((e) => window.removeEventListener(e, relancer));
     };
-  }, [navigate, queryClient]);
+  }, [queryClient]);
 
   return null;
 }

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { estAppareilPartage } from "@/lib/appareil-partage";
 
 import { useMemo, useState } from "react";
@@ -121,7 +121,6 @@ function DialogRapide({
   onClose: () => void;
 }) {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const { data: employes = [] } = useEmployes(salonId);
   const { data: prestations = [] } = usePrestations(salonId);
   // Un employé encaisse forcément sous son propre nom (règle appliquée aussi en base).
