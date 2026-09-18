@@ -34,8 +34,9 @@ export const Route = createFileRoute("/caisse-partagee")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: CaissePartagee;
+  component: CaissePartagee,
 });
+
 
 type Membre = { id: string; nom: string; photo_url: string | null; role: string };
 
