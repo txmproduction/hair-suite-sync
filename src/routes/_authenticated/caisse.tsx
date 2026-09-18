@@ -99,6 +99,7 @@ function Caisse() {
         <DialogRapide
           salonId={salonId}
           employeParDefaut={ctx?.employe?.id ?? ""}
+          gerant={gerant}
           onClose={() => setOuvert(false)}
         />
       )}
@@ -109,16 +110,20 @@ function Caisse() {
 function DialogRapide({
   salonId,
   employeParDefaut,
+  gerant,
   onClose,
 }: {
   salonId: string;
   employeParDefaut: string;
+  gerant: boolean;
   onClose: () => void;
 }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data: employes = [] } = useEmployes(salonId);
   const { data: prestations = [] } = usePrestations(salonId);
-  const [etape, setEtape] = useState(1);
+  // Un employé encaisse forcément sous son propre nom (règle appliquée aussi en base).
+  const [etape, setEtape] = useState(gerant ? 1 : 2);
   const [employeId, setEmployeId] = useState(employeParDefaut);
   const [choisies, setChoisies] = useState<string[]>([]);
 
@@ -130,7 +135,7 @@ function DialogRapide({
   async function valider(moyen: MoyenPaiement) {
     const { error } = await supabase.from("encaissements").insert({
       salon_id: salonId,
-      employe_id: employeId || null,
+      employe_id: (gerant ? employeId : employeParDefaut) || null,
       montant: total,
       moyen,
       lignes: lignes.map((p) => ({ nom: p.nom, prix: Number(p.prix) })),
@@ -142,7 +147,16 @@ function DialogRapide({
     toast.success(`Encaissé ${euro(total)}`);
     queryClient.invalidateQueries({ queryKey: ["encaissements"] });
     onClose();
+
+    // Tablette partagée : on referme la session dès l'encaissement terminé.
+    if (estAppareilPartage()) {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      await supabase.auth.signOut();
+      navigate({ to: "/caisse-partagee", replace: true });
+    }
   }
+
 
   return (
     <Dialog open onOpenChange={onClose}>
