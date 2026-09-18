@@ -210,9 +210,10 @@ function DialogRapide({
             <div className="flex items-center justify-between border-t border-border pt-3">
               <span className="text-lg font-semibold">{euro(total)}</span>
               <div className="flex gap-2">
-                <Button variant="ghost" onClick={() => setEtape(1)}>
+                <Button variant="ghost" onClick={() => (gerant ? setEtape(1) : onClose())}>
                   Retour
                 </Button>
+
                 <Button disabled={!choisies.length} onClick={() => setEtape(3)}>
                   Continuer
                 </Button>
