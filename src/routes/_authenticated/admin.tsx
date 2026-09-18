@@ -28,6 +28,15 @@ import {
   normaliserIban,
 } from "@/lib/iban";
 import { ArrowDown, ArrowUp, Copy, Pencil, Plus, Trash2 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  definirPinFn,
+  enrolerAppareilFn,
+  listerAppareilsFn,
+  revoquerAppareilFn,
+  supprimerPinFn,
+} from "@/lib/pin.functions";
+
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: Admin,
@@ -392,7 +401,163 @@ function OngletEmployes() {
   );
 }
 
+function BlocPin({ employe }: { employe: { id: string; pin_hash: string | null } }) {
+  const queryClient = useQueryClient();
+  const definir = useServerFn(definirPinFn);
+  const supprimer = useServerFn(supprimerPinFn);
+  const [pin, setPin] = useState("");
+  const [enCours, setEnCours] = useState(false);
+
+  async function enregistrer() {
+    setEnCours(true);
+    try {
+      await definir({ data: { employeId: employe.id, pin } });
+      setPin("");
+      toast.success("Code PIN enregistré");
+      queryClient.invalidateQueries({ queryKey: ["employes"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    } finally {
+      setEnCours(false);
+    }
+  }
+
+  async function retirer() {
+    try {
+      await supprimer({ data: { employeId: employe.id } });
+      toast.success("Code PIN supprimé");
+      queryClient.invalidateQueries({ queryKey: ["employes"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-border p-3">
+      <p className="text-sm font-medium">Code PIN (tablette partagée)</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {employe.pin_hash
+          ? "Un code est déjà défini. Saisissez-en un nouveau pour le remplacer."
+          : "Aucun code défini : cette personne n'apparaît pas sur la tablette partagée."}
+      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <Input
+          value={pin}
+          onChange={(ev) => setPin(ev.target.value.replace(/\D/g, "").slice(0, 6))}
+          inputMode="numeric"
+          placeholder="4 à 6 chiffres"
+          className="w-40"
+        />
+        <Button size="sm" disabled={pin.length < 4 || enCours} onClick={enregistrer}>
+          Enregistrer
+        </Button>
+        {employe.pin_hash && (
+          <Button size="sm" variant="ghost" onClick={retirer}>
+            Supprimer
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function BlocAppareils() {
+  const lister = useServerFn(listerAppareilsFn);
+  const enroler = useServerFn(enrolerAppareilFn);
+  const revoquer = useServerFn(revoquerAppareilFn);
+  const { data: appareils = [], refetch } = useQuery({
+    queryKey: ["appareils-partages"],
+    queryFn: () => lister({}),
+  });
+  const [nom, setNom] = useState("");
+  const [lien, setLien] = useState<string | null>(null);
+
+  async function ajouter() {
+    try {
+      const { token } = await enroler({ data: { nom } });
+      setNom("");
+      setLien(`${window.location.origin}/caisse-partagee?appareil=${token}`);
+      refetch();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    }
+  }
+
+  return (
+    <div className="card-soft mt-6 space-y-4 p-5">
+      <div>
+        <h3 className="font-semibold">Tablettes partagées</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Ouvrez le lien d'installation sur la tablette du comptoir : elle affichera l'écran
+          « Qui êtes-vous ? », et chacun ouvrira sa propre session avec son code PIN.
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Input
+          value={nom}
+          onChange={(e) => setNom(e.target.value)}
+          placeholder="Nom de l'appareil"
+          className="w-56"
+        />
+        <Button size="sm" onClick={ajouter}>
+          <Plus className="mr-2 h-4 w-4" />
+          Ajouter un appareil
+        </Button>
+      </div>
+      {lien && (
+        <div className="rounded-xl bg-secondary p-3 text-sm">
+          <p className="font-medium">Lien d'installation (affiché une seule fois)</p>
+          <p className="mt-1 break-all">{lien}</p>
+          <Button
+            size="sm"
+            variant="outline"
+            className="mt-2"
+            onClick={() => {
+              navigator.clipboard.writeText(lien);
+              toast.success("Lien copié");
+            }}
+          >
+            <Copy className="mr-2 h-4 w-4" />
+            Copier
+          </Button>
+        </div>
+      )}
+      <div className="space-y-2">
+        {appareils.map((a) => (
+          <div
+            key={a.id}
+            className="flex items-center justify-between rounded-xl border border-border px-3 py-2 text-sm"
+          >
+            <span>
+              {a.nom}
+              {a.derniere_utilisation_le && (
+                <span className="ml-2 text-xs text-muted-foreground">
+                  dernière utilisation {new Date(a.derniere_utilisation_le).toLocaleString("fr-FR")}
+                </span>
+              )}
+            </span>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={async () => {
+                await revoquer({ data: { id: a.id } });
+                refetch();
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
+        {!appareils.length && (
+          <p className="text-sm text-muted-foreground">Aucun appareil partagé pour le moment.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function HorairesEmploye({ employeId, salonId }: { employeId: string; salonId: string }) {
+
   const queryClient = useQueryClient();
   const { data: horaires = [] } = useQuery({
     queryKey: ["horaires_employe", employeId],
