@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { estAppareilPartage } from "@/lib/appareil-partage";
+
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,9 +55,14 @@ function Caisse() {
       }
     >
       <div className="card-soft mb-4 flex items-baseline justify-between p-5">
-        <span className="text-sm text-muted-foreground">Total encaissé aujourd'hui</span>
+        <span className="text-sm text-muted-foreground">
+          {gerant || ctx?.employe?.voit_ca_global
+            ? "Total encaissé aujourd'hui"
+            : "Mes encaissements aujourd'hui"}
+        </span>
         <span className="text-2xl font-semibold">{euro(total)}</span>
       </div>
+
 
       <div className="card-soft divide-y divide-border">
         <h2 className="px-5 py-3 text-sm font-semibold text-muted-foreground">
@@ -94,6 +101,7 @@ function Caisse() {
         <DialogRapide
           salonId={salonId}
           employeParDefaut={ctx?.employe?.id ?? ""}
+          gerant={gerant}
           onClose={() => setOuvert(false)}
         />
       )}
@@ -104,16 +112,20 @@ function Caisse() {
 function DialogRapide({
   salonId,
   employeParDefaut,
+  gerant,
   onClose,
 }: {
   salonId: string;
   employeParDefaut: string;
+  gerant: boolean;
   onClose: () => void;
 }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data: employes = [] } = useEmployes(salonId);
   const { data: prestations = [] } = usePrestations(salonId);
-  const [etape, setEtape] = useState(1);
+  // Un employé encaisse forcément sous son propre nom (règle appliquée aussi en base).
+  const [etape, setEtape] = useState(gerant ? 1 : 2);
   const [employeId, setEmployeId] = useState(employeParDefaut);
   const [choisies, setChoisies] = useState<string[]>([]);
 
@@ -125,7 +137,7 @@ function DialogRapide({
   async function valider(moyen: MoyenPaiement) {
     const { error } = await supabase.from("encaissements").insert({
       salon_id: salonId,
-      employe_id: employeId || null,
+      employe_id: (gerant ? employeId : employeParDefaut) || null,
       montant: total,
       moyen,
       lignes: lignes.map((p) => ({ nom: p.nom, prix: Number(p.prix) })),
@@ -137,7 +149,16 @@ function DialogRapide({
     toast.success(`Encaissé ${euro(total)}`);
     queryClient.invalidateQueries({ queryKey: ["encaissements"] });
     onClose();
+
+    // Tablette partagée : on referme la session dès l'encaissement terminé.
+    if (estAppareilPartage()) {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      await supabase.auth.signOut();
+      navigate({ to: "/caisse-partagee", replace: true });
+    }
   }
+
 
   return (
     <Dialog open onOpenChange={onClose}>
@@ -189,9 +210,10 @@ function DialogRapide({
             <div className="flex items-center justify-between border-t border-border pt-3">
               <span className="text-lg font-semibold">{euro(total)}</span>
               <div className="flex gap-2">
-                <Button variant="ghost" onClick={() => setEtape(1)}>
+                <Button variant="ghost" onClick={() => (gerant ? setEtape(1) : onClose())}>
                   Retour
                 </Button>
+
                 <Button disabled={!choisies.length} onClick={() => setEtape(3)}>
                   Continuer
                 </Button>

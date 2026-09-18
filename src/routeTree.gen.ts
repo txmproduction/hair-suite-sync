@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CaissePartageeRouteImport } from './routes/caisse-partagee'
 import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as DistribuerRouteImport } from './routes/distribuer'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
@@ -58,6 +59,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaissePartageeRoute = CaissePartageeRouteImport.update({
+  id: '/caisse-partagee',
+  path: '/caisse-partagee',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CgvRoute = CgvRouteImport.update({
@@ -234,6 +240,7 @@ const ApiPublicPhotosSalonsSplatRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/caisse-partagee': typeof CaissePartageeRoute
   '/cgv': typeof CgvRoute
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
@@ -271,6 +278,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/caisse-partagee': typeof CaissePartageeRoute
   '/cgv': typeof CgvRoute
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
@@ -310,6 +318,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/caisse-partagee': typeof CaissePartageeRoute
   '/cgv': typeof CgvRoute
   '/distribuer': typeof DistribuerRoute
   '/mentions-legales': typeof MentionsLegalesRoute
@@ -349,6 +358,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/caisse-partagee'
     | '/cgv'
     | '/distribuer'
     | '/mentions-legales'
@@ -386,6 +396,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/caisse-partagee'
     | '/cgv'
     | '/distribuer'
     | '/mentions-legales'
@@ -424,6 +435,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/caisse-partagee'
     | '/cgv'
     | '/distribuer'
     | '/mentions-legales'
@@ -463,6 +475,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CaissePartageeRoute: typeof CaissePartageeRoute
   CgvRoute: typeof CgvRoute
   DistribuerRoute: typeof DistribuerRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
@@ -509,6 +522,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/caisse-partagee': {
+      id: '/caisse-partagee'
+      path: '/caisse-partagee'
+      fullPath: '/caisse-partagee'
+      preLoaderRoute: typeof CaissePartageeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cgv': {
@@ -788,6 +808,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CaissePartageeRoute: CaissePartageeRoute,
   CgvRoute: CgvRoute,
   DistribuerRoute: DistribuerRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,

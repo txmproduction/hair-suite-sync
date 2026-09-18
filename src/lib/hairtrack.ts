@@ -2,7 +2,12 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
 export type Salon = Database["public"]["Tables"]["salons"]["Row"];
-export type Employe = Database["public"]["Tables"]["employes"]["Row"];
+/** Les colonnes secrètes du PIN ne sont jamais lues côté client. */
+export type Employe = Omit<
+  Database["public"]["Tables"]["employes"]["Row"],
+  "pin_hash" | "pin_essais_echoues"
+>;
+
 export type Categorie = Database["public"]["Tables"]["categories"]["Row"];
 export type Prestation = Database["public"]["Tables"]["prestations"]["Row"];
 export type Client = Database["public"]["Tables"]["clients"]["Row"];
@@ -83,8 +88,11 @@ export async function chargerContexte(): Promise<Contexte> {
 
   const { data: employe } = await supabase
     .from("employes")
-    .select("*")
+    .select(
+      "id, salon_id, user_id, nom, email, telephone, photo_url, role, actif, voit_ca_global, voit_clients, couleur, ordre, created_at, pin_maj_le, pin_bloque_jusqu_a",
+    )
     .eq("user_id", user.id)
+
     .eq("actif", true)
     .maybeSingle();
 

@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      appareils_partages: {
+        Row: {
+          actif: boolean
+          created_at: string
+          cree_par: string | null
+          derniere_utilisation_le: string | null
+          id: string
+          nom: string
+          salon_id: string
+          token_hash: string
+        }
+        Insert: {
+          actif?: boolean
+          created_at?: string
+          cree_par?: string | null
+          derniere_utilisation_le?: string | null
+          id?: string
+          nom: string
+          salon_id: string
+          token_hash: string
+        }
+        Update: {
+          actif?: boolean
+          created_at?: string
+          cree_par?: string | null
+          derniere_utilisation_le?: string | null
+          id?: string
+          nom?: string
+          salon_id?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appareils_partages_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       articles_blog: {
         Row: {
           categorie_metier:
@@ -284,11 +325,16 @@ export type Database = {
           nom: string
           ordre: number
           photo_url: string | null
+          pin_bloque_jusqu_a: string | null
+          pin_essais_echoues: number
+          pin_hash: string | null
+          pin_maj_le: string | null
           role: Database["public"]["Enums"]["role_employe"]
           salon_id: string
           telephone: string | null
           user_id: string | null
           voit_ca_global: boolean
+          voit_clients: boolean
         }
         Insert: {
           actif?: boolean
@@ -299,11 +345,16 @@ export type Database = {
           nom: string
           ordre?: number
           photo_url?: string | null
+          pin_bloque_jusqu_a?: string | null
+          pin_essais_echoues?: number
+          pin_hash?: string | null
+          pin_maj_le?: string | null
           role?: Database["public"]["Enums"]["role_employe"]
           salon_id: string
           telephone?: string | null
           user_id?: string | null
           voit_ca_global?: boolean
+          voit_clients?: boolean
         }
         Update: {
           actif?: boolean
@@ -314,11 +365,16 @@ export type Database = {
           nom?: string
           ordre?: number
           photo_url?: string | null
+          pin_bloque_jusqu_a?: string | null
+          pin_essais_echoues?: number
+          pin_hash?: string | null
+          pin_maj_le?: string | null
           role?: Database["public"]["Enums"]["role_employe"]
           salon_id?: string
           telephone?: string | null
           user_id?: string | null
           voit_ca_global?: boolean
+          voit_clients?: boolean
         }
         Relationships: [
           {
