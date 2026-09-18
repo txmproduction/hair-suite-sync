@@ -14,11 +14,10 @@ export function VerrouInactivite() {
     if (!estAppareilPartage()) return;
     let minuteur: ReturnType<typeof setTimeout>;
 
-    async function verrouiller() {
-      await queryClient.cancelQueries();
+    function verrouiller() {
+      queryClient.cancelQueries();
       queryClient.clear();
-      await supabase.auth.signOut();
-      // Rechargement complet vers l'écran neutre : aucune session ne subsiste.
+      // Rechargement complet vers l'écran neutre, qui referme la session.
       window.location.replace("/caisse-partagee");
     }
 

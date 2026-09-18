@@ -153,8 +153,7 @@ function DialogRapide({
     if (estAppareilPartage()) {
       await queryClient.cancelQueries();
       queryClient.clear();
-      await supabase.auth.signOut();
-      // Rechargement complet vers l'écran neutre : aucune session ne subsiste.
+      // Rechargement complet vers l'écran neutre, qui referme la session.
       window.location.replace("/caisse-partagee");
     }
   }
