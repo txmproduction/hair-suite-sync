@@ -74,12 +74,12 @@ export function AppShell({
     const partage = estAppareilPartage();
     await queryClient.cancelQueries();
     queryClient.clear();
-    await supabase.auth.signOut();
     if (partage) {
-      // Rechargement complet vers l'écran neutre : aucune session ne subsiste.
+      // Rechargement complet vers l'écran neutre, qui referme la session.
       window.location.replace("/caisse-partagee");
       return;
     }
+    await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   }
 

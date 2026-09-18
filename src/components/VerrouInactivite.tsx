@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { DELAI_INACTIVITE_MS, estAppareilPartage } from "@/lib/appareil-partage";
 
 /**
