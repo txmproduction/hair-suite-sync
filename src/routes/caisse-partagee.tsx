@@ -179,9 +179,16 @@ function CaissePartagee() {
             </button>
           ))}
         </div>
+        <button
+          onClick={() => navigate({ to: "/auth", replace: true })}
+          className="mt-6 text-sm text-muted-foreground underline underline-offset-4"
+        >
+          Gérant : se connecter avec son e-mail
+        </button>
       </Cadre>
     );
   }
+
 
   return (
     <Cadre>
