@@ -57,9 +57,17 @@ function CaissePartagee() {
       await queryClient.cancelQueries();
       queryClient.clear();
       await supabase.auth.signOut();
+      // Lien d'installation fourni par le gérant : ?appareil=<jeton>
+      const params = new URLSearchParams(window.location.search);
+      const fourni = params.get("appareil");
+      if (fourni) {
+        enregistrerAppareil(fourni);
+        window.history.replaceState(null, "", "/caisse-partagee");
+      }
       setToken(tokenAppareil());
     })();
   }, [queryClient]);
+
 
   useEffect(() => {
     if (!token) return;

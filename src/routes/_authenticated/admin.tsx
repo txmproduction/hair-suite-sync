@@ -443,12 +443,12 @@ function BlocPin({ employe }: { employe: { id: string; pin_hash: string | null }
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <Input
           value={pin}
-          onChange={(ev) => setPin(ev.target.value.replace(/\D/g, "").slice(0, 6))}
+          onChange={(ev) => setPin(ev.target.value.replace(/\D/g, "").slice(0, 4))}
           inputMode="numeric"
-          placeholder="4 à 6 chiffres"
+          placeholder="4 chiffres"
           className="w-40"
         />
-        <Button size="sm" disabled={pin.length < 4 || enCours} onClick={enregistrer}>
+        <Button size="sm" disabled={pin.length !== 4 || enCours} onClick={enregistrer}>
           Enregistrer
         </Button>
         {employe.pin_hash && (
