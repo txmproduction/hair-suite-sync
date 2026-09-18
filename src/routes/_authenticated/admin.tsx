@@ -330,6 +330,10 @@ function OngletEmployes() {
         ))}
       </div>
 
+      <BlocAppareils />
+
+
+
       <Dialog open={ouvert} onOpenChange={setOuvert}>
         <DialogContent>
           <DialogHeader>
