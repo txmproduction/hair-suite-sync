@@ -9,6 +9,9 @@ import { estSuperAdminFn } from "@/lib/superadmin.functions";
 import { etatEssaiFn } from "@/lib/essai.functions";
 import { etatAbonnementFn } from "@/lib/abonnement.functions";
 import { EssaiTermine } from "@/components/EssaiTermine";
+import { VerrouInactivite } from "@/components/VerrouInactivite";
+import { estAppareilPartage } from "@/lib/appareil-partage";
+
 
 export function useContexte() {
   return useQuery(contexteQuery);
@@ -22,11 +25,12 @@ export function useEtatEssai() {
 const LIENS = [
   { to: "/agenda", label: "Agenda", gerant: false },
   { to: "/caisse", label: "Caisse", gerant: false },
-  { to: "/clients", label: "Clients", gerant: false },
+  { to: "/clients", label: "Clients", gerant: false, droitClients: true },
   { to: "/statistiques", label: "Statistiques", gerant: false },
   { to: "/admin", label: "Admin", gerant: true },
   { to: "/abonnement", label: "Abonnement", gerant: true },
 ] as const;
+
 
 export function AppShell({
   children,
@@ -67,11 +71,13 @@ export function AppShell({
   });
 
   async function deconnexion() {
+    const partage = estAppareilPartage();
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
+    navigate({ to: partage ? "/caisse-partagee" : "/auth", replace: true });
   }
+
 
   // Essai terminé ou compte suspendu : accès restreint (aucune donnée supprimée).
   // La page d'abonnement reste accessible pour permettre de souscrire.
