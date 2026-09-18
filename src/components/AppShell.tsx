@@ -91,6 +91,8 @@ export function AppShell({
 
   return (
     <div className="min-h-screen bg-background">
+      <VerrouInactivite />
+
       {abonnement?.statut === "past_due" && (
         <div className="bg-destructive/10 px-4 py-2 text-center text-sm font-medium text-destructive">
           Le dernier prélèvement de votre abonnement a échoué.{" "}
@@ -124,7 +126,12 @@ export function AppShell({
         </div>
         <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-2 pb-2">
           {[
-            ...LIENS.filter((l) => !l.gerant || gerant),
+            ...LIENS.filter(
+              (l) =>
+                (!l.gerant || gerant) &&
+                (!("droitClients" in l) || gerant || !!data?.employe?.voit_clients),
+            ),
+
             ...(acces?.superAdmin
               ? [{ to: "/super-admin", label: "Super-admin", gerant: false } as const]
               : []),
