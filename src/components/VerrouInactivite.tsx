@@ -20,8 +20,10 @@ export function VerrouInactivite() {
       await queryClient.cancelQueries();
       queryClient.clear();
       await supabase.auth.signOut();
-      navigate({ to: "/caisse-partagee", replace: true });
+      // Rechargement complet vers l'écran neutre : aucune session ne subsiste.
+      window.location.replace("/caisse-partagee");
     }
+
 
     function relancer() {
       clearTimeout(minuteur);
