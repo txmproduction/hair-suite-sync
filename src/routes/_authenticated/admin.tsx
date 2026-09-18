@@ -220,7 +220,7 @@ function OngletEmployes() {
     queryClient.invalidateQueries({ queryKey: ["employes"] });
   }
 
-  async function maj(id: string, valeurs: { nom?: string; telephone?: string; photo_url?: string; actif?: boolean; voit_ca_global?: boolean }) {
+  async function maj(id: string, valeurs: { nom?: string; telephone?: string; photo_url?: string; actif?: boolean; voit_ca_global?: boolean; voit_clients?: boolean }) {
     const { error } = await supabase.from("employes").update(valeurs).eq("id", id);
     if (error) {
       toast.error(error.message);
@@ -306,9 +306,24 @@ function OngletEmployes() {
                     onCheckedChange={(v) => maj(e.id, { voit_ca_global: v })}
                     aria-label="Voit le CA du salon"
                   />
-                  <span className="text-sm">Peut voir le chiffre d'affaires du salon</span>
+                  <span className="text-sm">
+                    Peut voir le chiffre d'affaires du salon (sinon uniquement le sien)
+                  </span>
                 </div>
+                <div className="flex items-center gap-3">
+                  <Switch
+                    checked={e.voit_clients}
+                    onCheckedChange={(v) => maj(e.id, { voit_clients: v })}
+                    aria-label="Voit la liste des clients"
+                    disabled={e.role === "gerant"}
+                  />
+                  <span className="text-sm">
+                    Peut consulter la liste des clients (lecture seule)
+                  </span>
+                </div>
+                <BlocPin employe={e} />
                 <HorairesEmploye employeId={e.id} salonId={salonId!} />
+
               </div>
             )}
           </div>
