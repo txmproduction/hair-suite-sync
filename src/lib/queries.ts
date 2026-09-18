@@ -6,7 +6,14 @@ export function useEmployes(salonId?: string, tous = false) {
     queryKey: ["employes", salonId, tous],
     enabled: !!salonId,
     queryFn: async () => {
-      let q = supabase.from("employes").select("*").eq("salon_id", salonId!);
+      // Colonnes explicites : l'empreinte du code PIN n'est pas lisible côté client.
+      let q = supabase
+        .from("employes")
+        .select(
+          "id, salon_id, user_id, nom, email, telephone, photo_url, role, actif, voit_ca_global, voit_clients, couleur, ordre, created_at, pin_maj_le, pin_bloque_jusqu_a",
+        )
+        .eq("salon_id", salonId!);
+
       if (!tous) q = q.eq("actif", true);
       const { data, error } = await q.order("ordre").order("nom");
       if (error) throw error;

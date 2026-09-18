@@ -401,7 +401,7 @@ function OngletEmployes() {
   );
 }
 
-function BlocPin({ employe }: { employe: { id: string; pin_hash: string | null } }) {
+function BlocPin({ employe }: { employe: { id: string; pin_maj_le: string | null } }) {
   const queryClient = useQueryClient();
   const definir = useServerFn(definirPinFn);
   const supprimer = useServerFn(supprimerPinFn);
@@ -436,7 +436,7 @@ function BlocPin({ employe }: { employe: { id: string; pin_hash: string | null }
     <div className="rounded-xl border border-border p-3">
       <p className="text-sm font-medium">Code PIN (tablette partagée)</p>
       <p className="mt-1 text-xs text-muted-foreground">
-        {employe.pin_hash
+        {employe.pin_maj_le
           ? "Un code est déjà défini. Saisissez-en un nouveau pour le remplacer."
           : "Aucun code défini : cette personne n'apparaît pas sur la tablette partagée."}
       </p>
@@ -451,7 +451,7 @@ function BlocPin({ employe }: { employe: { id: string; pin_hash: string | null }
         <Button size="sm" disabled={pin.length !== 4 || enCours} onClick={enregistrer}>
           Enregistrer
         </Button>
-        {employe.pin_hash && (
+        {employe.pin_maj_le && (
           <Button size="sm" variant="ghost" onClick={retirer}>
             Supprimer
           </Button>
