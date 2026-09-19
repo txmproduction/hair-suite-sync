@@ -246,6 +246,31 @@ export async function creerReservationPublique(input: {
       .eq("id", clientId);
   }
 
+  // Bénéficiaire : proche existant du titulaire, ou nouvelle fiche créée ici.
+  let beneficiaireId: string | null = null;
+  if (input.beneficiaireId) {
+    const { data: proche } = await supabaseAdmin
+      .from("proches")
+      .select("id")
+      .eq("id", input.beneficiaireId)
+      .eq("client_id", clientId)
+      .maybeSingle();
+    if (!proche) throw new Error("Proche introuvable pour ce compte.");
+    beneficiaireId = proche.id;
+  } else if (input.nouveauProche) {
+    const { data: cree, error: erreurProche } = await supabaseAdmin
+      .from("proches")
+      .insert({
+        client_id: clientId,
+        prenom: input.nouveauProche.prenom,
+        nom: input.nouveauProche.nom,
+        date_naissance: input.nouveauProche.date_naissance,
+      })
+      .select("id")
+      .single();
+    if (erreurProche) throw new Error(erreurProche.message);
+    beneficiaireId = cree.id;
+  }
 
   const acompte = calculAcompteServeur(prestation.prix, contexte.acompte);
   const avecPaiement = acompte > 0;
@@ -255,7 +280,9 @@ export async function creerReservationPublique(input: {
     .insert({
       salon_id: contexte.salon.id,
       client_id: clientId,
+      beneficiaire_id: beneficiaireId,
       employe_id: employeId,
+
       prestation_id: prestation.id,
       debut: debut.toISOString(),
       duree_min: prestation.duree_min,
