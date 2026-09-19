@@ -295,8 +295,11 @@ function Agenda() {
                       >
 
                         <span className="block truncate font-semibold">
-                          {r.clients?.nom ?? "Client"}
+                          {r.proches
+                            ? `${r.proches.prenom} ${r.proches.nom}`
+                            : (r.clients?.nom ?? "Client")}
                         </span>
+
                         <span className="block truncate text-muted-foreground">
                           {col.id === "tous"
                             ? (employes.find((e) => e.id === r.employe_id)?.nom ??
