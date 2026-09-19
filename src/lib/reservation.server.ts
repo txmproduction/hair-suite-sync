@@ -136,6 +136,34 @@ export type ResultatReservation = {
   paiement_url: string | null;
 };
 
+export type ProchePublic = { id: string; prenom: string; nom: string };
+
+/** Proches déjà enregistrés pour le titulaire identifié par son téléphone. */
+export async function chargerProchesPublics(input: {
+  slug: string;
+  telephone: string;
+}): Promise<ProchePublic[]> {
+  const telephone = input.telephone.trim();
+  if (!telephone) return [];
+  const contexte = await chargerSalonPublic(input.slug);
+  if (!contexte) return [];
+
+  const { data: client } = await supabaseAdmin
+    .from("clients")
+    .select("id")
+    .eq("salon_id", contexte.salon.id)
+    .eq("telephone", telephone)
+    .maybeSingle();
+  if (!client) return [];
+
+  const { data } = await supabaseAdmin
+    .from("proches")
+    .select("id, prenom, nom")
+    .eq("client_id", client.id)
+    .order("created_at");
+  return data ?? [];
+}
+
 export async function creerReservationPublique(input: {
   slug: string;
   prestationId: string;
@@ -144,7 +172,10 @@ export async function creerReservationPublique(input: {
   nom: string;
   telephone: string;
   email: string;
+  beneficiaireId?: string | null;
+  nouveauProche?: { prenom: string; nom: string; date_naissance: string | null } | null;
 }): Promise<ResultatReservation> {
+
   const contexte = await chargerSalonPublic(input.slug);
   if (!contexte) throw new Error("Réservation en ligne indisponible pour ce salon.");
 
