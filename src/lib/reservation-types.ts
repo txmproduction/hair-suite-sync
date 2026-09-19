@@ -29,6 +29,8 @@ export type JourCreneauxData = {
   creneaux: { debut: string; employe_id: string }[];
 };
 
+export type ProchePublicData = { id: string; prenom: string; nom: string };
+
 export type RecapReservationData = {
   statut: string;
   debut: string;
@@ -37,6 +39,7 @@ export type RecapReservationData = {
   prestation: string | null;
   prix: number;
   employe: string | null;
+  beneficiaire: string | null;
   salon: { nom: string; adresse: string | null; telephone: string | null; slug: string | null };
   annulation_possible: boolean;
   delai_annulation_h: number;
