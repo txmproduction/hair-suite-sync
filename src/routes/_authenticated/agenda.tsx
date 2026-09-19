@@ -670,7 +670,13 @@ function DialogDetail({
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{rdv.clients?.nom ?? "Rendez-vous"}</DialogTitle>
+          {rdv.proches && (
+            <p className="text-sm text-muted-foreground">
+              Rendez-vous pour {rdv.proches.prenom} {rdv.proches.nom}
+            </p>
+          )}
         </DialogHeader>
+
 
         {encaisser ? (
           <div className="space-y-4">
