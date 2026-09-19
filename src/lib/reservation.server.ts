@@ -358,6 +358,7 @@ export async function chargerReservation(token: string): Promise<RecapReservatio
     prix: Number(data.prestations?.prix ?? 0),
     employe: data.employes?.nom ?? null,
     beneficiaire: data.proches ? `${data.proches.prenom} ${data.proches.nom}`.trim() : null,
+    salon: {
 
       nom: data.salons?.nom ?? "",
       adresse: data.salons?.adresse ?? null,
