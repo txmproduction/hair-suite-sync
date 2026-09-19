@@ -155,12 +155,19 @@ function PageConfirmation() {
               {recap.prestation} · {recap.duree_min} min
             </dd>
           </div>
+          {recap.beneficiaire && (
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Pour</dt>
+              <dd className="font-medium">{recap.beneficiaire}</dd>
+            </div>
+          )}
           {recap.employe && (
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Praticien</dt>
               <dd className="font-medium">{recap.employe}</dd>
             </div>
           )}
+
           <div className="flex justify-between">
             <dt className="text-muted-foreground">Prix</dt>
             <dd className="font-medium">{euro(recap.prix)}</dd>
