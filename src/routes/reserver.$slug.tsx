@@ -2,15 +2,25 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { creneauxFn, creerReservationFn, salonPublicFn } from "@/lib/reservation.functions";
-import type { SalonPublicData, JourCreneauxData } from "@/lib/reservation-types";
+import {
+  creneauxFn,
+  creerReservationFn,
+  prochesPublicsFn,
+  salonPublicFn,
+} from "@/lib/reservation.functions";
+import type {
+  SalonPublicData,
+  JourCreneauxData,
+  ProchePublicData,
+} from "@/lib/reservation-types";
 import { euro, dateISO, heureFR, JOURS } from "@/lib/hairtrack";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import logo from "@/assets/logo-light.png";
-import { ArrowLeft, Check, Clock, MapPin, Phone } from "lucide-react";
+import { ArrowLeft, Check, Clock, MapPin, Phone, Plus, User } from "lucide-react";
+
 import { PaiementAcompte } from "@/components/PaiementAcompte";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { paiementConfigure } from "@/lib/stripe";
@@ -86,13 +96,14 @@ function Indisponible() {
   );
 }
 
-const ETAPES = ["Prestation", "Praticien", "Créneau", "Coordonnées"];
+const ETAPES = ["Prestation", "Praticien", "Créneau", "Coordonnées", "Pour qui ?"];
 
 function PageReservation() {
   const contexte = Route.useLoaderData() as SalonPublicData | null;
   const { slug } = Route.useParams();
   const charger = useServerFn(creneauxFn);
   const reserver = useServerFn(creerReservationFn);
+  const chargerProches = useServerFn(prochesPublicsFn);
 
   const [etape, setEtape] = useState(0);
   const [prestationId, setPrestationId] = useState<string | null>(null);
@@ -104,6 +115,11 @@ function PageReservation() {
   const [email, setEmail] = useState("");
   const [envoi, setEnvoi] = useState(false);
   const [tokenPaiement, setTokenPaiement] = useState<string | null>(null);
+  const [proches, setProches] = useState<ProchePublicData[]>([]);
+  const [formProche, setFormProche] = useState(false);
+  const [prochePrenom, setProchePrenom] = useState("");
+  const [procheNom, setProcheNom] = useState("");
+  const [procheNaissance, setProcheNaissance] = useState("");
 
   const prestation = contexte?.prestations.find((p) => p.id === prestationId) ?? null;
   const acompte = useMemo(() => {
@@ -130,7 +146,28 @@ function PageReservation() {
 
   if (!contexte) return <Indisponible />;
 
-  async function valider() {
+  async function continuerVersBeneficiaire() {
+    if (nom.trim().length < 2) {
+      toast.error("Merci d'indiquer votre nom.");
+      return;
+    }
+    if (telephone.replace(/\D/g, "").length < 6) {
+      toast.error("Merci d'indiquer un numéro de téléphone valide.");
+      return;
+    }
+    setEtape(4);
+    try {
+      const liste = (await chargerProches({ data: { slug, telephone } })) as ProchePublicData[];
+      setProches(liste);
+    } catch {
+      setProches([]);
+    }
+  }
+
+  async function valider(beneficiaire?: {
+    id?: string;
+    nouveau?: { prenom: string; nom: string; date_naissance: string | null };
+  }) {
     if (!prestation || !creneau) return;
     setEnvoi(true);
     try {
@@ -143,6 +180,8 @@ function PageReservation() {
           nom,
           telephone,
           email,
+          beneficiaireId: beneficiaire?.id ?? null,
+          nouveauProche: beneficiaire?.nouveau ?? null,
         },
       });
       if (acompte > 0 && paiementConfigure()) {
@@ -157,6 +196,21 @@ function PageReservation() {
     }
   }
 
+  async function validerNouveauProche() {
+    if (prochePrenom.trim().length < 2 || procheNom.trim().length < 1) {
+      toast.error("Merci d'indiquer le prénom et le nom du proche.");
+      return;
+    }
+    await valider({
+      nouveau: {
+        prenom: prochePrenom.trim(),
+        nom: procheNom.trim(),
+        date_naissance: procheNaissance || null,
+      },
+    });
+  }
+
+
   return (
     <Cadre
       nom={contexte.salon.nom}
@@ -165,7 +219,7 @@ function PageReservation() {
     >
       <h1 className="mb-1 text-2xl font-semibold">Réserver en ligne</h1>
       <p className="mb-5 text-sm text-muted-foreground">
-        4 étapes, sans création de compte.
+        5 étapes, sans création de compte.
       </p>
 
       <ol className="mb-6 flex flex-wrap gap-2 text-xs">
@@ -341,8 +395,8 @@ function PageReservation() {
         </div>
       )}
 
-      {/* 4. Coordonnées */}
-      {etape === 3 && prestation && creneau && (
+      {/* 4. Coordonnées · 5. Bénéficiaire */}
+      {(etape === 3 || etape === 4) && prestation && creneau && (
         <div className="space-y-4">
           <div className="card-soft space-y-1 p-5 text-sm">
             <div className="flex justify-between">
@@ -366,7 +420,44 @@ function PageReservation() {
               </p>
             )}
           </div>
-          {tokenPaiement ? (
+
+          {etape === 3 && (
+            <div className="card-soft space-y-4 p-5">
+              <div className="space-y-2">
+                <Label htmlFor="r-nom">Nom et prénom</Label>
+                <Input id="r-nom" value={nom} onChange={(e) => setNom(e.target.value)} />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="r-tel">Téléphone</Label>
+                  <Input
+                    id="r-tel"
+                    type="tel"
+                    value={telephone}
+                    onChange={(e) => setTelephone(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="r-mail">Email</Label>
+                  <Input
+                    id="r-mail"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+              <Button className="w-full" size="lg" onClick={continuerVersBeneficiaire}>
+                Continuer
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Annulation gratuite en ligne jusqu'à {contexte.acompte.delai_annulation_h} h avant le
+                rendez-vous.
+              </p>
+            </div>
+          )}
+
+          {etape === 4 && tokenPaiement && (
             <div className="card-soft space-y-3 p-5">
               <PaymentTestModeBanner />
               <h2 className="font-semibold">Paiement de l'acompte — {euro(acompte)}</h2>
@@ -378,45 +469,108 @@ function PageReservation() {
                 returnUrl={`${window.location.origin}/reservation/${tokenPaiement}`}
               />
             </div>
-          ) : (
-          <div className="card-soft space-y-4 p-5">
-            <div className="space-y-2">
-              <Label htmlFor="r-nom">Nom et prénom</Label>
-              <Input id="r-nom" value={nom} onChange={(e) => setNom(e.target.value)} />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="r-tel">Téléphone</Label>
-                <Input
-                  id="r-tel"
-                  type="tel"
-                  value={telephone}
-                  onChange={(e) => setTelephone(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="r-mail">Email</Label>
-                <Input
-                  id="r-mail"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-            </div>
-            <Button className="w-full" size="lg" onClick={valider} disabled={envoi}>
-              <Check className="mr-2 h-4 w-4" />
-              {acompte > 0 ? `Payer l'acompte de ${euro(acompte)}` : "Confirmer le rendez-vous"}
-            </Button>
-            <p className="text-xs text-muted-foreground">
-              Annulation gratuite en ligne jusqu'à {contexte.acompte.delai_annulation_h} h avant le
-              rendez-vous.
-            </p>
-          </div>
           )}
 
+          {etape === 4 && !tokenPaiement && (
+            <div className="space-y-3">
+              <h2 className="font-semibold">Pour qui est ce rendez-vous ?</h2>
+              <div className="card-soft divide-y divide-border p-2">
+                <button
+                  onClick={() => valider()}
+                  disabled={envoi}
+                  className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-left hover:bg-secondary disabled:opacity-60"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gold-soft text-sm font-semibold text-gold-foreground">
+                    <User className="h-5 w-5" />
+                  </span>
+                  <span>
+                    <span className="block font-medium">Moi-même</span>
+                    <span className="text-xs text-muted-foreground">
+                      {nom || "Le titulaire du rendez-vous"}
+                    </span>
+                  </span>
+                </button>
+                {proches.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => valider({ id: p.id })}
+                    disabled={envoi}
+                    className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-left hover:bg-secondary disabled:opacity-60"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-sm font-semibold">
+                      {p.prenom.slice(0, 1).toUpperCase()}
+                    </span>
+                    <span>
+                      <span className="block font-medium">
+                        {p.prenom} {p.nom}
+                      </span>
+                      <span className="text-xs text-muted-foreground">Proche enregistré</span>
+                    </span>
+                  </button>
+                ))}
+                {!formProche && (
+                  <button
+                    onClick={() => setFormProche(true)}
+                    className="flex w-full items-center gap-3 rounded-md px-3 py-3 text-left hover:bg-secondary"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-border">
+                      <Plus className="h-4 w-4" />
+                    </span>
+                    <span className="font-medium">Ajouter un proche</span>
+                  </button>
+                )}
+              </div>
+
+              {formProche && (
+                <div className="card-soft space-y-4 p-5">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="p-prenom">Prénom du proche</Label>
+                      <Input
+                        id="p-prenom"
+                        value={prochePrenom}
+                        onChange={(e) => setProchePrenom(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="p-nom">Nom du proche</Label>
+                      <Input
+                        id="p-nom"
+                        value={procheNom}
+                        onChange={(e) => setProcheNom(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="p-naissance">Date de naissance (optionnel)</Label>
+                    <Input
+                      id="p-naissance"
+                      type="date"
+                      value={procheNaissance}
+                      onChange={(e) => setProcheNaissance(e.target.value)}
+                    />
+                  </div>
+                  <Button
+                    className="w-full"
+                    size="lg"
+                    onClick={validerNouveauProche}
+                    disabled={envoi}
+                  >
+                    <Check className="mr-2 h-4 w-4" />
+                    {acompte > 0
+                      ? `Payer l'acompte de ${euro(acompte)}`
+                      : "Confirmer le rendez-vous"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Les confirmations et rappels sont toujours envoyés au titulaire du compte.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
+
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
         Propulsé par <Link to="/" className="underline">HairTrack</Link>

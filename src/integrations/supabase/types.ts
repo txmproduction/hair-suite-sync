@@ -655,6 +655,41 @@ export type Database = {
           },
         ]
       }
+      proches: {
+        Row: {
+          client_id: string
+          created_at: string
+          date_naissance: string | null
+          id: string
+          nom: string
+          prenom: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          date_naissance?: string | null
+          id?: string
+          nom: string
+          prenom: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          date_naissance?: string | null
+          id?: string
+          nom?: string
+          prenom?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proches_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           auth: string
@@ -693,6 +728,7 @@ export type Database = {
           acompte: number
           annulation_token: string
           avis_token: string
+          beneficiaire_id: string | null
           client_id: string | null
           created_at: string
           debut: string
@@ -712,6 +748,7 @@ export type Database = {
           acompte?: number
           annulation_token?: string
           avis_token?: string
+          beneficiaire_id?: string | null
           client_id?: string | null
           created_at?: string
           debut: string
@@ -731,6 +768,7 @@ export type Database = {
           acompte?: number
           annulation_token?: string
           avis_token?: string
+          beneficiaire_id?: string | null
           client_id?: string | null
           created_at?: string
           debut?: string
@@ -747,6 +785,13 @@ export type Database = {
           statut?: Database["public"]["Enums"]["statut_rdv"]
         }
         Relationships: [
+          {
+            foreignKeyName: "rdv_beneficiaire_id_fkey"
+            columns: ["beneficiaire_id"]
+            isOneToOne: false
+            referencedRelation: "proches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "rdv_client_id_fkey"
             columns: ["client_id"]

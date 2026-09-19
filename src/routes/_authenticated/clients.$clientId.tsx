@@ -25,7 +25,7 @@ function FicheClient() {
         supabase.from("clients").select("*").eq("id", clientId).single(),
         supabase
           .from("rdv")
-          .select("*, prestations(nom, prix), employes(nom)")
+          .select("*, prestations(nom, prix), employes(nom), proches(prenom, nom)")
           .eq("client_id", clientId)
           .order("debut", { ascending: false }),
         supabase.from("encaissements").select("montant").eq("client_id", clientId),
@@ -83,10 +83,18 @@ function FicheClient() {
         {(data?.rdvs ?? []).map((r) => (
           <div key={r.id} className="flex items-center gap-3 px-5 py-3">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{r.prestations?.nom ?? "Prestation"}</p>
+              <p className="truncate text-sm font-medium">
+                {r.prestations?.nom ?? "Prestation"}
+                {r.proches && (
+                  <span className="ml-2 rounded-full bg-secondary px-2 py-0.5 text-xs font-normal">
+                    Pour {r.proches.prenom} {r.proches.nom}
+                  </span>
+                )}
+              </p>
               <p className="text-xs text-muted-foreground">
                 {dateFR(r.debut)} à {heureFR(r.debut)} · {r.employes?.nom ?? "—"}
               </p>
+
             </div>
             <span className="rounded-full bg-secondary px-3 py-1 text-xs">
               {STATUTS.find((s) => s.value === r.statut)?.label}

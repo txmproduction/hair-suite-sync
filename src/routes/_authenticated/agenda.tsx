@@ -295,8 +295,11 @@ function Agenda() {
                       >
 
                         <span className="block truncate font-semibold">
-                          {r.clients?.nom ?? "Client"}
+                          {r.proches
+                            ? `${r.proches.prenom} ${r.proches.nom}`
+                            : (r.clients?.nom ?? "Client")}
                         </span>
+
                         <span className="block truncate text-muted-foreground">
                           {col.id === "tous"
                             ? (employes.find((e) => e.id === r.employe_id)?.nom ??
@@ -592,6 +595,8 @@ function DialogDetail({
     acompte: number;
     clients: { nom: string; telephone: string | null } | null;
     prestations: { nom: string; couleur: string; prix: number; duree_min: number } | null;
+    proches?: { prenom: string; nom: string } | null;
+
   };
   onClose: () => void;
   prestations: Prestation[];
@@ -667,7 +672,13 @@ function DialogDetail({
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{rdv.clients?.nom ?? "Rendez-vous"}</DialogTitle>
+          {rdv.proches && (
+            <p className="text-sm text-muted-foreground">
+              Rendez-vous pour {rdv.proches.prenom} {rdv.proches.nom}
+            </p>
+          )}
         </DialogHeader>
+
 
         {encaisser ? (
           <div className="space-y-4">

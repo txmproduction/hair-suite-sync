@@ -136,6 +136,34 @@ export type ResultatReservation = {
   paiement_url: string | null;
 };
 
+export type ProchePublic = { id: string; prenom: string; nom: string };
+
+/** Proches déjà enregistrés pour le titulaire identifié par son téléphone. */
+export async function chargerProchesPublics(input: {
+  slug: string;
+  telephone: string;
+}): Promise<ProchePublic[]> {
+  const telephone = input.telephone.trim();
+  if (!telephone) return [];
+  const contexte = await chargerSalonPublic(input.slug);
+  if (!contexte) return [];
+
+  const { data: client } = await supabaseAdmin
+    .from("clients")
+    .select("id")
+    .eq("salon_id", contexte.salon.id)
+    .eq("telephone", telephone)
+    .maybeSingle();
+  if (!client) return [];
+
+  const { data } = await supabaseAdmin
+    .from("proches")
+    .select("id, prenom, nom")
+    .eq("client_id", client.id)
+    .order("created_at");
+  return data ?? [];
+}
+
 export async function creerReservationPublique(input: {
   slug: string;
   prestationId: string;
@@ -144,7 +172,10 @@ export async function creerReservationPublique(input: {
   nom: string;
   telephone: string;
   email: string;
+  beneficiaireId?: string | null;
+  nouveauProche?: { prenom: string; nom: string; date_naissance: string | null } | null;
 }): Promise<ResultatReservation> {
+
   const contexte = await chargerSalonPublic(input.slug);
   if (!contexte) throw new Error("Réservation en ligne indisponible pour ce salon.");
 
@@ -215,6 +246,31 @@ export async function creerReservationPublique(input: {
       .eq("id", clientId);
   }
 
+  // Bénéficiaire : proche existant du titulaire, ou nouvelle fiche créée ici.
+  let beneficiaireId: string | null = null;
+  if (input.beneficiaireId) {
+    const { data: proche } = await supabaseAdmin
+      .from("proches")
+      .select("id")
+      .eq("id", input.beneficiaireId)
+      .eq("client_id", clientId)
+      .maybeSingle();
+    if (!proche) throw new Error("Proche introuvable pour ce compte.");
+    beneficiaireId = proche.id;
+  } else if (input.nouveauProche) {
+    const { data: cree, error: erreurProche } = await supabaseAdmin
+      .from("proches")
+      .insert({
+        client_id: clientId,
+        prenom: input.nouveauProche.prenom,
+        nom: input.nouveauProche.nom,
+        date_naissance: input.nouveauProche.date_naissance,
+      })
+      .select("id")
+      .single();
+    if (erreurProche) throw new Error(erreurProche.message);
+    beneficiaireId = cree.id;
+  }
 
   const acompte = calculAcompteServeur(prestation.prix, contexte.acompte);
   const avecPaiement = acompte > 0;
@@ -224,7 +280,9 @@ export async function creerReservationPublique(input: {
     .insert({
       salon_id: contexte.salon.id,
       client_id: clientId,
+      beneficiaire_id: beneficiaireId,
       employe_id: employeId,
+
       prestation_id: prestation.id,
       debut: debut.toISOString(),
       duree_min: prestation.duree_min,
@@ -264,6 +322,7 @@ export type RecapReservation = {
   prestation: string | null;
   prix: number;
   employe: string | null;
+  beneficiaire: string | null;
   salon: { nom: string; adresse: string | null; telephone: string | null; slug: string | null };
   annulation_possible: boolean;
   delai_annulation_h: number;
@@ -273,10 +332,11 @@ export async function chargerReservation(token: string): Promise<RecapReservatio
   const { data } = await supabaseAdmin
     .from("rdv")
     .select(
-      "id, statut, debut, duree_min, acompte, salon_id, prestations(nom, prix), employes(nom), salons(nom, adresse, telephone, slug)",
+      "id, statut, debut, duree_min, acompte, salon_id, prestations(nom, prix), employes(nom), salons(nom, adresse, telephone, slug), proches(prenom, nom)",
     )
     .eq("annulation_token", token)
     .maybeSingle();
+
 
   if (!data) return null;
 
@@ -297,7 +357,9 @@ export async function chargerReservation(token: string): Promise<RecapReservatio
     prestation: data.prestations?.nom ?? null,
     prix: Number(data.prestations?.prix ?? 0),
     employe: data.employes?.nom ?? null,
+    beneficiaire: data.proches ? `${data.proches.prenom} ${data.proches.nom}`.trim() : null,
     salon: {
+
       nom: data.salons?.nom ?? "",
       adresse: data.salons?.adresse ?? null,
       telephone: data.salons?.telephone ?? null,
