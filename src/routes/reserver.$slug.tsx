@@ -219,7 +219,7 @@ function PageReservation() {
     >
       <h1 className="mb-1 text-2xl font-semibold">Réserver en ligne</h1>
       <p className="mb-5 text-sm text-muted-foreground">
-        4 étapes, sans création de compte.
+        5 étapes, sans création de compte.
       </p>
 
       <ol className="mb-6 flex flex-wrap gap-2 text-xs">
