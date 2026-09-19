@@ -91,7 +91,10 @@ export function useRdv(salonId: string | undefined, debut: Date, fin: Date) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rdv")
-        .select("*, clients(nom, telephone), prestations(nom, couleur, prix, duree_min)")
+        .select(
+          "*, clients(nom, telephone), prestations(nom, couleur, prix, duree_min), proches(prenom, nom)",
+        )
+
         .eq("salon_id", salonId!)
         .gte("debut", debut.toISOString())
         .lt("debut", fin.toISOString())
