@@ -1,50 +1,46 @@
-# Droits par employé + changement rapide par code PIN sur la tablette partagée
+# Réserver pour un proche
 
-## Ce que ça donne pour l'utilisateur
+## Point important avant de commencer
 
-- Chaque employé a ses propres droits, réglés un par un par le gérant : il voit toujours **son** chiffre d'affaires, et le gérant peut en plus lui ouvrir (en lecture seule) la liste des clients et la liste des prestations.
-- Un employé peut **créer** un encaissement, jamais en **supprimer** un — même le sien. Seul le gérant supprime.
-- Sur la tablette du comptoir : écran neutre « Qui êtes-vous ? » avec la liste du personnel. On tape son nom + son code à 4 chiffres, on encaisse, et la tablette revient toute seule à l'écran neutre (après l'encaissement ou après 2 minutes sans activité).
-- Le gérant aussi doit s'identifier sur cette tablette : aucune session privilégiée ne reste ouverte en arrière-plan.
+Aujourd'hui, la réservation en ligne HairTrack se fait **sans compte client** : le visiteur saisit nom + téléphone + e-mail à la dernière étape, et retrouve son rendez-vous via un lien unique. Il n'existe donc ni « espace client », ni « Mes rendez-vous », ni « paramètres du compte » où poser une section « Mes proches ».
 
-## Point important sur l'architecture actuelle
+Deux conséquences sur votre demande :
 
-L'app utilise déjà une vraie authentification par personne, et les règles de sécurité de la base filtrent déjà par salon et par rôle (`current_salon_id`, `is_gerant`, `mon_employe_id`). Le PIN ne sera donc **pas** un cache-misère posé sur une session ouverte : chaque déverrouillage crée une **vraie session de l'employé concerné**, et l'écran neutre correspond à un état réellement déconnecté. Les employés qui n'ont pas encore de compte en obtiendront un, interne, sans mot de passe utilisable.
+- Les points 1 à 4 (proches, étape « Pour qui ? », bénéficiaire sur le rendez-vous, notifications au seul titulaire) se font dans le parcours existant.
+- Les points 5 et 6 (historique par bénéficiaire, gestion des proches hors réservation) supposent un espace client. Je propose de le créer, en version légère.
 
-Hypothèse à confirmer : les prestations **actives** restent lisibles par tout employé, car l'encaissement rapide en a besoin pour composer le ticket. Le réglage « voir les prestations » gouverne l'accès à la page catalogue complète (y compris prestations désactivées). Dites-moi si vous préférez un autre découpage.
+**Hypothèse retenue** (dites-moi si vous préférez autrement) : un espace client accessible par lien e-mail (aucun mot de passe). Le client saisit son e-mail, reçoit un lien, et accède à « Mes rendez-vous » et « Mes proches ». Si vous préférez, on peut livrer d'abord les points 1 à 4 seuls et remettre l'espace client à plus tard.
+
+## Ce que le client verra
+
+1. **Pendant la réservation** : après avoir saisi ses coordonnées, une étape « Pour qui est ce rendez-vous ? » avec « Moi-même », la liste de ses proches déjà enregistrés, et « + Ajouter un proche » (prénom, nom, date de naissance optionnelle) qui l'ajoute aussitôt au rendez-vous en cours. Un seul clic pour « Moi-même », comme aujourd'hui.
+2. **Sur la confirmation et le rappel** : mention « Rendez-vous pour Léa Martin » quand ce n'est pas le titulaire.
+3. **Espace client** (`/mon-compte`) : connexion par lien e-mail, liste des rendez-vous à venir et passés avec onglets « Tous / Moi / chaque proche », détail complet (prestation, date, prix), et une section « Mes proches » pour ajouter, modifier, supprimer.
+4. **Côté salon** : le nom du bénéficiaire apparaît sur la fiche du rendez-vous dans l'agenda et dans l'historique de la fiche client, pour que le praticien sache qui vient.
+
+Les e-mails et SMS restent envoyés uniquement au titulaire du compte, jamais au proche.
 
 ## Détails techniques
 
-### Schéma (migration additive)
+### Base de données (une migration additive)
 
-- `employes` : `voit_clients boolean not null default false`, `voit_prestations boolean not null default false`, `pin_hash text`, `pin_maj_le timestamptz`, `pin_essais_echoues int not null default 0`, `pin_bloque_jusqu_a timestamptz`.
-- Nouvelle table `appareils_partages` (id, salon_id, nom, token_hash, cree_par, actif, derniere_utilisation_le) + GRANT + RLS (gérant du salon uniquement).
-- Fonctions `securite.voit_clients()` / `securite.voit_prestations()` (SECURITY DEFINER, comme les existantes).
-- Politiques RLS mises à jour :
-  - `clients` SELECT/UPDATE/INSERT : `is_gerant() OR voit_clients()`.
-  - `prestations` SELECT : gérant → tout ; employé → `actif` seulement, et catalogue complet si `voit_prestations()`.
-  - `encaissements` : DELETE/UPDATE restent gérant seulement (déjà le cas) ; INSERT restreint pour qu'un employé ne puisse insérer qu'avec `employe_id = mon_employe_id()`.
-  - `encaissements` SELECT : inchangé (le sien, ou tout si `voit_ca_global`).
+- `public.proches` : `id uuid pk`, `client_id uuid not null references clients(id) on delete cascade`, `prenom text not null`, `nom text not null`, `date_naissance date null`, `created_at timestamptz not null default now()`. Index sur `client_id`.
+- `public.rdv.beneficiaire_id uuid null references proches(id) on delete set null`. `null` = le titulaire (comportement actuel inchangé).
+- GRANT + RLS : `proches` lisible/modifiable par le salon propriétaire du client via les helpers existants (`securite.current_salon_id()`, `securite.is_gerant()`, `securite.voit_clients()`), même logique que `clients`. Aucun accès `anon` : le parcours public et l'espace client passent par des fonctions serveur en service role, comme le reste de la réservation.
 
-### Authentification PIN
+### Serveur
 
-- `src/lib/pin.functions.ts` :
-  - `listerPersonnelAppareilFn` — **non authentifiée**, exige un token d'appareil valide, renvoie uniquement prénom/photo/role du personnel actif du salon.
-  - `deverrouillerPinFn` — non authentifiée : token d'appareil + `employe_id` + PIN. Vérifie le hash (bcrypt/scrypt, coût élevé), applique un verrou de 5 minutes après 5 échecs, puis, via le client privilégié chargé **dans le handler**, génère un lien à usage unique pour le compte de cet employé et renvoie le `hashed_token` ; le client appelle `verifyOtp` pour obtenir une vraie session Supabase.
-  - `definirPinFn` / `enrolerAppareilFn` — authentifiées `requireSupabaseAuth`, réservées au gérant du salon (vérification du rôle via `context.supabase`, jamais via le client privilégié).
-- Les PIN ne sont jamais renvoyés au client ; seul le hash est stocké.
+- `src/lib/reservation.server.ts` : `creerReservationPublique` accepte `beneficiaireId` (vérifié comme appartenant au client résolu par téléphone) ou `nouveauProche` (prénom/nom/date) qu'elle crée puis rattache ; écrit `beneficiaire_id` sur le rdv. `chargerReservation` renvoie le nom du bénéficiaire.
+- Nouvelle fonction serveur publique `prochesDuClientFn` : à partir du téléphone + salon, renvoie les proches connus (prénom/nom seulement) pour alimenter l'étape « Pour qui ? ».
+- Nouveau `src/lib/compte-client.server.ts` + `.functions.ts` : envoi du lien e-mail, chargement des rendez-vous du client (tous salons, groupés par bénéficiaire), CRUD des proches.
 
 ### Interface
 
-- `src/routes/caisse-partagee.tsx` (route publique) : enrôlement de l'appareil (token collé/QR fourni par le gérant, gardé en `localStorage`), écran neutre « Qui êtes-vous ? », pavé PIN, puis redirection vers l'espace de la personne identifiée.
-- `src/components/VerrouInactivite.tsx` : minuteur d'inactivité + déconnexion propre (annulation des requêtes, vidage du cache, `signOut`, retour à l'écran neutre) ; même séquence après un encaissement validé sur un appareil partagé.
-- `src/routes/_authenticated/admin.tsx` : par employé, interrupteurs « voit les clients » / « voit les prestations », définition/réinitialisation du code PIN, et une section « Appareils partagés » pour enrôler/révoquer la tablette.
-- `src/routes/_authenticated/caisse.tsx` : bouton de suppression déjà réservé au gérant, à conserver ; masquer les totaux salon pour un employé sans `voit_ca_global`.
-- `src/routes/_authenticated/clients.index.tsx` et la vue prestations : rendues en lecture seule quand le droit est accordé sans être gérant.
+- `src/routes/reserver.$slug.tsx` : les 4 étapes deviennent 5, avec l'étape « Pour qui ? » insérée après les coordonnées (l'identité du titulaire est nécessaire pour retrouver ses proches). Cartes cliquables reprenant le style des étapes praticien/prestation existantes, aucun nouveau composant.
+- `src/routes/reservation.$token.tsx` : ligne « Pour : … » quand un bénéficiaire est renseigné.
+- Nouvelles routes `src/routes/mon-compte.tsx` (connexion + rendez-vous avec onglets) et la section « Mes proches » dans la même page, en réutilisant `card-soft`, `Button`, `Input`, `Label`.
+- `src/routes/_authenticated/agenda.tsx` et `clients.$clientId.tsx` : affichage du bénéficiaire.
 
-### Vérifications
+### Notifications
 
-- Session employé : lecture des clients refusée droit coupé, autorisée droit ouvert.
-- Suppression d'un encaissement par un employé : refusée par la base, pas seulement par l'écran.
-- Retour arrière / fermeture de l'écran PIN : aboutit à l'écran neutre, jamais à un tableau de bord.
-- Blocage après 5 PIN erronés.
+Le code d'envoi continue de lire l'e-mail/téléphone de `clients` uniquement ; `proches` n'expose aucun contact (pas de champ téléphone/e-mail sur la table), ce qui rend l'exigence structurelle.
