@@ -322,6 +322,7 @@ export type RecapReservation = {
   prestation: string | null;
   prix: number;
   employe: string | null;
+  beneficiaire: string | null;
   salon: { nom: string; adresse: string | null; telephone: string | null; slug: string | null };
   annulation_possible: boolean;
   delai_annulation_h: number;
@@ -331,10 +332,11 @@ export async function chargerReservation(token: string): Promise<RecapReservatio
   const { data } = await supabaseAdmin
     .from("rdv")
     .select(
-      "id, statut, debut, duree_min, acompte, salon_id, prestations(nom, prix), employes(nom), salons(nom, adresse, telephone, slug)",
+      "id, statut, debut, duree_min, acompte, salon_id, prestations(nom, prix), employes(nom), salons(nom, adresse, telephone, slug), proches(prenom, nom)",
     )
     .eq("annulation_token", token)
     .maybeSingle();
+
 
   if (!data) return null;
 
