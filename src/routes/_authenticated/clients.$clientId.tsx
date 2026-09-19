@@ -25,7 +25,7 @@ function FicheClient() {
         supabase.from("clients").select("*").eq("id", clientId).single(),
         supabase
           .from("rdv")
-          .select("*, prestations(nom, prix), employes(nom)")
+          .select("*, prestations(nom, prix), employes(nom), proches(prenom, nom)")
           .eq("client_id", clientId)
           .order("debut", { ascending: false }),
         supabase.from("encaissements").select("montant").eq("client_id", clientId),
