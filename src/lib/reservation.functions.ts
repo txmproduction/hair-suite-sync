@@ -28,6 +28,16 @@ export const creneauxFn = createServerFn({ method: "GET" })
     return chargerCreneaux(data);
   });
 
+export const prochesPublicsFn = createServerFn({ method: "GET" })
+  .inputValidator((data: { slug: string; telephone: string }) => ({
+    slug: String(data.slug).slice(0, 120),
+    telephone: String(data.telephone ?? "").trim().slice(0, 40),
+  }))
+  .handler(async ({ data }) => {
+    const { chargerProchesPublics } = await import("./reservation.server");
+    return chargerProchesPublics(data);
+  });
+
 export const creerReservationFn = createServerFn({ method: "POST" })
   .inputValidator(
     (data: {
@@ -38,6 +48,8 @@ export const creerReservationFn = createServerFn({ method: "POST" })
       nom: string;
       telephone: string;
       email: string;
+      beneficiaireId?: string | null;
+      nouveauProche?: { prenom: string; nom: string; date_naissance?: string | null } | null;
     }) => {
       const nom = String(data.nom ?? "").trim();
       if (nom.length < 2) throw new Error("Merci d'indiquer votre nom.");
@@ -47,6 +59,20 @@ export const creerReservationFn = createServerFn({ method: "POST" })
       const email = String(data.email ?? "").trim();
       if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
         throw new Error("Adresse email invalide.");
+      let nouveauProche: { prenom: string; nom: string; date_naissance: string | null } | null =
+        null;
+      if (data.nouveauProche) {
+        const prenom = String(data.nouveauProche.prenom ?? "").trim();
+        const nomProche = String(data.nouveauProche.nom ?? "").trim();
+        if (prenom.length < 2 || nomProche.length < 1)
+          throw new Error("Merci d'indiquer le prénom et le nom du proche.");
+        const naissance = String(data.nouveauProche.date_naissance ?? "").trim();
+        nouveauProche = {
+          prenom: prenom.slice(0, 80),
+          nom: nomProche.slice(0, 80),
+          date_naissance: /^\d{4}-\d{2}-\d{2}$/.test(naissance) ? naissance : null,
+        };
+      }
       return {
         slug: String(data.slug).slice(0, 120),
         prestationId: String(data.prestationId),
@@ -55,6 +81,8 @@ export const creerReservationFn = createServerFn({ method: "POST" })
         nom: nom.slice(0, 120),
         telephone: telephone.slice(0, 40),
         email: email.slice(0, 160),
+        beneficiaireId: data.beneficiaireId ? String(data.beneficiaireId) : null,
+        nouveauProche,
       };
     },
   )
@@ -62,6 +90,7 @@ export const creerReservationFn = createServerFn({ method: "POST" })
     const { creerReservationPublique } = await import("./reservation.server");
     return creerReservationPublique(data);
   });
+
 
 export const reservationFn = createServerFn({ method: "GET" })
   .inputValidator((data: { token: string }) => ({ token: String(data.token).slice(0, 60) }))
