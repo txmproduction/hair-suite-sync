@@ -2,15 +2,25 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { creneauxFn, creerReservationFn, salonPublicFn } from "@/lib/reservation.functions";
-import type { SalonPublicData, JourCreneauxData } from "@/lib/reservation-types";
+import {
+  creneauxFn,
+  creerReservationFn,
+  prochesPublicsFn,
+  salonPublicFn,
+} from "@/lib/reservation.functions";
+import type {
+  SalonPublicData,
+  JourCreneauxData,
+  ProchePublicData,
+} from "@/lib/reservation-types";
 import { euro, dateISO, heureFR, JOURS } from "@/lib/hairtrack";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import logo from "@/assets/logo-light.png";
-import { ArrowLeft, Check, Clock, MapPin, Phone } from "lucide-react";
+import { ArrowLeft, Check, Clock, MapPin, Phone, Plus, User } from "lucide-react";
+
 import { PaiementAcompte } from "@/components/PaiementAcompte";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { paiementConfigure } from "@/lib/stripe";
