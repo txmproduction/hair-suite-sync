@@ -595,6 +595,8 @@ function DialogDetail({
     acompte: number;
     clients: { nom: string; telephone: string | null } | null;
     prestations: { nom: string; couleur: string; prix: number; duree_min: number } | null;
+    proches?: { prenom: string; nom: string } | null;
+
   };
   onClose: () => void;
   prestations: Prestation[];
