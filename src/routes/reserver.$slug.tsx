@@ -86,13 +86,14 @@ function Indisponible() {
   );
 }
 
-const ETAPES = ["Prestation", "Praticien", "Créneau", "Coordonnées"];
+const ETAPES = ["Prestation", "Praticien", "Créneau", "Coordonnées", "Pour qui ?"];
 
 function PageReservation() {
   const contexte = Route.useLoaderData() as SalonPublicData | null;
   const { slug } = Route.useParams();
   const charger = useServerFn(creneauxFn);
   const reserver = useServerFn(creerReservationFn);
+  const chargerProches = useServerFn(prochesPublicsFn);
 
   const [etape, setEtape] = useState(0);
   const [prestationId, setPrestationId] = useState<string | null>(null);
@@ -104,6 +105,11 @@ function PageReservation() {
   const [email, setEmail] = useState("");
   const [envoi, setEnvoi] = useState(false);
   const [tokenPaiement, setTokenPaiement] = useState<string | null>(null);
+  const [proches, setProches] = useState<ProchePublicData[]>([]);
+  const [formProche, setFormProche] = useState(false);
+  const [prochePrenom, setProchePrenom] = useState("");
+  const [procheNom, setProcheNom] = useState("");
+  const [procheNaissance, setProcheNaissance] = useState("");
 
   const prestation = contexte?.prestations.find((p) => p.id === prestationId) ?? null;
   const acompte = useMemo(() => {
@@ -130,7 +136,28 @@ function PageReservation() {
 
   if (!contexte) return <Indisponible />;
 
-  async function valider() {
+  async function continuerVersBeneficiaire() {
+    if (nom.trim().length < 2) {
+      toast.error("Merci d'indiquer votre nom.");
+      return;
+    }
+    if (telephone.replace(/\D/g, "").length < 6) {
+      toast.error("Merci d'indiquer un numéro de téléphone valide.");
+      return;
+    }
+    setEtape(4);
+    try {
+      const liste = (await chargerProches({ data: { slug, telephone } })) as ProchePublicData[];
+      setProches(liste);
+    } catch {
+      setProches([]);
+    }
+  }
+
+  async function valider(beneficiaire?: {
+    id?: string;
+    nouveau?: { prenom: string; nom: string; date_naissance: string | null };
+  }) {
     if (!prestation || !creneau) return;
     setEnvoi(true);
     try {
@@ -143,6 +170,8 @@ function PageReservation() {
           nom,
           telephone,
           email,
+          beneficiaireId: beneficiaire?.id ?? null,
+          nouveauProche: beneficiaire?.nouveau ?? null,
         },
       });
       if (acompte > 0 && paiementConfigure()) {
@@ -156,6 +185,21 @@ function PageReservation() {
       setEnvoi(false);
     }
   }
+
+  async function validerNouveauProche() {
+    if (prochePrenom.trim().length < 2 || procheNom.trim().length < 1) {
+      toast.error("Merci d'indiquer le prénom et le nom du proche.");
+      return;
+    }
+    await valider({
+      nouveau: {
+        prenom: prochePrenom.trim(),
+        nom: procheNom.trim(),
+        date_naissance: procheNaissance || null,
+      },
+    });
+  }
+
 
   return (
     <Cadre
