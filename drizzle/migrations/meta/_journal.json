@@ -15,6 +15,13 @@
       "when": 1789702365284,
       "tag": "0001_clients_lecture_seule_et_pin_prive",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789837184186,
+      "tag": "0002_proches_et_beneficiaire_rdv",
+      "breakpoints": true
     }
   ]
 }
