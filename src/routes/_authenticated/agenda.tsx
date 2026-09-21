@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useDialogAbonnement } from "@/components/DialogAbonnement";
 
 export const Route = createFileRoute("/_authenticated/agenda")({
   component: Agenda,
