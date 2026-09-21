@@ -298,6 +298,11 @@ export async function creerReservationPublique(input: {
     if (error.code === "23P01") {
       throw new Error("Ce créneau vient d'être réservé. Choisissez-en un autre.");
     }
+    if (error.message.includes("HT_LIMITE_RDV")) {
+      throw new Error(
+        "Ce salon ne peut plus recevoir de réservation en ligne ce mois-ci. Contactez-le directement par téléphone.",
+      );
+    }
     throw new Error(error.message);
   }
 
