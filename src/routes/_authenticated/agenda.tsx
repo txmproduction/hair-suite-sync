@@ -451,7 +451,9 @@ function DialogCreation({
       toast.success("Rendez-vous créé");
       onClose();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erreur");
+      if (!abonnement.depuisErreur(error)) {
+        toast.error(error instanceof Error ? error.message : "Erreur");
+      }
     } finally {
       setEnCours(false);
     }
