@@ -13,6 +13,20 @@ import {
 } from "@/lib/abonnement.functions";
 import { getStripeEnvironment, paiementConfigure } from "@/lib/stripe";
 import { useEtatEssai } from "@/components/AppShell";
+import { COMPARATIF } from "@/lib/droits";
+import { X } from "lucide-react";
+
+/** Cellule du comparatif : coche, croix ou valeur textuelle. */
+function Valeur({ valeur, accent }: { valeur: string | boolean; accent?: boolean }) {
+  if (valeur === true)
+    return (
+      <Check
+        className={`mx-auto h-4 w-4 ${accent ? "text-gold-foreground" : "text-foreground"}`}
+      />
+    );
+  if (valeur === false) return <X className="mx-auto h-4 w-4 text-muted-foreground" />;
+  return <span>{valeur}</span>;
+}
 
 export const Route = createFileRoute("/_authenticated/abonnement")({
   head: () => ({
