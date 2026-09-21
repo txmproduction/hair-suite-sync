@@ -1171,16 +1171,42 @@ function SectionAcompte() {
 
   return (
     <div className="card-soft space-y-4 p-5">
-      <h2 className="font-semibold">Acompte en ligne</h2>
+      {abonnement.dialog}
+      <h2 className="flex items-center gap-2 font-semibold">
+        Acompte en ligne
+        {reserve && (
+          <span className="flex items-center gap-1 rounded-full bg-gold-soft px-2 py-0.5 text-xs font-medium text-gold-foreground">
+            <Lock className="h-3 w-3" /> Abonnement complet
+          </span>
+        )}
+      </h2>
 
-      <div className="flex items-center gap-3">
-        <Switch checked={actif} onCheckedChange={basculer} aria-label="Demander un acompte" />
+      <div
+        className={`flex items-center gap-3 ${reserve ? "opacity-60" : ""}`}
+        onClick={() => reserve && abonnement.ouvrir("HT_ACOMPTE_ABONNEMENT")}
+      >
+        <Switch
+          checked={actif}
+          onCheckedChange={basculer}
+          disabled={reserve}
+          aria-label="Demander un acompte"
+        />
         <span className="text-sm">
           {actif
             ? "Un acompte est demandé à vos clients lors de la réservation"
             : "Demander un acompte en ligne à mes clients"}
         </span>
       </div>
+      {reserve && (
+        <button
+          type="button"
+          className="text-left text-xs text-gold-foreground underline"
+          onClick={() => abonnement.ouvrir("HT_ACOMPTE_ABONNEMENT")}
+        >
+          Pourquoi cette fonctionnalité est-elle désactivée ?
+        </button>
+      )}
+
 
       {banque ? (
         <div className="space-y-1 rounded-xl bg-secondary p-4 text-sm">
