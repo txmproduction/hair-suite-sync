@@ -577,6 +577,7 @@ function DialogCreation({
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 }
 
