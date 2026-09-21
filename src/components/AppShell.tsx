@@ -107,9 +107,14 @@ export function AppShell({
         </div>
       )}
       {essai?.actif && !essai.expire && (
-        <div className="bg-gold-soft px-4 py-2 text-center text-sm font-medium text-gold-foreground">
-          Essai gratuit — J-{essai.joursRestants} jour{essai.joursRestants > 1 ? "s" : ""} restant
-          {essai.joursRestants > 1 ? "s" : ""}
+        <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 bg-gold-soft px-4 py-2 text-center text-sm font-medium text-gold-foreground">
+          <span>
+            Essai gratuit — J-{essai.joursRestants} jour{essai.joursRestants > 1 ? "s" : ""} restant
+            {essai.joursRestants > 1 ? "s" : ""}
+          </span>
+          <Link to="/abonnement" className="underline">
+            Voir ce qui est inclus dans l'abonnement complet
+          </Link>
         </div>
       )}
       <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur">
