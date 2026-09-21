@@ -36,6 +36,18 @@ import {
   revoquerAppareilFn,
   supprimerPinFn,
 } from "@/lib/pin.functions";
+import { useDialogAbonnement } from "@/components/DialogAbonnement";
+import { etatDroitsFn } from "@/lib/droits.functions";
+import { Lock } from "lucide-react";
+
+/** Droits d'abonnement du salon (limites de l'essai gratuit). */
+function useDroits() {
+  return useQuery({
+    queryKey: ["droits"],
+    queryFn: () => etatDroitsFn(),
+    staleTime: 30_000,
+  });
+}
 
 
 export const Route = createFileRoute("/_authenticated/admin")({
