@@ -212,6 +212,8 @@ function OngletEmployes() {
   const { data: employes = [] } = useEmployes(salonId, true);
   const [edition, setEdition] = useState<string | null>(null);
   const [ouvert, setOuvert] = useState(false);
+  const { data: droits } = useDroits();
+  const abonnement = useDialogAbonnement();
   const [form, setForm] = useState({
     nom: "",
     email: "",
@@ -219,6 +221,11 @@ function OngletEmployes() {
     photo_url: "",
     voit_ca_global: false,
   });
+
+  // Limite d'essai atteinte : le bouton reste visible mais ouvre la fenêtre
+  // de conversion (le refus réel est appliqué en base de données).
+  const limiteAtteinte =
+    !!droits && !droits.accesComplet && droits.employesActifs >= droits.limiteEmployes;
 
   async function ajouter(e: React.FormEvent) {
     e.preventDefault();
@@ -232,30 +239,53 @@ function OngletEmployes() {
       voit_ca_global: form.voit_ca_global,
     });
     if (error) {
-      toast.error(error.message);
+      setOuvert(false);
+      if (!abonnement.depuisErreur(error.message)) toast.error(error.message);
       return;
     }
     toast.success("Employé ajouté. Il pourra créer son compte avec cet e-mail.");
     setForm({ nom: "", email: "", telephone: "", photo_url: "", voit_ca_global: false });
     setOuvert(false);
     queryClient.invalidateQueries({ queryKey: ["employes"] });
+    queryClient.invalidateQueries({ queryKey: ["droits"] });
   }
 
   async function maj(id: string, valeurs: { nom?: string; telephone?: string; photo_url?: string; actif?: boolean; voit_ca_global?: boolean; voit_clients?: boolean }) {
     const { error } = await supabase.from("employes").update(valeurs).eq("id", id);
     if (error) {
-      toast.error(error.message);
+      if (!abonnement.depuisErreur(error.message)) toast.error(error.message);
       return;
     }
     queryClient.invalidateQueries({ queryKey: ["employes"] });
+    queryClient.invalidateQueries({ queryKey: ["droits"] });
   }
 
   return (
     <div className="space-y-4">
-      <Button onClick={() => setOuvert(true)}>
-        <Plus className="mr-2 h-4 w-4" />
-        Ajouter un employé
-      </Button>
+      {abonnement.dialog}
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          variant={limiteAtteinte ? "outline" : "default"}
+          className={limiteAtteinte ? "opacity-60" : undefined}
+          onClick={() =>
+            limiteAtteinte ? abonnement.ouvrir("HT_LIMITE_EMPLOYES") : setOuvert(true)
+          }
+        >
+          {limiteAtteinte ? (
+            <Lock className="mr-2 h-4 w-4" />
+          ) : (
+            <Plus className="mr-2 h-4 w-4" />
+          )}
+          Ajouter un employé
+        </Button>
+        {droits && !droits.accesComplet && (
+          <span className="text-xs text-muted-foreground">
+            Essai gratuit — {droits.employesActifs} / {droits.limiteEmployes} collaborateurs ·{" "}
+            {droits.rdvDuMois} / {droits.limiteRdv} rendez-vous ce mois-ci
+          </span>
+        )}
+      </div>
+
 
       <div className="card-soft divide-y divide-border">
         {employes.map((e) => (
