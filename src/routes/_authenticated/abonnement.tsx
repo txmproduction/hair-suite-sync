@@ -225,21 +225,10 @@ function PageAbonnement() {
             </div>
           </section>
         ) : (
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-semibold">
-              {essai?.expire ? "Votre essai gratuit est terminé" : "Choisissez votre formule"}
-            </h1>
-            <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">
-              Vos données sont conservées. Activez votre abonnement pour continuer à utiliser
-              HairTrack sans restriction. Sans engagement, résiliable à tout moment.
-            </p>
-            {essai?.actif && !essai.expire && (
-              <p className="mt-2 text-sm text-muted-foreground">
-                Essai gratuit en cours — {essai.joursRestants} jour
-                {essai.joursRestants > 1 ? "s" : ""} restant{essai.joursRestants > 1 ? "s" : ""}.
-              </p>
-            )}
-          </div>
+          <p className="mb-8 text-center text-sm text-muted-foreground">
+            Vos données sont conservées, rien n'est supprimé. Choisissez la formule qui vous
+            convient ci-dessous.
+          </p>
         )}
 
         {(!actif || !planActuel) && (
