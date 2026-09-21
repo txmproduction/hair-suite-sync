@@ -1073,6 +1073,9 @@ function SectionAcompte() {
   const queryClient = useQueryClient();
   const salonId = ctx?.salon?.id;
   const actif = !!ctx?.parametres?.acompte_actif;
+  const { data: droits } = useDroits();
+  const abonnement = useDialogAbonnement();
+  const reserve = !!droits && !droits.accesComplet;
 
   const { data: banque } = useQuery({
     queryKey: ["coordonnees-bancaires", salonId],
