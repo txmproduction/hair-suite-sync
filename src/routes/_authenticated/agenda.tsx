@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useDialogAbonnement } from "@/components/DialogAbonnement";
 
 export const Route = createFileRoute("/_authenticated/agenda")({
   component: Agenda,
@@ -403,6 +404,7 @@ function DialogCreation({
     ).padStart(2, "0")}`,
   );
   const [enCours, setEnCours] = useState(false);
+  const abonnement = useDialogAbonnement();
 
   const resultats = recherche.trim()
     ? clients
@@ -450,13 +452,17 @@ function DialogCreation({
       toast.success("Rendez-vous créé");
       onClose();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Erreur");
+      if (!abonnement.depuisErreur(error)) {
+        toast.error(error instanceof Error ? error.message : "Erreur");
+      }
     } finally {
       setEnCours(false);
     }
   }
 
   return (
+    <>
+    {abonnement.dialog}
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -572,6 +578,7 @@ function DialogCreation({
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 }
 

@@ -36,6 +36,18 @@ import {
   revoquerAppareilFn,
   supprimerPinFn,
 } from "@/lib/pin.functions";
+import { useDialogAbonnement } from "@/components/DialogAbonnement";
+import { etatDroitsFn } from "@/lib/droits.functions";
+import { Lock } from "lucide-react";
+
+/** Droits d'abonnement du salon (limites de l'essai gratuit). */
+function useDroits() {
+  return useQuery({
+    queryKey: ["droits"],
+    queryFn: () => etatDroitsFn(),
+    staleTime: 30_000,
+  });
+}
 
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -200,6 +212,8 @@ function OngletEmployes() {
   const { data: employes = [] } = useEmployes(salonId, true);
   const [edition, setEdition] = useState<string | null>(null);
   const [ouvert, setOuvert] = useState(false);
+  const { data: droits } = useDroits();
+  const abonnement = useDialogAbonnement();
   const [form, setForm] = useState({
     nom: "",
     email: "",
@@ -207,6 +221,11 @@ function OngletEmployes() {
     photo_url: "",
     voit_ca_global: false,
   });
+
+  // Limite d'essai atteinte : le bouton reste visible mais ouvre la fenêtre
+  // de conversion (le refus réel est appliqué en base de données).
+  const limiteAtteinte =
+    !!droits && !droits.accesComplet && droits.employesActifs >= droits.limiteEmployes;
 
   async function ajouter(e: React.FormEvent) {
     e.preventDefault();
@@ -220,30 +239,53 @@ function OngletEmployes() {
       voit_ca_global: form.voit_ca_global,
     });
     if (error) {
-      toast.error(error.message);
+      setOuvert(false);
+      if (!abonnement.depuisErreur(error.message)) toast.error(error.message);
       return;
     }
     toast.success("Employé ajouté. Il pourra créer son compte avec cet e-mail.");
     setForm({ nom: "", email: "", telephone: "", photo_url: "", voit_ca_global: false });
     setOuvert(false);
     queryClient.invalidateQueries({ queryKey: ["employes"] });
+    queryClient.invalidateQueries({ queryKey: ["droits"] });
   }
 
   async function maj(id: string, valeurs: { nom?: string; telephone?: string; photo_url?: string; actif?: boolean; voit_ca_global?: boolean; voit_clients?: boolean }) {
     const { error } = await supabase.from("employes").update(valeurs).eq("id", id);
     if (error) {
-      toast.error(error.message);
+      if (!abonnement.depuisErreur(error.message)) toast.error(error.message);
       return;
     }
     queryClient.invalidateQueries({ queryKey: ["employes"] });
+    queryClient.invalidateQueries({ queryKey: ["droits"] });
   }
 
   return (
     <div className="space-y-4">
-      <Button onClick={() => setOuvert(true)}>
-        <Plus className="mr-2 h-4 w-4" />
-        Ajouter un employé
-      </Button>
+      {abonnement.dialog}
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          variant={limiteAtteinte ? "outline" : "default"}
+          className={limiteAtteinte ? "opacity-60" : undefined}
+          onClick={() =>
+            limiteAtteinte ? abonnement.ouvrir("HT_LIMITE_EMPLOYES") : setOuvert(true)
+          }
+        >
+          {limiteAtteinte ? (
+            <Lock className="mr-2 h-4 w-4" />
+          ) : (
+            <Plus className="mr-2 h-4 w-4" />
+          )}
+          Ajouter un employé
+        </Button>
+        {droits && !droits.accesComplet && (
+          <span className="text-xs text-muted-foreground">
+            Essai gratuit — {droits.employesActifs} / {droits.limiteEmployes} collaborateurs ·{" "}
+            {droits.rdvDuMois} / {droits.limiteRdv} rendez-vous ce mois-ci
+          </span>
+        )}
+      </div>
+
 
       <div className="card-soft divide-y divide-border">
         {employes.map((e) => (
@@ -1031,6 +1073,9 @@ function SectionAcompte() {
   const queryClient = useQueryClient();
   const salonId = ctx?.salon?.id;
   const actif = !!ctx?.parametres?.acompte_actif;
+  const { data: droits } = useDroits();
+  const abonnement = useDialogAbonnement();
+  const reserve = !!droits && !droits.accesComplet;
 
   const { data: banque } = useQuery({
     queryKey: ["coordonnees-bancaires", salonId],
@@ -1067,7 +1112,7 @@ function SectionAcompte() {
       .from("parametres_salon")
       .upsert({ salon_id: salonId, acompte_actif: v });
     if (error) {
-      toast.error(error.message);
+      if (!abonnement.depuisErreur(error.message)) toast.error(error.message);
       return;
     }
     await queryClient.invalidateQueries();
@@ -1079,6 +1124,11 @@ function SectionAcompte() {
   function basculer(v: boolean) {
     if (!v) {
       void definirActif(false);
+      return;
+    }
+    // Acompte réservé à l'abonnement complet (refus également appliqué en base).
+    if (droits && !droits.accesComplet) {
+      abonnement.ouvrir("HT_ACOMPTE_ABONNEMENT");
       return;
     }
     // On exige des coordonnées bancaires valides avant toute activation.
@@ -1121,16 +1171,42 @@ function SectionAcompte() {
 
   return (
     <div className="card-soft space-y-4 p-5">
-      <h2 className="font-semibold">Acompte en ligne</h2>
+      {abonnement.dialog}
+      <h2 className="flex items-center gap-2 font-semibold">
+        Acompte en ligne
+        {reserve && (
+          <span className="flex items-center gap-1 rounded-full bg-gold-soft px-2 py-0.5 text-xs font-medium text-gold-foreground">
+            <Lock className="h-3 w-3" /> Abonnement complet
+          </span>
+        )}
+      </h2>
 
-      <div className="flex items-center gap-3">
-        <Switch checked={actif} onCheckedChange={basculer} aria-label="Demander un acompte" />
+      <div
+        className={`flex items-center gap-3 ${reserve ? "opacity-60" : ""}`}
+        onClick={() => reserve && abonnement.ouvrir("HT_ACOMPTE_ABONNEMENT")}
+      >
+        <Switch
+          checked={actif}
+          onCheckedChange={basculer}
+          disabled={reserve}
+          aria-label="Demander un acompte"
+        />
         <span className="text-sm">
           {actif
             ? "Un acompte est demandé à vos clients lors de la réservation"
             : "Demander un acompte en ligne à mes clients"}
         </span>
       </div>
+      {reserve && (
+        <button
+          type="button"
+          className="text-left text-xs text-gold-foreground underline"
+          onClick={() => abonnement.ouvrir("HT_ACOMPTE_ABONNEMENT")}
+        >
+          Pourquoi cette fonctionnalité est-elle désactivée ?
+        </button>
+      )}
+
 
       {banque ? (
         <div className="space-y-1 rounded-xl bg-secondary p-4 text-sm">

@@ -13,6 +13,20 @@ import {
 } from "@/lib/abonnement.functions";
 import { getStripeEnvironment, paiementConfigure } from "@/lib/stripe";
 import { useEtatEssai } from "@/components/AppShell";
+import { COMPARATIF } from "@/lib/droits";
+import { X } from "lucide-react";
+
+/** Cellule du comparatif : coche, croix ou valeur textuelle. */
+function Valeur({ valeur, accent }: { valeur: string | boolean; accent?: boolean }) {
+  if (valeur === true)
+    return (
+      <Check
+        className={`mx-auto h-4 w-4 ${accent ? "text-gold-foreground" : "text-foreground"}`}
+      />
+    );
+  if (valeur === false) return <X className="mx-auto h-4 w-4 text-muted-foreground" />;
+  return <span>{valeur}</span>;
+}
 
 export const Route = createFileRoute("/_authenticated/abonnement")({
   head: () => ({
@@ -107,6 +121,63 @@ function PageAbonnement() {
           </div>
         )}
 
+        {!actif && (
+          <section className="card-soft mb-6 p-6 ring-1 ring-[hsl(var(--gold))]">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-semibold">
+                  {essai?.expire
+                    ? "Votre essai gratuit est terminé"
+                    : "Passez à l'abonnement complet"}
+                </h1>
+                <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+                  Collaborateurs illimités, rendez-vous illimités et acompte en ligne à la
+                  réservation. À partir de {prixLisible(PLANS[0]!.prixCentimes)}/mois, sans
+                  engagement.
+                  {essai?.actif && !essai.expire
+                    ? ` Essai gratuit en cours : ${essai.joursRestants} jour${
+                        essai.joursRestants > 1 ? "s" : ""
+                      } restant${essai.joursRestants > 1 ? "s" : ""}.`
+                    : ""}
+                </p>
+              </div>
+              <Button
+                size="lg"
+                onClick={() => souscrire("premium")}
+                disabled={enCours !== null || abo?.gerant === false}
+              >
+                {enCours === "premium" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Passer à l'abonnement complet
+              </Button>
+            </div>
+
+            <div className="mt-6 overflow-hidden rounded-xl border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-secondary text-left">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Fonctionnalité</th>
+                    <th className="px-4 py-3 text-center font-medium">Essai gratuit</th>
+                    <th className="px-4 py-3 text-center font-medium">Abonnement complet</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {COMPARATIF.map((ligne) => (
+                    <tr key={ligne.libelle} className="border-t border-border">
+                      <td className="px-4 py-3">{ligne.libelle}</td>
+                      <td className="px-4 py-3 text-center">
+                        <Valeur valeur={ligne.essai} />
+                      </td>
+                      <td className="px-4 py-3 text-center font-medium">
+                        <Valeur valeur={ligne.complet} accent />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
         {isLoading ? (
           <p className="text-sm text-muted-foreground">Chargement…</p>
         ) : actif && planActuel ? (
@@ -154,21 +225,10 @@ function PageAbonnement() {
             </div>
           </section>
         ) : (
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-semibold">
-              {essai?.expire ? "Votre essai gratuit est terminé" : "Choisissez votre formule"}
-            </h1>
-            <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">
-              Vos données sont conservées. Activez votre abonnement pour continuer à utiliser
-              HairTrack sans restriction. Sans engagement, résiliable à tout moment.
-            </p>
-            {essai?.actif && !essai.expire && (
-              <p className="mt-2 text-sm text-muted-foreground">
-                Essai gratuit en cours — {essai.joursRestants} jour
-                {essai.joursRestants > 1 ? "s" : ""} restant{essai.joursRestants > 1 ? "s" : ""}.
-              </p>
-            )}
-          </div>
+          <p className="mb-8 text-center text-sm text-muted-foreground">
+            Vos données sont conservées, rien n'est supprimé. Choisissez la formule qui vous
+            convient ci-dessous.
+          </p>
         )}
 
         {(!actif || !planActuel) && (
