@@ -1109,7 +1109,7 @@ function SectionAcompte() {
       .from("parametres_salon")
       .upsert({ salon_id: salonId, acompte_actif: v });
     if (error) {
-      toast.error(error.message);
+      if (!abonnement.depuisErreur(error.message)) toast.error(error.message);
       return;
     }
     await queryClient.invalidateQueries();
@@ -1121,6 +1121,11 @@ function SectionAcompte() {
   function basculer(v: boolean) {
     if (!v) {
       void definirActif(false);
+      return;
+    }
+    // Acompte réservé à l'abonnement complet (refus également appliqué en base).
+    if (droits && !droits.accesComplet) {
+      abonnement.ouvrir("HT_ACOMPTE_ABONNEMENT");
       return;
     }
     // On exige des coordonnées bancaires valides avant toute activation.
