@@ -25,6 +25,17 @@ import { BlocBlog } from "@/components/superadmin/BlocBlog";
 
 
 export const Route = createFileRoute("/_authenticated/super-admin")({
+  head: () => ({
+    meta: [
+      { title: "Super-administration — HairTrack" },
+      { name: "description", content: "Gestion des salons et abonnements HairTrack." },
+      { property: "og:title", content: "Super-administration — HairTrack" },
+      { property: "og:description", content: "Gestion des salons et abonnements HairTrack." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: SuperAdminPage,
 });
 
@@ -116,7 +127,8 @@ function SuperAdminPage() {
     queryKey: ["clients-abonnes"],
     enabled: autorise,
     queryFn: () => clientsAbonnesFn(),
-    refetchInterval: 15_000,
+    refetchInterval: 60_000,
+    staleTime: 60_000,
   });
 
   const { data: etatPhotos } = useQuery({
@@ -295,7 +307,7 @@ function SuperAdminPage() {
       <section className="card-soft mt-5 p-5">
         <h2 className="text-lg font-semibold">Clients abonnés ({abonnes?.length ?? 0})</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Vue en direct (actualisée toutes les 15 secondes). Les données d'un salon ne sont jamais
+          Vue en direct (actualisée toutes les 60 secondes). Les données d'un salon ne sont jamais
           supprimées, même en cas de suspension.
         </p>
         <div className="mt-4 overflow-x-auto">
