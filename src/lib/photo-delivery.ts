@@ -16,9 +16,8 @@ export function createPhotoDelivery(sign: SignPhoto, now = Date.now) {
       return new Response("Introuvable", { status: 404, headers: { "Cache-Control": "no-store" } });
     }
 
-    let url = links.get(path)?.until && (links.get(path)?.until ?? 0) > now()
-      ? links.get(path)?.url
-      : undefined;
+    const cached = links.get(path);
+    let url = cached && cached.until > now() ? cached.url : undefined;
     if (!url) {
       let signing = pending.get(path);
       if (!signing) {
