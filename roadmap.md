@@ -11,3 +11,9 @@
 - [x] Vérifications (base + parcours navigateur) : PIN, restrictions, blocage 5 essais, tentatives d'API directes
 
 Abandonné sur demande : réglage « voit_prestations » (prestations actives toujours visibles).
+
+# Réduction Run — photos privées et super-admin
+
+- [x] Passer l'actualisation des abonnés à 60 secondes.
+- [x] Remplacer le transfert des photos par des liens signés réutilisés, sans changer la base ni rendre le stockage public.
+- [x] Vérifier les photos, les restrictions de chemin et les tests de cache ; rapporter les limites des économies estimées.

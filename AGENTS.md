@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Deliver private salon photos through stable public routes redirecting to expiring storage links, with bounded per-instance reuse; this avoids routing image bytes through the application without changing stored URLs or bucket privacy.
